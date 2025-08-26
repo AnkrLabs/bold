@@ -608,7 +608,6 @@ export type InterestBatch = {
   debt: Scalars['BigInt']['output'];
   id: Scalars['ID']['output'];
   troves: Array<Trove>;
-  updatedAt: Scalars['BigInt']['output'];
 };
 
 
@@ -697,14 +696,6 @@ export type InterestBatch_Filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
   or?: InputMaybe<Array<InputMaybe<InterestBatch_Filter>>>;
   troves_?: InputMaybe<Trove_Filter>;
-  updatedAt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  updatedAt_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_not?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
 export enum InterestBatch_OrderBy {
@@ -718,19 +709,15 @@ export enum InterestBatch_OrderBy {
   CollateralMinCollRatio = 'collateral__minCollRatio',
   Debt = 'debt',
   Id = 'id',
-  Troves = 'troves',
-  UpdatedAt = 'updatedAt'
+  Troves = 'troves'
 }
 
 export type InterestRateBracket = {
   __typename?: 'InterestRateBracket';
   collateral: Collateral;
   id: Scalars['ID']['output'];
-  pendingDebtTimesOneYearD36: Scalars['BigInt']['output'];
   rate: Scalars['BigInt']['output'];
-  sumDebtTimesRateD36: Scalars['BigInt']['output'];
   totalDebt: Scalars['BigInt']['output'];
-  updatedAt: Scalars['BigInt']['output'];
 };
 
 export type InterestRateBracket_Filter = {
@@ -767,14 +754,6 @@ export type InterestRateBracket_Filter = {
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
   or?: InputMaybe<Array<InputMaybe<InterestRateBracket_Filter>>>;
-  pendingDebtTimesOneYearD36?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  pendingDebtTimesOneYearD36_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_not?: InputMaybe<Scalars['BigInt']['input']>;
-  pendingDebtTimesOneYearD36_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   rate?: InputMaybe<Scalars['BigInt']['input']>;
   rate_gt?: InputMaybe<Scalars['BigInt']['input']>;
   rate_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -783,14 +762,6 @@ export type InterestRateBracket_Filter = {
   rate_lte?: InputMaybe<Scalars['BigInt']['input']>;
   rate_not?: InputMaybe<Scalars['BigInt']['input']>;
   rate_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  sumDebtTimesRateD36?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  sumDebtTimesRateD36_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_not?: InputMaybe<Scalars['BigInt']['input']>;
-  sumDebtTimesRateD36_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   totalDebt?: InputMaybe<Scalars['BigInt']['input']>;
   totalDebt_gt?: InputMaybe<Scalars['BigInt']['input']>;
   totalDebt_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -799,14 +770,6 @@ export type InterestRateBracket_Filter = {
   totalDebt_lte?: InputMaybe<Scalars['BigInt']['input']>;
   totalDebt_not?: InputMaybe<Scalars['BigInt']['input']>;
   totalDebt_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  updatedAt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  updatedAt_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_not?: InputMaybe<Scalars['BigInt']['input']>;
-  updatedAt_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
 export enum InterestRateBracket_OrderBy {
@@ -815,11 +778,8 @@ export enum InterestRateBracket_OrderBy {
   CollateralId = 'collateral__id',
   CollateralMinCollRatio = 'collateral__minCollRatio',
   Id = 'id',
-  PendingDebtTimesOneYearD36 = 'pendingDebtTimesOneYearD36',
   Rate = 'rate',
-  SumDebtTimesRateD36 = 'sumDebtTimesRateD36',
-  TotalDebt = 'totalDebt',
-  UpdatedAt = 'updatedAt'
+  TotalDebt = 'totalDebt'
 }
 
 /** Defines the order direction, either ascending or descending */
@@ -1030,6 +990,217 @@ export type QueryTroveArgs = {
 
 
 export type QueryTrovesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Trove_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Trove_Filter>;
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+  borrowerInfo?: Maybe<BorrowerInfo>;
+  borrowerInfos: Array<BorrowerInfo>;
+  collateral?: Maybe<Collateral>;
+  collateralAddresses?: Maybe<CollateralAddresses>;
+  collateralAddresses_collection: Array<CollateralAddresses>;
+  collaterals: Array<Collateral>;
+  governanceAllocation?: Maybe<GovernanceAllocation>;
+  governanceAllocationIndex?: Maybe<GovernanceAllocationIndex>;
+  governanceAllocationIndexes: Array<GovernanceAllocationIndex>;
+  governanceAllocations: Array<GovernanceAllocation>;
+  governanceInitiative?: Maybe<GovernanceInitiative>;
+  governanceInitiatives: Array<GovernanceInitiative>;
+  governanceVotingPower?: Maybe<GovernanceVotingPower>;
+  governanceVotingPowers: Array<GovernanceVotingPower>;
+  interestBatch?: Maybe<InterestBatch>;
+  interestBatches: Array<InterestBatch>;
+  interestRateBracket?: Maybe<InterestRateBracket>;
+  interestRateBrackets: Array<InterestRateBracket>;
+  trove?: Maybe<Trove>;
+  troves: Array<Trove>;
+};
+
+
+export type Subscription_MetaArgs = {
+  block?: InputMaybe<Block_Height>;
+};
+
+
+export type SubscriptionBorrowerInfoArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionBorrowerInfosArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<BorrowerInfo_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<BorrowerInfo_Filter>;
+};
+
+
+export type SubscriptionCollateralArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionCollateralAddressesArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionCollateralAddresses_CollectionArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<CollateralAddresses_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<CollateralAddresses_Filter>;
+};
+
+
+export type SubscriptionCollateralsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Collateral_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Collateral_Filter>;
+};
+
+
+export type SubscriptionGovernanceAllocationArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionGovernanceAllocationIndexArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionGovernanceAllocationIndexesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<GovernanceAllocationIndex_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<GovernanceAllocationIndex_Filter>;
+};
+
+
+export type SubscriptionGovernanceAllocationsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<GovernanceAllocation_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<GovernanceAllocation_Filter>;
+};
+
+
+export type SubscriptionGovernanceInitiativeArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionGovernanceInitiativesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<GovernanceInitiative_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<GovernanceInitiative_Filter>;
+};
+
+
+export type SubscriptionGovernanceVotingPowerArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionGovernanceVotingPowersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<GovernanceVotingPower_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<GovernanceVotingPower_Filter>;
+};
+
+
+export type SubscriptionInterestBatchArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionInterestBatchesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<InterestBatch_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<InterestBatch_Filter>;
+};
+
+
+export type SubscriptionInterestRateBracketArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionInterestRateBracketsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<InterestRateBracket_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<InterestRateBracket_Filter>;
+};
+
+
+export type SubscriptionTroveArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionTrovesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<Trove_OrderBy>;
@@ -1280,7 +1451,6 @@ export enum Trove_OrderBy {
   InterestBatchColl = 'interestBatch__coll',
   InterestBatchDebt = 'interestBatch__debt',
   InterestBatchId = 'interestBatch__id',
-  InterestBatchUpdatedAt = 'interestBatch__updatedAt',
   InterestRate = 'interestRate',
   LastUserActionAt = 'lastUserActionAt',
   MightBeLeveraged = 'mightBeLeveraged',

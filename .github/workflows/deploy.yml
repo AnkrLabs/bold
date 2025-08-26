@@ -1,0 +1,61 @@
+name: Deploy
+run-name: Deploy of ${{ github.ref_name }} to ${{github.event.inputs.domain}}
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        type: choice
+        description: Target
+        required: true
+        options:
+          - BS3 # https://bs3.33ae0f5b-2ff7-4848.net
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{github.event.inputs.domain}}-deploy
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - run: pnpm install
+
+      - name: Build
+        working-directory: ./frontend/app
+        run: |
+          cp .env .env.local
+          yarn build
+
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Copy files to the production website with the AWS CLI
+        working-directory: ./frontend/app
+        env:
+          DOMAIN: ${{ vars[format('{0}{1}', github.event.inputs.domain, '_DOMAIN')] }}
+          DISTRIBUTION_ID: ${{ vars[format('{0}{1}', github.event.inputs.domain, '_DISTRIBUTION_ID')] }}
+        run: |
+          aws s3 sync --delete ./out s3://$DOMAIN/ --acl public-read --cache-control "public,max-age=600,s-maxage=3600"
+          aws configure set preview.cloudfront true
+          echo "Invalidating CDN network"
+          INVALIDATION_ID=`aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*' | jq -r '.Invalidation.Id'`
+          echo "Invalidation ID is $INVALIDATION_ID"
+          echo "CDN Invalidation request is sent."
+          echo "Deployed to https://$DOMAIN"
