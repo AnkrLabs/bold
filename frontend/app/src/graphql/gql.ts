@@ -21,9 +21,6 @@ type Documents = {
     "\n  query TroveById($id: ID!) {\n    trove(id: $id) {\n      id\n      borrower\n      closedAt\n      createdAt\n      lastUserActionAt\n      mightBeLeveraged\n      previousOwner\n      status\n      debt\n      redemptionCount\n      redeemedColl\n      redeemedDebt\n    }\n  }\n": typeof types.TroveByIdDocument,
     "\n  query InterestBatches($ids: [ID!]!) {\n    interestBatches(where: { id_in: $ids }) {\n      collateral {\n        collIndex\n      }\n      batchManager\n      debt\n      coll\n      annualInterestRate\n      annualManagementFee\n    }\n  }\n": typeof types.InterestBatchesDocument,
     "\n  query AllInterestRateBrackets {\n    interestRateBrackets(\n      first: 1000\n      where: { totalDebt_gt: 0 }\n      orderBy: rate\n    ) {\n      collateral {\n        collIndex\n      }\n      rate\n      totalDebt\n    }\n  }\n": typeof types.AllInterestRateBracketsDocument,
-    "\n  query GovernanceGlobalData {\n    governanceInitiatives {\n      id\n    }\n\n    governanceVotingPower(id: \"total\") {\n      allocatedLQTY\n      allocatedOffset\n      unallocatedLQTY\n      unallocatedOffset\n    }\n  }\n": typeof types.GovernanceGlobalDataDocument,
-    "\n  query UserAllocationHistory($user: String) {\n    governanceAllocations(\n      where: { user: $user }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      initiative { id }\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n": typeof types.UserAllocationHistoryDocument,
-    "\n  query TotalAllocationHistory($initiative: String) {\n    governanceAllocations(\n      where: { initiative: $initiative, user: null }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n": typeof types.TotalAllocationHistoryDocument,
 };
 const documents: Documents = {
     "\n  query BlockNumber {\n    _meta {\n      block {\n        number\n      }\n    }\n  }\n": types.BlockNumberDocument,
@@ -32,9 +29,6 @@ const documents: Documents = {
     "\n  query TroveById($id: ID!) {\n    trove(id: $id) {\n      id\n      borrower\n      closedAt\n      createdAt\n      lastUserActionAt\n      mightBeLeveraged\n      previousOwner\n      status\n      debt\n      redemptionCount\n      redeemedColl\n      redeemedDebt\n    }\n  }\n": types.TroveByIdDocument,
     "\n  query InterestBatches($ids: [ID!]!) {\n    interestBatches(where: { id_in: $ids }) {\n      collateral {\n        collIndex\n      }\n      batchManager\n      debt\n      coll\n      annualInterestRate\n      annualManagementFee\n    }\n  }\n": types.InterestBatchesDocument,
     "\n  query AllInterestRateBrackets {\n    interestRateBrackets(\n      first: 1000\n      where: { totalDebt_gt: 0 }\n      orderBy: rate\n    ) {\n      collateral {\n        collIndex\n      }\n      rate\n      totalDebt\n    }\n  }\n": types.AllInterestRateBracketsDocument,
-    "\n  query GovernanceGlobalData {\n    governanceInitiatives {\n      id\n    }\n\n    governanceVotingPower(id: \"total\") {\n      allocatedLQTY\n      allocatedOffset\n      unallocatedLQTY\n      unallocatedOffset\n    }\n  }\n": types.GovernanceGlobalDataDocument,
-    "\n  query UserAllocationHistory($user: String) {\n    governanceAllocations(\n      where: { user: $user }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      initiative { id }\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n": types.UserAllocationHistoryDocument,
-    "\n  query TotalAllocationHistory($initiative: String) {\n    governanceAllocations(\n      where: { initiative: $initiative, user: null }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n": types.TotalAllocationHistoryDocument,
 };
 
 /**
@@ -61,18 +55,6 @@ export function graphql(source: "\n  query InterestBatches($ids: [ID!]!) {\n    
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query AllInterestRateBrackets {\n    interestRateBrackets(\n      first: 1000\n      where: { totalDebt_gt: 0 }\n      orderBy: rate\n    ) {\n      collateral {\n        collIndex\n      }\n      rate\n      totalDebt\n    }\n  }\n"): typeof import('./graphql').AllInterestRateBracketsDocument;
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query GovernanceGlobalData {\n    governanceInitiatives {\n      id\n    }\n\n    governanceVotingPower(id: \"total\") {\n      allocatedLQTY\n      allocatedOffset\n      unallocatedLQTY\n      unallocatedOffset\n    }\n  }\n"): typeof import('./graphql').GovernanceGlobalDataDocument;
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query UserAllocationHistory($user: String) {\n    governanceAllocations(\n      where: { user: $user }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      initiative { id }\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n"): typeof import('./graphql').UserAllocationHistoryDocument;
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query TotalAllocationHistory($initiative: String) {\n    governanceAllocations(\n      where: { initiative: $initiative, user: null }\n      orderBy: epoch\n      orderDirection: desc\n      first: 1000\n    ) {\n      epoch\n      voteLQTY\n      vetoLQTY\n      voteOffset\n      vetoOffset\n    }\n  }\n"): typeof import('./graphql').TotalAllocationHistoryDocument;
 
 
 export function graphql(source: string) {
