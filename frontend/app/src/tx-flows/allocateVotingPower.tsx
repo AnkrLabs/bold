@@ -5,7 +5,7 @@ import { AddressLink } from "@/src/comps/AddressLink/AddressLink";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { GAS_ALLOCATE_LQTY_MIN_HEADROOM } from "@/src/constants";
 import { getUserAllocatedInitiatives } from "@/src/liquity-governance";
-import { getUserStates, useGovernanceUser, useNamedInitiatives } from "@/src/liquity-governance";
+import { getUserStates } from "@/src/liquity-governance";
 import { TransactionDetailsRow } from "@/src/screens/TransactionsScreen/TransactionsScreen";
 import { TransactionStatus } from "@/src/screens/TransactionsScreen/TransactionStatus";
 import { vVoteAllocations } from "@/src/valibot-utils";
@@ -28,8 +28,8 @@ export const allocateVotingPower: FlowDeclaration<AllocateVotingPowerRequest> = 
   title: "Review & Send Transaction",
 
   Summary({ request, account }) {
-    const governanceUser = useGovernanceUser(account);
-    const stakedLqty: Dnum = [governanceUser.data?.stakedLQTY ?? 0n, 18];
+    account;
+    const stakedLqty: Dnum = [0n, 18];
 
     let totalLqtyAllocation: Dnum = [0n, 18];
     for (const vote of Object.values(request.voteAllocations)) {
@@ -150,9 +150,8 @@ export const allocateVotingPower: FlowDeclaration<AllocateVotingPowerRequest> = 
   },
 
   Details({ request, account }) {
-    const initiatives = useNamedInitiatives();
-    const governanceUser = useGovernanceUser(account);
-    const stakedLQTY = governanceUser.data?.stakedLQTY ?? 0n;
+    account;
+    const stakedLQTY = 0n;
     const allocations = Object.entries(request.voteAllocations);
     if (allocations.length === 0) {
       return (
@@ -165,7 +164,7 @@ export const allocateVotingPower: FlowDeclaration<AllocateVotingPowerRequest> = 
       );
     }
     return allocations.map(([address, vote]) => {
-      const initiative = initiatives.data?.find((i) => i.address === address);
+      const initiative = false;
       return !initiative || !vote ? null : (
         <VoteAllocation
           key={address}

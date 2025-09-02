@@ -8,7 +8,7 @@ import { StakePositionSummary } from "@/src/comps/StakePositionSummary/StakePosi
 import content from "@/src/content";
 import { CHAIN_ID } from "@/src/env";
 import { fmtnum } from "@/src/formatting";
-import { useBribingClaim, useNamedInitiatives } from "@/src/liquity-governance";
+import { useBribingClaim } from "@/src/liquity-governance";
 import { useStakePosition } from "@/src/liquity-utils";
 import type { Address, Initiative } from "@/src/types";
 import { tokenIconUrl } from "@/src/utils";
@@ -34,7 +34,7 @@ export function StakeScreen() {
   const account = useAccount();
   const stakePosition = useStakePosition(account.address ?? null);
   const bribingClaim = useBribingClaim(account.address ?? null);
-  const initiatives = useNamedInitiatives();
+  const initiatives: Initiative[] = [];
 
   return (
     <Screen
@@ -77,7 +77,7 @@ export function StakeScreen() {
         >
           <BribesInfoBox
             bribingClaim={bribingClaim.data}
-            initiatives={initiatives.data ?? []}
+            initiatives={initiatives}
           />
         </div>
       )}

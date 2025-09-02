@@ -8,7 +8,7 @@ import { TagPreview } from "@/src/comps/TagPreview/TagPreview";
 import content from "@/src/content";
 import { dnum18 } from "@/src/dnum-utils";
 import { fmtnum } from "@/src/formatting";
-import { useGovernanceStats, useGovernanceUser, useVotingPower } from "@/src/liquity-governance";
+import { useVotingPower } from "@/src/liquity-governance";
 import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
 import { HFlex, IconStake, InfoTooltip, TokenIcon } from "@liquity2/uikit";
@@ -29,12 +29,9 @@ export function StakePositionSummary({
 }) {
   const account = useAccount();
 
-  const govStats = useGovernanceStats();
-  const govUser = useGovernanceUser(stakePosition?.owner ?? null);
-
-  const stakedLqty = dnum18(govUser.data?.stakedLQTY);
-  const allocatedLqty = dnum18(govUser.data?.allocatedLQTY);
-  const totalStakedLqty = dnum18(govStats.data?.totalLQTYStaked);
+  const stakedLqty = dnum18(0n);
+  const allocatedLqty = dnum18(0n);
+  const totalStakedLqty = dnum18(0n);
 
   const stakedShare = stakedLqty && totalStakedLqty && dn.gt(totalStakedLqty, 0)
     ? dn.div(stakedLqty, totalStakedLqty)
@@ -42,7 +39,7 @@ export function StakePositionSummary({
 
   const appear = useAppear(
     !account.isConnected || (
-      loadingState === "success" && govUser.status === "success"
+      loadingState === "success"
     ),
   );
 
@@ -424,7 +421,7 @@ export function StakePositionSummary({
                               <p>
                                 {content.stakeScreen.infoTooltips.votingPower}
                               </p>
-                              {account.address && (govUser.data?.stakedLQTY ?? 0n) > 0n && (
+                              {account.address && (0n) > 0n && (
                                 <div
                                   className={css({
                                     display: "flex",
