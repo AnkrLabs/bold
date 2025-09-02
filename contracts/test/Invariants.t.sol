@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {BatchId} from "src/Types/BatchId.sol";
@@ -104,7 +104,7 @@ contract InvariantsTest is Assertions, Logging, BaseInvariantTest, BaseMultiColl
             assertEqDecimal(weth.balanceOf(actor), 0, 18, "Incomplete WETH sweep");
 
             for (uint256 j = 0; j < branches.length; ++j) {
-                IERC20 collToken = branches[j].collToken;
+                IERC20Upgradeable collToken = branches[j].collToken;
                 address borrowerOperations = address(branches[j].borrowerOperations);
 
                 assertEqDecimal(weth.allowance(actor, borrowerOperations), 0, 18, "WETH allowance != 0");

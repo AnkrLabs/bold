@@ -77,6 +77,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         uint256 _liquidationPenaltySP,
         uint256 _liquidationPenaltyRedistribution
     ) external initializer {
+        __Ownable2Step_init();
         _transferOwnership(_owner);
         if (_ccr <= 1e18 || _ccr >= 2e18) revert InvalidCCR();
         if (_mcr <= 1e18 || _mcr >= 2e18) revert InvalidMCR();

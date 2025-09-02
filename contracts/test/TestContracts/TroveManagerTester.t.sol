@@ -16,7 +16,7 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
     // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
     uint256 public immutable BCR;
 
-    constructor(IAddressesRegistry _addressesRegistry) TroveManager(_addressesRegistry) {
+    constructor(IAddressesRegistry _addressesRegistry) {
         BCR = _addressesRegistry.BCR();
     }
 

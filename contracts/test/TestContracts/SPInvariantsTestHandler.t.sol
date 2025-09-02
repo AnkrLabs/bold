@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import {IBorrowerOperations} from "src/Interfaces/IBorrowerOperations.sol";
 import {IBoldToken} from "src/Interfaces/IBoldToken.sol";
 import {IStabilityPool} from "src/Interfaces/IStabilityPool.sol";
@@ -43,7 +43,7 @@ contract SPInvariantsTestHandler is BaseHandler, TroveId {
     struct Contracts {
         IBoldToken boldToken;
         IBorrowerOperations borrowerOperations;
-        IERC20 collateralToken;
+        IERC20Upgradeable collateralToken;
         IPriceFeedTestnet priceFeed;
         IStabilityPool stabilityPool;
         ITroveManagerTester troveManager;
@@ -52,7 +52,7 @@ contract SPInvariantsTestHandler is BaseHandler, TroveId {
 
     IBoldToken immutable boldToken;
     IBorrowerOperations immutable borrowerOperations;
-    IERC20 collateralToken;
+    IERC20Upgradeable collateralToken;
     IPriceFeedTestnet immutable priceFeed;
     IStabilityPool immutable stabilityPool;
     ITroveManagerTester immutable troveManager;

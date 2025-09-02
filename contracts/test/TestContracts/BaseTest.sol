@@ -52,7 +52,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
     IPriceFeedTestnet priceFeed;
     GasPool gasPool;
     IInterestRouter mockInterestRouter;
-    IERC20 collToken;
+    IERC20Upgradeable collToken;
     HintHelpers hintHelpers;
     IWETH WETH; // used for gas compensation
     WETHZapper wethZapper;

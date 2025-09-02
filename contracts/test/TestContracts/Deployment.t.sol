@@ -52,7 +52,7 @@ uint256 constant _48_HOURS = 172800;
 
 // TODO: Split dev and mainnet
 contract TestDeployer is MetadataDeployment {
-    IERC20 constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
     IWETH constant WETH_MAINNET = IWETH(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
     // Curve
@@ -71,7 +71,10 @@ contract TestDeployer is MetadataDeployment {
     uint24 constant UNIV3_FEE_USDC_WETH = 500; // 0.05%
     uint24 constant UNIV3_FEE_WETH_COLL = 100; // 0.01%
 
-    bytes32 constant SALT = keccak256("LiquityV2");
+    bytes32 SALT = keccak256("LiquityV2");
+    mapping(address => bytes32) iterators;
+    uint256 tmITER = 0;
+    uint256 bITER = 0;
 
     struct LiquityContractsDevPools {
         IDefaultPool defaultPool;
@@ -89,7 +92,7 @@ contract TestDeployer is MetadataDeployment {
         ITroveNFT troveNFT;
         IPriceFeedTestnet priceFeed; // Tester
         IInterestRouter interestRouter;
-        IERC20Metadata collToken;
+        IERC20MetadataUpgradeable collToken;
         LiquityContractsDevPools pools;
     }
 
@@ -106,7 +109,7 @@ contract TestDeployer is MetadataDeployment {
         IPriceFeed priceFeed;
         GasPool gasPool;
         IInterestRouter interestRouter;
-        IERC20Metadata collToken;
+        IERC20MetadataUpgradeable collToken;
     }
 
     struct Zappers {
@@ -143,7 +146,7 @@ contract TestDeployer is MetadataDeployment {
 
     struct DeploymentVarsDev {
         uint256 numCollaterals;
-        IERC20Metadata[] collaterals;
+        IERC20MetadataUpgradeable[] collaterals;
         IAddressesRegistry[] addressesRegistries;
         ITroveManager[] troveManagers;
         bytes bytecode;
@@ -164,7 +167,7 @@ contract TestDeployer is MetadataDeployment {
     struct DeploymentVarsMainnet {
         OracleParams oracleParams;
         uint256 numCollaterals;
-        IERC20Metadata[] collaterals;
+        IERC20MetadataUpgradeable[] collaterals;
         IAddressesRegistry[] addressesRegistries;
         ITroveManager[] troveManagers;
         IPriceFeed[] priceFeeds;
@@ -175,7 +178,7 @@ contract TestDeployer is MetadataDeployment {
 
     struct DeploymentParamsMainnet {
         uint256 branch;
-        IERC20Metadata collToken;
+        IERC20MetadataUpgradeable collToken;
         IPriceFeed priceFeed;
         IBoldToken boldToken;
         ICollateralRegistry collateralRegistry;
@@ -265,7 +268,10 @@ contract TestDeployer is MetadataDeployment {
         )
     {
         // used for gas compensation and as collateral of the first branch
-        WETH = new WETHTester(
+        WETH = new WETHTester();
+        WETHTester(payable(address(WETH))).initialize(
+            "Wrapped Ether Tester", 
+            "WETH",
             100 ether, //     _tapAmount
             1 days //         _tapPeriod
         );
@@ -299,14 +305,15 @@ contract TestDeployer is MetadataDeployment {
         DeploymentVarsDev memory vars;
         vars.numCollaterals = troveManagerParamsArray.length;
         // Deploy Bold
-        vars.bytecode = abi.encodePacked(type(BoldToken).creationCode, abi.encode(address(this)));
+        vars.bytecode = abi.encodePacked(type(BoldToken).creationCode);
         vars.boldTokenAddress = getAddress(address(this), vars.bytecode, SALT);
-        boldToken = new BoldToken{salt: SALT}(address(this));
+        boldToken = new BoldToken{salt: SALT}();
+        BoldToken(address(boldToken)).initialize(address(this));
         assert(address(boldToken) == vars.boldTokenAddress);
 
         contractsArray = new LiquityContractsDev[](vars.numCollaterals);
         zappersArray = new Zappers[](vars.numCollaterals);
-        vars.collaterals = new IERC20Metadata[](vars.numCollaterals);
+        vars.collaterals = new IERC20MetadataUpgradeable[](vars.numCollaterals);
         vars.addressesRegistries = new IAddressesRegistry[](vars.numCollaterals);
         vars.troveManagers = new ITroveManager[](vars.numCollaterals);
 
@@ -317,7 +324,8 @@ contract TestDeployer is MetadataDeployment {
         vars.addressesRegistries[0] = addressesRegistry;
         vars.troveManagers[0] = ITroveManager(troveManagerAddress);
         for (vars.i = 1; vars.i < vars.numCollaterals; vars.i++) {
-            IERC20Metadata collToken = new ERC20Faucet(
+            IERC20MetadataUpgradeable collToken = new ERC20Faucet();
+            ERC20Faucet(address(collToken)).initialize(
                 _nameToken(vars.i), // _name
                 _symboltoken(vars.i), // _symbol
                 100 ether, //     _tapAmount
@@ -330,9 +338,12 @@ contract TestDeployer is MetadataDeployment {
             vars.troveManagers[vars.i] = ITroveManager(troveManagerAddress);
         }
 
-        collateralRegistry = new CollateralRegistry(boldToken, vars.collaterals, vars.troveManagers);
-        hintHelpers = new HintHelpers(collateralRegistry);
-        multiTroveGetter = new MultiTroveGetter(collateralRegistry);
+        collateralRegistry = new CollateralRegistry();
+        CollateralRegistry(address(collateralRegistry)).initialize(boldToken, vars.collaterals, vars.troveManagers);
+        hintHelpers = new HintHelpers();
+        HintHelpers(address(hintHelpers)).initialize(collateralRegistry);
+        multiTroveGetter = new MultiTroveGetter();
+        MultiTroveGetter(address(multiTroveGetter)).initialize(collateralRegistry);
 
         (contractsArray[0], zappersArray[0]) = _deployAndConnectCollateralContractsDev(
             _WETH,
@@ -366,7 +377,8 @@ contract TestDeployer is MetadataDeployment {
         internal
         returns (IAddressesRegistry, address)
     {
-        IAddressesRegistry addressesRegistry = new AddressesRegistry(
+        IAddressesRegistry addressesRegistry = new AddressesRegistry();
+        AddressesRegistry(address(addressesRegistry)).initialize(
             address(this),
             _troveManagerParams.CCR,
             _troveManagerParams.MCR,
@@ -375,15 +387,18 @@ contract TestDeployer is MetadataDeployment {
             _troveManagerParams.LIQUIDATION_PENALTY_SP,
             _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION
         );
+        bytes32 tmSALT = keccak256(abi.encode("CDP", tmITER));
         address troveManagerAddress = getAddress(
-            address(this), getBytecode(type(TroveManagerTester).creationCode, address(addressesRegistry)), SALT
+            address(this), getBytecode(type(TroveManagerTester).creationCode, address(addressesRegistry)), tmSALT
         );
+        iterators[troveManagerAddress] = tmSALT;
+        tmITER++;
 
         return (addressesRegistry, troveManagerAddress);
     }
 
     function _deployAndConnectCollateralContractsDev(
-        IERC20Metadata _collToken,
+        IERC20MetadataUpgradeable _collToken,
         IBoldToken _boldToken,
         ICollateralRegistry _collateralRegistry,
         IWETH _weth,
@@ -401,39 +416,42 @@ contract TestDeployer is MetadataDeployment {
         contracts.interestRouter = new MockInterestRouter();
 
         // Deploy Metadata
-        MetadataNFT metadataNFT = deployMetadata(SALT);
+        bytes32 bSALT = keccak256(abi.encode("bCDP", bITER));
+        MetadataNFT metadataNFT = deployMetadata(bSALT);
         addresses.metadataNFT = getAddress(
-            address(this), getBytecode(type(MetadataNFT).creationCode, address(initializedFixedAssetReader)), SALT
+            address(this), abi.encodePacked(type(MetadataNFT).creationCode), bSALT
         );
+        iterators[addresses.metadataNFT] = bSALT;
+        bITER++;
         assert(address(metadataNFT) == addresses.metadataNFT);
 
         // Pre-calc addresses
         addresses.borrowerOperations = getAddress(
             address(this),
-            getBytecode(type(BorrowerOperationsTester).creationCode, address(contracts.addressesRegistry)),
-            SALT
+            abi.encodePacked(type(BorrowerOperationsTester).creationCode),
+            bSALT
         );
         addresses.troveManager = _troveManagerAddress;
         addresses.troveNFT = getAddress(
-            address(this), getBytecode(type(TroveNFT).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(TroveNFT).creationCode), bSALT
         );
         addresses.stabilityPool = getAddress(
-            address(this), getBytecode(type(StabilityPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(StabilityPool).creationCode), bSALT
         );
         addresses.activePool = getAddress(
-            address(this), getBytecode(type(ActivePool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(ActivePool).creationCode), bSALT
         );
         addresses.defaultPool = getAddress(
-            address(this), getBytecode(type(DefaultPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(DefaultPool).creationCode), bSALT
         );
         addresses.gasPool = getAddress(
-            address(this), getBytecode(type(GasPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(GasPool).creationCode), bSALT
         );
         addresses.collSurplusPool = getAddress(
-            address(this), getBytecode(type(CollSurplusPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(CollSurplusPool).creationCode), bSALT
         );
         addresses.sortedTroves = getAddress(
-            address(this), getBytecode(type(SortedTroves).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(SortedTroves).creationCode), bSALT
         );
 
         // Deploy contracts
@@ -459,15 +477,24 @@ contract TestDeployer is MetadataDeployment {
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
-        contracts.borrowerOperations = new BorrowerOperationsTester{salt: SALT}(contracts.addressesRegistry);
-        contracts.troveManager = new TroveManagerTester{salt: SALT}(contracts.addressesRegistry);
-        contracts.troveNFT = new TroveNFT{salt: SALT}(contracts.addressesRegistry);
-        contracts.stabilityPool = new StabilityPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.activePool = new ActivePool{salt: SALT}(contracts.addressesRegistry);
-        contracts.pools.defaultPool = new DefaultPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.pools.gasPool = new GasPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.pools.collSurplusPool = new CollSurplusPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.sortedTroves = new SortedTroves{salt: SALT}(contracts.addressesRegistry);
+        contracts.borrowerOperations = new BorrowerOperationsTester{salt: bSALT}();
+        BorrowerOperationsTester(address(contracts.borrowerOperations)).initialize(contracts.addressesRegistry);
+        contracts.troveManager = new TroveManagerTester{salt: iterators[addresses.troveManager]}(contracts.addressesRegistry);
+        TroveManagerTester(address(contracts.troveManager)).initialize(contracts.addressesRegistry);
+        contracts.troveNFT = new TroveNFT{salt: bSALT}();
+        TroveNFT(address(contracts.troveNFT)).initialize(contracts.addressesRegistry);
+        contracts.stabilityPool = new StabilityPool{salt: bSALT}();
+        StabilityPool(address(contracts.stabilityPool)).initialize(contracts.addressesRegistry);
+        contracts.activePool = new ActivePool{salt: bSALT}();
+        ActivePool(address(contracts.activePool)).initialize(contracts.addressesRegistry);
+        contracts.pools.defaultPool = new DefaultPool{salt: bSALT}();
+        DefaultPool(address(contracts.pools.defaultPool)).initialize(contracts.addressesRegistry);
+        contracts.pools.gasPool = new GasPool{salt: bSALT}();
+        GasPool(address(contracts.pools.gasPool)).initialize(contracts.addressesRegistry);
+        contracts.pools.collSurplusPool = new CollSurplusPool{salt: bSALT}();
+        CollSurplusPool(address(contracts.pools.collSurplusPool)).initialize(contracts.addressesRegistry);
+        contracts.sortedTroves = new SortedTroves{salt: bSALT}();
+        SortedTroves(address(contracts.sortedTroves)).initialize(contracts.addressesRegistry);
 
         assert(address(contracts.borrowerOperations) == addresses.borrowerOperations);
         assert(address(contracts.troveManager) == addresses.troveManager);
@@ -524,7 +551,7 @@ contract TestDeployer is MetadataDeployment {
         vars.numCollaterals = 3;
         result.contractsArray = new LiquityContracts[](vars.numCollaterals);
         result.zappersArray = new Zappers[](vars.numCollaterals);
-        vars.collaterals = new IERC20Metadata[](vars.numCollaterals);
+        vars.collaterals = new IERC20MetadataUpgradeable[](vars.numCollaterals);
         vars.addressesRegistries = new IAddressesRegistry[](vars.numCollaterals);
         vars.troveManagers = new ITroveManager[](vars.numCollaterals);
         address troveManagerAddress;
@@ -532,7 +559,8 @@ contract TestDeployer is MetadataDeployment {
         // Deploy Bold
         vars.bytecode = abi.encodePacked(type(BoldToken).creationCode, abi.encode(address(this)));
         vars.boldTokenAddress = getAddress(address(this), vars.bytecode, SALT);
-        result.boldToken = new BoldToken{salt: SALT}(address(this));
+        result.boldToken = new BoldToken{salt: SALT}();
+        BoldToken(address(result.boldToken)).initialize(address(this));
         assert(address(result.boldToken) == vars.boldTokenAddress);
 
         // WETH
@@ -543,22 +571,25 @@ contract TestDeployer is MetadataDeployment {
         vars.troveManagers[0] = ITroveManager(troveManagerAddress);
 
         // RETH
-        vars.collaterals[1] = IERC20Metadata(0xae78736Cd615f374D3085123A210448E74Fc6393);
+        vars.collaterals[1] = IERC20MetadataUpgradeable(0xae78736Cd615f374D3085123A210448E74Fc6393);
         (vars.addressesRegistries[1], troveManagerAddress) =
             _deployAddressesRegistryMainnet(_troveManagerParamsArray[1]);
         vars.troveManagers[1] = ITroveManager(troveManagerAddress);
 
         // WSTETH
-        vars.collaterals[2] = IERC20Metadata(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
+        vars.collaterals[2] = IERC20MetadataUpgradeable(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
         (vars.addressesRegistries[2], troveManagerAddress) =
             _deployAddressesRegistryMainnet(_troveManagerParamsArray[2]);
         vars.troveManagers[2] = ITroveManager(troveManagerAddress);
 
         // Deploy registry and register the TMs
-        result.collateralRegistry = new CollateralRegistryTester(result.boldToken, vars.collaterals, vars.troveManagers);
+        result.collateralRegistry = new CollateralRegistryTester();
+        CollateralRegistryTester(address(result.collateralRegistry)).initialize(result.boldToken, vars.collaterals, vars.troveManagers);
 
-        result.hintHelpers = new HintHelpers(result.collateralRegistry);
-        result.multiTroveGetter = new MultiTroveGetter(result.collateralRegistry);
+        result.hintHelpers = new HintHelpers();
+        HintHelpers(address(result.hintHelpers)).initialize(result.collateralRegistry);
+        result.multiTroveGetter = new MultiTroveGetter();
+        MultiTroveGetter(address(result.multiTroveGetter)).initialize(result.collateralRegistry);
 
         ICurveStableswapNGPool usdcCurvePool = _deployCurveBoldUsdcPool(result.boldToken, true);
 
@@ -586,7 +617,8 @@ contract TestDeployer is MetadataDeployment {
         internal
         returns (IAddressesRegistry, address)
     {
-        IAddressesRegistry addressesRegistry = new AddressesRegistry(
+        IAddressesRegistry addressesRegistry = new AddressesRegistry();
+        AddressesRegistry(address(addressesRegistry)).initialize(
             address(this),
             _troveManagerParams.CCR,
             _troveManagerParams.MCR,
@@ -596,7 +628,7 @@ contract TestDeployer is MetadataDeployment {
             _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION
         );
         address troveManagerAddress =
-            getAddress(address(this), getBytecode(type(TroveManager).creationCode, address(addressesRegistry)), SALT);
+            getAddress(address(this), abi.encodePacked(type(TroveManager).creationCode), SALT);
 
         return (addressesRegistry, troveManagerAddress);
     }
@@ -615,37 +647,37 @@ contract TestDeployer is MetadataDeployment {
         // Deploy Metadata
         MetadataNFT metadataNFT = deployMetadata(SALT);
         addresses.metadataNFT = getAddress(
-            address(this), getBytecode(type(MetadataNFT).creationCode, address(initializedFixedAssetReader)), SALT
+            address(this), abi.encodePacked(type(MetadataNFT).creationCode), SALT
         );
         assert(address(metadataNFT) == addresses.metadataNFT);
 
         // Pre-calc addresses
         addresses.borrowerOperations = getAddress(
             address(this),
-            getBytecode(type(BorrowerOperationsTester).creationCode, address(contracts.addressesRegistry)),
+            abi.encodePacked(type(BorrowerOperationsTester).creationCode),
             SALT
         );
         addresses.troveManager = _params.troveManagerAddress;
         addresses.troveNFT = getAddress(
-            address(this), getBytecode(type(TroveNFT).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(TroveNFT).creationCode), SALT
         );
         addresses.stabilityPool = getAddress(
-            address(this), getBytecode(type(StabilityPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(StabilityPool).creationCode), SALT
         );
         addresses.activePool = getAddress(
-            address(this), getBytecode(type(ActivePool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(ActivePool).creationCode), SALT
         );
         addresses.defaultPool = getAddress(
-            address(this), getBytecode(type(DefaultPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(DefaultPool).creationCode), SALT
         );
         addresses.gasPool = getAddress(
-            address(this), getBytecode(type(GasPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(GasPool).creationCode), SALT
         );
         addresses.collSurplusPool = getAddress(
-            address(this), getBytecode(type(CollSurplusPool).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(CollSurplusPool).creationCode), SALT
         );
         addresses.sortedTroves = getAddress(
-            address(this), getBytecode(type(SortedTroves).creationCode, address(contracts.addressesRegistry)), SALT
+            address(this), abi.encodePacked(type(SortedTroves).creationCode), SALT
         );
 
         contracts.priceFeed =
@@ -674,15 +706,24 @@ contract TestDeployer is MetadataDeployment {
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
-        contracts.borrowerOperations = new BorrowerOperationsTester{salt: SALT}(contracts.addressesRegistry);
-        contracts.troveManager = new TroveManager{salt: SALT}(contracts.addressesRegistry);
-        contracts.troveNFT = new TroveNFT{salt: SALT}(contracts.addressesRegistry);
-        contracts.stabilityPool = new StabilityPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.activePool = new ActivePool{salt: SALT}(contracts.addressesRegistry);
-        contracts.defaultPool = new DefaultPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.gasPool = new GasPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.collSurplusPool = new CollSurplusPool{salt: SALT}(contracts.addressesRegistry);
-        contracts.sortedTroves = new SortedTroves{salt: SALT}(contracts.addressesRegistry);
+        contracts.borrowerOperations = new BorrowerOperationsTester{salt: SALT}();
+        BorrowerOperationsTester(address(contracts.borrowerOperations)).initialize(contracts.addressesRegistry);
+        contracts.troveManager = new TroveManager{salt: SALT}();
+        TroveManager(address(contracts.troveManager)).initialize(contracts.addressesRegistry);
+        contracts.troveNFT = new TroveNFT{salt: SALT}();
+        TroveNFT(address(contracts.troveNFT)).initialize(contracts.addressesRegistry);
+        contracts.stabilityPool = new StabilityPool{salt: SALT}();
+        StabilityPool(address(contracts.stabilityPool)).initialize(contracts.addressesRegistry);
+        contracts.activePool = new ActivePool{salt: SALT}();
+        ActivePool(address(contracts.activePool)).initialize(contracts.addressesRegistry);
+        contracts.defaultPool = new DefaultPool{salt: SALT}();
+        DefaultPool(address(contracts.defaultPool)).initialize(contracts.addressesRegistry);
+        contracts.gasPool = new GasPool{salt: SALT}();
+        GasPool(address(contracts.gasPool)).initialize(contracts.addressesRegistry);
+        contracts.collSurplusPool = new CollSurplusPool{salt: SALT}();
+        CollSurplusPool(address(contracts.collSurplusPool)).initialize(contracts.addressesRegistry);
+        contracts.sortedTroves = new SortedTroves{salt: SALT}();
+        SortedTroves(address(contracts.sortedTroves)).initialize(contracts.addressesRegistry);
 
         assert(address(contracts.borrowerOperations) == addresses.borrowerOperations);
         assert(address(contracts.troveManager) == addresses.troveManager);
@@ -753,7 +794,7 @@ contract TestDeployer is MetadataDeployment {
 
     function _deployZappers(
         IAddressesRegistry _addressesRegistry,
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         IWETH _weth,
         IPriceFeed _priceFeed,
@@ -767,9 +808,11 @@ contract TestDeployer is MetadataDeployment {
         // TODO: Deploy base zappers versions with Uni V3 exchange
         bool lst = _collToken != _weth;
         if (lst) {
-            zappers.gasCompZapper = new GasCompZapper(_addressesRegistry, flashLoanProvider, curveExchange);
+            zappers.gasCompZapper = new GasCompZapper();
+            GasCompZapper(payable(address(zappers.gasCompZapper))).initialize(_addressesRegistry, flashLoanProvider, curveExchange);
         } else {
-            zappers.wethZapper = new WETHZapper(_addressesRegistry, flashLoanProvider, curveExchange);
+            zappers.wethZapper = new WETHZapper();
+            WETHZapper(payable(address(zappers.wethZapper))).initialize(_addressesRegistry, flashLoanProvider, curveExchange);
         }
 
         if (_mainnet) {
@@ -787,7 +830,7 @@ contract TestDeployer is MetadataDeployment {
         }
     }
 
-    function _deployCurveExchange(IERC20 _collToken, IBoldToken _boldToken, IPriceFeed _priceFeed, bool _mainnet)
+    function _deployCurveExchange(IERC20Upgradeable _collToken, IBoldToken _boldToken, IPriceFeed _priceFeed, bool _mainnet)
         internal
         returns (IExchange)
     {
@@ -822,7 +865,7 @@ contract TestDeployer is MetadataDeployment {
 
     function _deployLeverageZappers(
         IAddressesRegistry _addressesRegistry,
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         IPriceFeed _priceFeed,
         IFlashLoanProvider _flashLoanProvider,
@@ -848,9 +891,11 @@ contract TestDeployer is MetadataDeployment {
     ) internal returns (ILeverageZapper) {
         ILeverageZapper leverageZapperCurve;
         if (_lst) {
-            leverageZapperCurve = new LeverageLSTZapper(_addressesRegistry, _flashLoanProvider, _curveExchange);
+            leverageZapperCurve = new LeverageLSTZapper();
+            LeverageLSTZapper(payable(address(leverageZapperCurve))).initialize(_addressesRegistry, _flashLoanProvider, _curveExchange);
         } else {
-            leverageZapperCurve = new LeverageWETHZapper(_addressesRegistry, _flashLoanProvider, _curveExchange);
+            leverageZapperCurve = new LeverageWETHZapper();
+            LeverageWETHZapper(payable(address(leverageZapperCurve))).initialize(_addressesRegistry, _flashLoanProvider, _curveExchange);
         }
 
         return leverageZapperCurve;
@@ -864,7 +909,7 @@ contract TestDeployer is MetadataDeployment {
 
     function _deployUniV3LeverageZapper(
         IAddressesRegistry _addressesRegistry,
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         IPriceFeed _priceFeed,
         IFlashLoanProvider _flashLoanProvider,
@@ -874,9 +919,11 @@ contract TestDeployer is MetadataDeployment {
         vars.uniV3Exchange = new UniV3Exchange(_collToken, _boldToken, UNIV3_FEE, uniV3Router);
         ILeverageZapper leverageZapperUniV3;
         if (_lst) {
-            leverageZapperUniV3 = new LeverageLSTZapper(_addressesRegistry, _flashLoanProvider, vars.uniV3Exchange);
+            leverageZapperUniV3 = new LeverageLSTZapper();
+            LeverageLSTZapper(payable(address(leverageZapperUniV3))).initialize(_addressesRegistry, _flashLoanProvider, vars.uniV3Exchange);
         } else {
-            leverageZapperUniV3 = new LeverageWETHZapper(_addressesRegistry, _flashLoanProvider, vars.uniV3Exchange);
+            leverageZapperUniV3 = new LeverageWETHZapper();
+            LeverageWETHZapper(payable(address(leverageZapperUniV3))).initialize(_addressesRegistry, _flashLoanProvider, vars.uniV3Exchange);
         }
 
         // Create Uni V3 pool
@@ -902,7 +949,7 @@ contract TestDeployer is MetadataDeployment {
 
     function _deployHybridLeverageZapper(
         IAddressesRegistry _addressesRegistry,
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         IFlashLoanProvider _flashLoanProvider,
         ICurveStableswapNGPool _usdcCurvePool,
@@ -923,9 +970,11 @@ contract TestDeployer is MetadataDeployment {
 
         ILeverageZapper leverageZapperHybrid;
         if (_lst) {
-            leverageZapperHybrid = new LeverageLSTZapper(_addressesRegistry, _flashLoanProvider, hybridExchange);
+            leverageZapperHybrid = new LeverageLSTZapper();
+            LeverageLSTZapper(payable(address(leverageZapperHybrid))).initialize(_addressesRegistry, _flashLoanProvider, hybridExchange);
         } else {
-            leverageZapperHybrid = new LeverageWETHZapper(_addressesRegistry, _flashLoanProvider, hybridExchange);
+            leverageZapperHybrid = new LeverageWETHZapper();
+            LeverageWETHZapper(payable(address(leverageZapperHybrid))).initialize(_addressesRegistry, _flashLoanProvider, hybridExchange);
         }
 
         return leverageZapperHybrid;

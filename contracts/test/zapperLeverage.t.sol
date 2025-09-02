@@ -22,7 +22,7 @@ import "src/Zappers/Modules/Exchanges/Curve/ICurveStableswapNGFactory.sol";
 contract ZapperLeverageMainnet is DevTestSetup {
     using StringFormatting for uint256;
 
-    IERC20 constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    IERC20Upgradeable constant USDC = IERC20Upgradeable(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
 
     // Curve
     uint128 constant BOLD_TOKEN_INDEX = 0;
@@ -300,7 +300,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
 
     struct OpenLeveragedTroveWithIndexParams {
         ILeverageZapper leverageZapper;
-        IERC20 collToken;
+        IERC20Upgradeable collToken;
         uint256 index;
         uint256 collAmount;
         uint256 leverageRatio;
@@ -546,7 +546,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
 
     struct LeverUpParams {
         ILeverageZapper leverageZapper;
-        IERC20 collToken;
+        IERC20Upgradeable collToken;
         uint256 troveId;
         uint256 leverageRatio;
         ITroveManager troveManager;
@@ -997,7 +997,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
             maxUpfrontFee: 1000e18
         });
         IFlashLoanProvider flashLoanProvider = _leverageZapper.flashLoanProvider();
-        IERC20[] memory tokens = new IERC20[](1);
+        IERC20Upgradeable[] memory tokens = new IERC20Upgradeable[](1);
         tokens[0] = contractsArray[_branch].collToken;
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = flashLoanAmount;
@@ -1442,7 +1442,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
             minBoldAmount: minBoldDebt
         });
         IFlashLoanProvider flashLoanProvider = _leverageZapper.flashLoanProvider();
-        IERC20[] memory tokens = new IERC20[](1);
+        IERC20Upgradeable[] memory tokens = new IERC20Upgradeable[](1);
         tokens[0] = contractsArray[_branch].collToken;
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = flashLoanAmount;
@@ -1869,7 +1869,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
             _getCloseFlashLoanAmount(troveId, contractsArray[_branch].troveManager, contractsArray[_branch].priceFeed);
 
         IFlashLoanProvider flashLoanProvider = _zapper.flashLoanProvider();
-        IERC20[] memory tokens = new IERC20[](1);
+        IERC20Upgradeable[] memory tokens = new IERC20Upgradeable[](1);
         tokens[0] = contractsArray[_branch].collToken;
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = flashLoanAmount;
@@ -1928,7 +1928,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
         uint256 _boldAmount,
         uint256 _maxBoldAmount,
         uint256 _minCollAmount,
-        IERC20 _collToken
+        IERC20Upgradeable _collToken
     ) internal returns (uint256) {
         if (_exchangeType == ExchangeType.Curve) {
             return _getBoldAmountToSwapCurve(_branch, _boldAmount, _maxBoldAmount, _minCollAmount);
@@ -1968,7 +1968,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
     // See: https://docs.uniswap.org/contracts/v3/reference/periphery/interfaces/IQuoterV2
     // These functions are not marked view because they rely on calling non-view functions and reverting to compute the result.
     // They are also not gas efficient and should not be called on-chain.
-    function _getBoldAmountToSwapUniV3(uint256 _maxBoldAmount, uint256 _minCollAmount, IERC20 _collToken)
+    function _getBoldAmountToSwapUniV3(uint256 _maxBoldAmount, uint256 _minCollAmount, IERC20Upgradeable _collToken)
         internal /* view */
         returns (uint256)
     {
@@ -1985,7 +1985,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
         return amountIn;
     }
 
-    function _getBoldAmountToSwapHybrid(uint256 _maxBoldAmount, uint256 _minCollAmount, IERC20 _collToken)
+    function _getBoldAmountToSwapHybrid(uint256 _maxBoldAmount, uint256 _minCollAmount, IERC20Upgradeable _collToken)
         internal /* view */
         returns (uint256)
     {
@@ -2042,7 +2042,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
 
     function _testHybridExchangeHelpers(
         uint256 _boldAmount,
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         uint256 _desiredCollAmount,
         uint256 _acceptedSlippage
     ) internal {

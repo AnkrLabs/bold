@@ -25,7 +25,8 @@ contract MetadataDeployment is Script /* , StdAssertions */ {
         _storeFile();
         _deployFixedAssetReader(_salt);
 
-        MetadataNFT metadataNFT = new MetadataNFT{salt: _salt}(initializedFixedAssetReader);
+        MetadataNFT metadataNFT = new MetadataNFT{salt: _salt}();
+        metadataNFT.initialize(initializedFixedAssetReader);
 
         return metadataNFT;
     }

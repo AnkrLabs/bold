@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import {IBoldToken} from "src/Interfaces/IBoldToken.sol";
 import {ICollateralRegistry} from "src/Interfaces/ICollateralRegistry.sol";
 import {IWETH} from "src/Interfaces/IWETH.sol";
@@ -17,7 +17,7 @@ contract BaseMultiCollateralTest {
         TestDeployer.LiquityContractsDev[] branches;
     }
 
-    IERC20 weth;
+    IERC20Upgradeable weth;
     ICollateralRegistry collateralRegistry;
     IBoldToken boldToken;
     HintHelpers hintHelpers;

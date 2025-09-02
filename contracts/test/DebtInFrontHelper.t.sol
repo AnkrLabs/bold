@@ -10,7 +10,8 @@ contract DebtInFrontHelperTest is DevTestSetup {
 
     function setUp() public override {
         super.setUp();
-        debtInFrontHelper = new DebtInFrontHelper(collateralRegistry, hintHelpers);
+        debtInFrontHelper = new DebtInFrontHelper();
+        DebtInFrontHelper(address(debtInFrontHelper)).initialize(collateralRegistry, hintHelpers);
     }
 
     function test_GetDebtBetweenInterestRates(

@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
@@ -2607,7 +2607,7 @@ contract InvariantsTestHandler is Assertions, BaseHandler, BaseMultiCollateralTe
     }
 
     function _dealCollAndApprove(uint256 i, address to, uint256 amount, address spender) internal {
-        IERC20 collToken = branches[i].collToken;
+        IERC20Upgradeable collToken = branches[i].collToken;
         uint256 balance = collToken.balanceOf(to);
         uint256 allowance = collToken.allowance(to, spender);
 
@@ -2637,7 +2637,7 @@ contract InvariantsTestHandler is Assertions, BaseHandler, BaseMultiCollateralTe
     function _sweepCollAndUnapprove(uint256 i, address from, uint256 amount, address spender) internal {
         _sweepColl(i, from, amount);
 
-        IERC20 collToken = branches[i].collToken;
+        IERC20Upgradeable collToken = branches[i].collToken;
         uint256 allowance = collToken.allowance(from, spender);
         vm.prank(from);
         collToken.approve(spender, allowance - amount);

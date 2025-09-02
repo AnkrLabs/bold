@@ -7,6 +7,8 @@ import "src/TroveNFT.sol";
 
 import "lib/Solady/src/utils/Base64.sol";
 
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+
 contract troveNFTTest is DevTestSetup {
     uint256 NUM_COLLATERALS = 3;
     uint256 NUM_VARIANTS = 4;

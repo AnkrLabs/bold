@@ -10,7 +10,7 @@ contract DevTestSetup is BaseTest {
     }
 
     function giveAndApproveCollateral(
-        IERC20 _token,
+        IERC20Upgradeable _token,
         address _account,
         uint256 _amount,
         address _borrowerOperationsAddress

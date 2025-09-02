@@ -11,7 +11,8 @@ contract BorrowerOperationsOnBehalfTroveManagamentTest is DevTestSetup {
 
     function setUp() public override {
         super.setUp();
-        addRemoveManagersTester = new AddRemoveManagersTester(addressesRegistry);
+        addRemoveManagersTester = new AddRemoveManagersTester();
+        addRemoveManagersTester.initialize(addressesRegistry);
     }
 
     function testSetAddManager() public {

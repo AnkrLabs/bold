@@ -470,13 +470,14 @@ contract SortedTrovesTest is Test {
     function setUp() public {
         bytes32 SALT = keccak256("LiquityV2");
         AddressesRegistry addressesRegistry =
-            new AddressesRegistry(address(this), 150e16, 110e16, 10e16, 110e16, 5e16, 10e16);
+            new AddressesRegistry();
+        AddressesRegistry(address(addressesRegistry)).initialize(address(this), 150e16, 110e16, 10e16, 110e16, 5e16, 10e16);
         bytes32 hash = keccak256(
             abi.encodePacked(
                 bytes1(0xff),
                 address(this),
                 SALT,
-                keccak256(abi.encodePacked(type(SortedTroves).creationCode, abi.encode(address(addressesRegistry))))
+                keccak256(abi.encodePacked(type(SortedTroves).creationCode))
             )
         );
 
@@ -488,7 +489,7 @@ contract SortedTrovesTest is Test {
         addressVars.borrowerOperations = IBorrowerOperations(address(tm));
         addressVars.troveManager = ITroveManager(address(tm));
         addressesRegistry.setAddresses(addressVars);
-        new SortedTroves{salt: SALT}(addressesRegistry);
+        (new SortedTroves{salt: SALT}()).initialize(addressesRegistry);
     }
 
     function test_SortsIndividualTrovesByAnnualInterestRate(

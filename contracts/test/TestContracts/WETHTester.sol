@@ -9,10 +9,6 @@ contract WETHTester is ERC20Faucet, IWETH {
     event Deposit(address indexed dst, uint256 wad);
     event Withdrawal(address indexed src, uint256 wad);
 
-    constructor(uint256 _tapAmount, uint256 _tapPeriod)
-        ERC20Faucet("Wrapped Ether Tester", "WETH", _tapAmount, _tapPeriod)
-    {}
-
     receive() external payable {
         deposit();
     }
