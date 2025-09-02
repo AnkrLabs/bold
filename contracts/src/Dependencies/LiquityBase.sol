@@ -10,11 +10,13 @@ import "../Interfaces/IDefaultPool.sol";
 import "../Interfaces/IPriceFeed.sol";
 import "../Interfaces/ILiquityBase.sol";
 
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+
 /*
 * Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
 * common functions.
 */
-contract LiquityBase is ILiquityBase {
+abstract contract LiquityBase is Initializable, ILiquityBase {
     IActivePool public activePool;
     IDefaultPool internal defaultPool;
     IPriceFeed internal priceFeed;
@@ -22,8 +24,8 @@ contract LiquityBase is ILiquityBase {
     event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
-
-    constructor(IAddressesRegistry _addressesRegistry) {
+    
+    function __LiquityBase_init(IAddressesRegistry _addressesRegistry) internal onlyInitializing {
         activePool = _addressesRegistry.activePool();
         defaultPool = _addressesRegistry.defaultPool();
         priceFeed = _addressesRegistry.priceFeed();
@@ -32,6 +34,7 @@ contract LiquityBase is ILiquityBase {
         emit DefaultPoolAddressChanged(address(defaultPool));
         emit PriceFeedAddressChanged(address(priceFeed));
     }
+
     // --- Gas compensation functions ---
 
     function getEntireBranchColl() public view returns (uint256 entireSystemColl) {

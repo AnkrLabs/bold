@@ -7,7 +7,8 @@ import "./utils/JSON.sol";
 import "./utils/baseSVG.sol";
 import "./utils/bauhaus.sol";
 
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
 import {ITroveManager} from "../Interfaces/ITroveManager.sol";
 
@@ -26,20 +27,20 @@ interface IMetadataNFT {
     function uri(TroveData memory _troveData) external view returns (string memory);
 }
 
-contract MetadataNFT is IMetadataNFT {
-    FixedAssetReader public immutable assetReader;
+contract MetadataNFT is Initializable, IMetadataNFT {
+    FixedAssetReader public assetReader;
 
-    constructor(FixedAssetReader _assetReader) {
+    function initialize(FixedAssetReader _assetReader) external initializer {
         assetReader = _assetReader;
     }
 
     function uri(TroveData memory _troveData) public view returns (string memory) {
         string memory attr = attributes(_troveData);
         return json.formattedMetadata(
-            string.concat("Liquity V2 - ", IERC20Metadata(_troveData._collToken).name()),
+            string.concat("Liquity V2 - ", IERC20MetadataUpgradeable(_troveData._collToken).name()),
             string.concat(
                 "Liquity V2 is a collateralized debt platform. Users can lock up ",
-                IERC20Metadata(_troveData._collToken).symbol(),
+                IERC20MetadataUpgradeable(_troveData._collToken).symbol(),
                 " to issue stablecoin tokens (BOLD) to their own Ethereum address. The individual collateralized debt positions are called Troves, and are represented as NFTs."
             ),
             renderSVGImage(_troveData),
@@ -52,7 +53,7 @@ contract MetadataNFT is IMetadataNFT {
             baseSVG._svgProps(),
             string.concat(
                 baseSVG._baseElements(assetReader),
-                bauhaus._bauhaus(IERC20Metadata(_troveData._collToken).symbol(), _troveData._tokenId),
+                bauhaus._bauhaus(IERC20MetadataUpgradeable(_troveData._collToken).symbol(), _troveData._tokenId),
                 dynamicTextComponents(_troveData)
             )
         );
@@ -84,7 +85,7 @@ contract MetadataNFT is IMetadataNFT {
         return string.concat(
             baseSVG._formattedIdEl(id),
             baseSVG._formattedAddressEl(_troveData._owner),
-            baseSVG._collLogo(IERC20Metadata(_troveData._collToken).symbol(), assetReader),
+            baseSVG._collLogo(IERC20MetadataUpgradeable(_troveData._collToken).symbol(), assetReader),
             baseSVG._statusEl(_status2Str(_troveData._status)),
             baseSVG._dynamicTextEls(_troveData._debtAmount, _troveData._collAmount, _troveData._interestRate)
         );

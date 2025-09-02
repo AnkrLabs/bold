@@ -2,8 +2,9 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol";
 
 import "./Dependencies/Constants.sol";
 import "./Interfaces/IActivePool.sol";
@@ -19,20 +20,20 @@ import "./Interfaces/IDefaultPool.sol";
  * Stability Pool, the Default Pool, or both, depending on the liquidation conditions.
  *
  */
-contract ActivePool is IActivePool {
-    using SafeERC20 for IERC20;
+contract ActivePool is Initializable, IActivePool {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     string public constant NAME = "ActivePool";
 
-    IERC20 public immutable collToken;
-    address public immutable borrowerOperationsAddress;
-    address public immutable troveManagerAddress;
-    address public immutable defaultPoolAddress;
+    IERC20Upgradeable public collToken;
+    address public borrowerOperationsAddress;
+    address public troveManagerAddress;
+    address public defaultPoolAddress;
 
-    IBoldToken public immutable boldToken;
+    IBoldToken public boldToken;
 
-    IInterestRouter public immutable interestRouter;
-    IBoldRewardsReceiver public immutable stabilityPool;
+    IInterestRouter public interestRouter;
+    IBoldRewardsReceiver public stabilityPool;
 
     uint256 internal collBalance; // deposited coll tracker
 
@@ -71,7 +72,7 @@ contract ActivePool is IActivePool {
     event ActivePoolBoldDebtUpdated(uint256 _recordedDebtSum);
     event ActivePoolCollBalanceUpdated(uint256 _collBalance);
 
-    constructor(IAddressesRegistry _addressesRegistry) {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         collToken = _addressesRegistry.collToken();
         borrowerOperationsAddress = address(_addressesRegistry.borrowerOperations());
         troveManagerAddress = address(_addressesRegistry.troveManager());
@@ -109,7 +110,7 @@ contract ActivePool is IActivePool {
         // This ensures that `system debt >= sum(trove debt)` always holds, and thus system debt won't turn negative
         // even if all Trove debt is repaid. The difference should be small and it should scale with the number of
         // interest minting events.
-        return Math.ceilDiv(aggWeightedDebtSum * (block.timestamp - lastAggUpdateTime), ONE_YEAR * DECIMAL_PRECISION);
+        return MathUpgradeable.ceilDiv(aggWeightedDebtSum * (block.timestamp - lastAggUpdateTime), ONE_YEAR * DECIMAL_PRECISION);
     }
 
     function calcPendingSPYield() external view returns (uint256) {
@@ -118,9 +119,9 @@ contract ActivePool is IActivePool {
 
     function calcPendingAggBatchManagementFee() public view returns (uint256) {
         uint256 periodEnd = shutdownTime != 0 ? shutdownTime : block.timestamp;
-        uint256 periodStart = Math.min(lastAggBatchManagementFeesUpdateTime, periodEnd);
+        uint256 periodStart = MathUpgradeable.min(lastAggBatchManagementFeesUpdateTime, periodEnd);
 
-        return Math.ceilDiv(aggWeightedBatchManagementFeeSum * (periodEnd - periodStart), ONE_YEAR * DECIMAL_PRECISION);
+        return MathUpgradeable.ceilDiv(aggWeightedBatchManagementFeeSum * (periodEnd - periodStart), ONE_YEAR * DECIMAL_PRECISION);
     }
 
     function getNewApproxAvgInterestRateFromTroveChange(TroveChange calldata _troveChange)

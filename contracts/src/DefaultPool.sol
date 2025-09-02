@@ -2,7 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./Interfaces/IDefaultPool.sol";
 import "./Interfaces/IAddressesRegistry.sol";
@@ -15,14 +16,14 @@ import "./Interfaces/IActivePool.sol";
  * When a trove makes an operation that applies its pending Coll and Bold debt, its pending Coll and Bold debt is moved
  * from the Default Pool to the Active Pool.
  */
-contract DefaultPool is IDefaultPool {
-    using SafeERC20 for IERC20;
+contract DefaultPool is Initializable, IDefaultPool {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     string public constant NAME = "DefaultPool";
 
-    IERC20 public immutable collToken;
-    address public immutable troveManagerAddress;
-    address public immutable activePoolAddress;
+    IERC20Upgradeable public collToken;
+    address public troveManagerAddress;
+    address public activePoolAddress;
     uint256 internal collBalance; // deposited Coll tracker
     uint256 internal BoldDebt; // debt
 
@@ -32,7 +33,7 @@ contract DefaultPool is IDefaultPool {
     event DefaultPoolBoldDebtUpdated(uint256 _boldDebt);
     event DefaultPoolCollBalanceUpdated(uint256 _collBalance);
 
-    constructor(IAddressesRegistry _addressesRegistry) {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         collToken = _addressesRegistry.collToken();
         troveManagerAddress = address(_addressesRegistry.troveManager());
         activePoolAddress = address(_addressesRegistry.activePool());

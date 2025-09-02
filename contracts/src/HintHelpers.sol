@@ -7,12 +7,14 @@ import "./Dependencies/LiquityMath.sol";
 import "./Dependencies/Constants.sol";
 import "./Interfaces/IHintHelpers.sol";
 
-contract HintHelpers is IHintHelpers {
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+
+contract HintHelpers is Initializable, IHintHelpers {
     string public constant NAME = "HintHelpers";
 
-    ICollateralRegistry public immutable collateralRegistry;
+    ICollateralRegistry public collateralRegistry;
 
-    constructor(ICollateralRegistry _collateralRegistry) {
+    function initialize(ICollateralRegistry _collateralRegistry) external initializer {
         collateralRegistry = _collateralRegistry;
     }
 

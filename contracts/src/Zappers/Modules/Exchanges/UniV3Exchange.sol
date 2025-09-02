@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 import "../../LeftoversSweep.sol";
@@ -13,14 +13,14 @@ import "../../Interfaces/IExchange.sol";
 import {DECIMAL_PRECISION} from "../../../Dependencies/Constants.sol";
 
 contract UniV3Exchange is LeftoversSweep, UniPriceConverter, IExchange {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20 public immutable collToken;
+    IERC20Upgradeable public immutable collToken;
     IBoldToken public immutable boldToken;
     uint24 public immutable fee;
     ISwapRouter public immutable uniV3Router;
 
-    constructor(IERC20 _collToken, IBoldToken _boldToken, uint24 _fee, ISwapRouter _uniV3Router) {
+    constructor(IERC20Upgradeable _collToken, IBoldToken _boldToken, uint24 _fee, ISwapRouter _uniV3Router) {
         collToken = _collToken;
         boldToken = _boldToken;
         fee = _fee;
@@ -83,14 +83,14 @@ contract UniV3Exchange is LeftoversSweep, UniPriceConverter, IExchange {
         return amountOut;
     }
 
-    function priceToSqrtPrice(IBoldToken _boldToken, IERC20 _collToken, uint256 _price) public pure returns (uint160) {
+    function priceToSqrtPrice(IBoldToken _boldToken, IERC20Upgradeable _collToken, uint256 _price) public pure returns (uint160) {
         // inverse price if Bold goes first
         uint256 price = _zeroForOne(_boldToken, _collToken) ? DECIMAL_PRECISION * DECIMAL_PRECISION / _price : _price;
         return priceToSqrtPriceX96(price);
     }
 
     // See: https://github.com/Uniswap/v3-periphery/blob/main/contracts/lens/QuoterV2.sol#L207C9-L207C60
-    function _zeroForOne(IBoldToken _boldToken, IERC20 _collToken) internal pure returns (bool) {
+    function _zeroForOne(IBoldToken _boldToken, IERC20Upgradeable _collToken) internal pure returns (bool) {
         return address(_boldToken) < address(_collToken);
     }
 }

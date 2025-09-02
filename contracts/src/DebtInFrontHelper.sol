@@ -9,15 +9,17 @@ import {ISortedTroves} from "./Interfaces/ISortedTroves.sol";
 import {ITroveManager} from "./Interfaces/ITroveManager.sol";
 import {LatestTroveData} from "./Types/LatestTroveData.sol";
 
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+
 /*
  * Helper contract used by the frontend to calculate debt-in-front precisely.
  * Not part of the core Liquity system.
  */
-contract DebtInFrontHelper is IDebtInFrontHelper {
-    ICollateralRegistry public immutable collateralRegistry;
-    IHintHelpers public immutable hintHelpers;
+contract DebtInFrontHelper is Initializable, IDebtInFrontHelper {
+    ICollateralRegistry public collateralRegistry;
+    IHintHelpers public hintHelpers;
 
-    constructor(ICollateralRegistry _collateralRegistry, IHintHelpers _hintHelpers) {
+    function initialize(ICollateralRegistry _collateralRegistry, IHintHelpers _hintHelpers) external initializer {
         collateralRegistry = _collateralRegistry;
         hintHelpers = _hintHelpers;
     }

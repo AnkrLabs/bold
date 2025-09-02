@@ -2,7 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/IBoldToken.sol";
@@ -11,33 +12,33 @@ import "./Dependencies/LiquityMath.sol";
 
 import "./Interfaces/ICollateralRegistry.sol";
 
-contract CollateralRegistry is ICollateralRegistry {
+contract CollateralRegistry is Initializable, ICollateralRegistry {
     // See: https://github.com/ethereum/solidity/issues/12587
-    uint256 public immutable totalCollaterals;
+    uint256 public totalCollaterals;
 
-    IERC20Metadata internal immutable token0;
-    IERC20Metadata internal immutable token1;
-    IERC20Metadata internal immutable token2;
-    IERC20Metadata internal immutable token3;
-    IERC20Metadata internal immutable token4;
-    IERC20Metadata internal immutable token5;
-    IERC20Metadata internal immutable token6;
-    IERC20Metadata internal immutable token7;
-    IERC20Metadata internal immutable token8;
-    IERC20Metadata internal immutable token9;
+    IERC20MetadataUpgradeable internal token0;
+    IERC20MetadataUpgradeable internal token1;
+    IERC20MetadataUpgradeable internal token2;
+    IERC20MetadataUpgradeable internal token3;
+    IERC20MetadataUpgradeable internal token4;
+    IERC20MetadataUpgradeable internal token5;
+    IERC20MetadataUpgradeable internal token6;
+    IERC20MetadataUpgradeable internal token7;
+    IERC20MetadataUpgradeable internal token8;
+    IERC20MetadataUpgradeable internal token9;
 
-    ITroveManager internal immutable troveManager0;
-    ITroveManager internal immutable troveManager1;
-    ITroveManager internal immutable troveManager2;
-    ITroveManager internal immutable troveManager3;
-    ITroveManager internal immutable troveManager4;
-    ITroveManager internal immutable troveManager5;
-    ITroveManager internal immutable troveManager6;
-    ITroveManager internal immutable troveManager7;
-    ITroveManager internal immutable troveManager8;
-    ITroveManager internal immutable troveManager9;
+    ITroveManager internal troveManager0;
+    ITroveManager internal troveManager1;
+    ITroveManager internal troveManager2;
+    ITroveManager internal troveManager3;
+    ITroveManager internal troveManager4;
+    ITroveManager internal troveManager5;
+    ITroveManager internal troveManager6;
+    ITroveManager internal troveManager7;
+    ITroveManager internal troveManager8;
+    ITroveManager internal troveManager9;
 
-    IBoldToken public immutable boldToken;
+    IBoldToken public boldToken;
 
     uint256 public baseRate;
 
@@ -47,7 +48,7 @@ contract CollateralRegistry is ICollateralRegistry {
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
 
-    constructor(IBoldToken _boldToken, IERC20Metadata[] memory _tokens, ITroveManager[] memory _troveManagers) {
+    function initialize(IBoldToken _boldToken, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
         uint256 numTokens = _tokens.length;
         require(numTokens > 0, "Collateral list cannot be empty");
         require(numTokens <= 10, "Collateral list too long");
@@ -56,15 +57,15 @@ contract CollateralRegistry is ICollateralRegistry {
         boldToken = _boldToken;
 
         token0 = _tokens[0];
-        token1 = numTokens > 1 ? _tokens[1] : IERC20Metadata(address(0));
-        token2 = numTokens > 2 ? _tokens[2] : IERC20Metadata(address(0));
-        token3 = numTokens > 3 ? _tokens[3] : IERC20Metadata(address(0));
-        token4 = numTokens > 4 ? _tokens[4] : IERC20Metadata(address(0));
-        token5 = numTokens > 5 ? _tokens[5] : IERC20Metadata(address(0));
-        token6 = numTokens > 6 ? _tokens[6] : IERC20Metadata(address(0));
-        token7 = numTokens > 7 ? _tokens[7] : IERC20Metadata(address(0));
-        token8 = numTokens > 8 ? _tokens[8] : IERC20Metadata(address(0));
-        token9 = numTokens > 9 ? _tokens[9] : IERC20Metadata(address(0));
+        token1 = numTokens > 1 ? _tokens[1] : IERC20MetadataUpgradeable(address(0));
+        token2 = numTokens > 2 ? _tokens[2] : IERC20MetadataUpgradeable(address(0));
+        token3 = numTokens > 3 ? _tokens[3] : IERC20MetadataUpgradeable(address(0));
+        token4 = numTokens > 4 ? _tokens[4] : IERC20MetadataUpgradeable(address(0));
+        token5 = numTokens > 5 ? _tokens[5] : IERC20MetadataUpgradeable(address(0));
+        token6 = numTokens > 6 ? _tokens[6] : IERC20MetadataUpgradeable(address(0));
+        token7 = numTokens > 7 ? _tokens[7] : IERC20MetadataUpgradeable(address(0));
+        token8 = numTokens > 8 ? _tokens[8] : IERC20MetadataUpgradeable(address(0));
+        token9 = numTokens > 9 ? _tokens[9] : IERC20MetadataUpgradeable(address(0));
 
         troveManager0 = _troveManagers[0];
         troveManager1 = numTokens > 1 ? _troveManagers[1] : ITroveManager(address(0));
@@ -273,7 +274,7 @@ contract CollateralRegistry is ICollateralRegistry {
 
     // getters
 
-    function getToken(uint256 _index) external view returns (IERC20Metadata) {
+    function getToken(uint256 _index) external view returns (IERC20MetadataUpgradeable) {
         if (_index == 0) return token0;
         else if (_index == 1) return token1;
         else if (_index == 2) return token2;

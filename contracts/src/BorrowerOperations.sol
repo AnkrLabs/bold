@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./Interfaces/IBorrowerOperations.sol";
 import "./Interfaces/IAddressesRegistry.sol";
@@ -16,11 +16,11 @@ import "./Types/LatestTroveData.sol";
 import "./Types/LatestBatchData.sol";
 
 contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperations {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // --- Connected contract declarations ---
 
-    IERC20 internal immutable collToken;
+    IERC20Upgradeable internal collToken;
     ITroveManager internal troveManager;
     address internal gasPoolAddress;
     ICollSurplusPool internal collSurplusPool;
@@ -28,21 +28,21 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     // A doubly linked list of Troves, sorted by their collateral ratios
     ISortedTroves internal sortedTroves;
     // Wrapped ETH for liquidation reserve (gas compensation)
-    IWETH internal immutable WETH;
+    IWETH internal WETH;
 
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
-    uint256 public immutable CCR;
+    uint256 public CCR;
 
     // Shutdown system collateral ratio. If the system's total collateral ratio (TCR) for a given collateral falls below the SCR,
     // the protocol triggers the shutdown of the borrow market and permanently disables all borrowing operations except for closing Troves.
-    uint256 public immutable SCR;
+    uint256 public SCR;
     bool public hasBeenShutDown;
 
     // Minimum collateral ratio for individual troves
-    uint256 public immutable MCR;
+    uint256 public MCR;
 
     // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
-    uint256 public immutable BCR;
+    uint256 public BCR;
 
     /*
     * Mapping from TroveId to individual delegate for interest rate setting.
@@ -164,12 +164,12 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
 
     event ShutDown(uint256 _tcr);
 
-    constructor(IAddressesRegistry _addressesRegistry)
-        AddRemoveManagers(_addressesRegistry)
-        LiquityBase(_addressesRegistry)
-    {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         // This makes impossible to open a trove with zero withdrawn Bold
         assert(MIN_DEBT > 0);
+
+        __LiquityBase_init(_addressesRegistry);
+        __AddRemoveManagers_init(_addressesRegistry);
 
         collToken = _addressesRegistry.collToken();
 

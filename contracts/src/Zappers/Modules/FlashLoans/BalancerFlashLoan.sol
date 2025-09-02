@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "./Balancer/vault/IVault.sol";
 import "./Balancer/vault/IFlashLoanRecipient.sol";
 
@@ -11,13 +11,13 @@ import "../../Interfaces/IFlashLoanReceiver.sol";
 import "../../Interfaces/IFlashLoanProvider.sol";
 
 contract BalancerFlashLoan is IFlashLoanRecipient, IFlashLoanProvider {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IVault private constant vault = IVault(0xBA12222222228d8Ba445958a75a0704d566BF2C8);
     IFlashLoanReceiver public receiver;
 
-    function makeFlashLoan(IERC20 _token, uint256 _amount, Operation _operation, bytes calldata _params) external {
-        IERC20[] memory tokens = new IERC20[](1);
+    function makeFlashLoan(IERC20Upgradeable _token, uint256 _amount, Operation _operation, bytes calldata _params) external {
+        IERC20Upgradeable[] memory tokens = new IERC20Upgradeable[](1);
         tokens[0] = _token;
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = _amount;
@@ -50,7 +50,7 @@ contract BalancerFlashLoan is IFlashLoanRecipient, IFlashLoanProvider {
     }
 
     function receiveFlashLoan(
-        IERC20[] calldata tokens,
+        IERC20Upgradeable[] calldata tokens,
         uint256[] calldata amounts,
         uint256[] calldata feeAmounts,
         bytes calldata userData

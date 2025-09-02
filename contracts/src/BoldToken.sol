@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "./Dependencies/Ownable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import "./Interfaces/IBoldToken.sol";
 
 /*
@@ -16,7 +16,7 @@ import "./Interfaces/IBoldToken.sol";
  * 2) sendToPool() and returnFromPool(): functions callable only Liquity core contracts, which move BOLD tokens between Liquity <-> user.
  */
 
-contract BoldToken is Ownable, IBoldToken, ERC20Permit {
+contract BoldToken is Ownable2StepUpgradeable, IBoldToken, ERC20PermitUpgradeable {
     string internal constant _NAME = "BOLD Stablecoin";
     string internal constant _SYMBOL = "BOLD";
 
@@ -35,7 +35,12 @@ contract BoldToken is Ownable, IBoldToken, ERC20Permit {
     event BorrowerOperationsAddressAdded(address _newBorrowerOperationsAddress);
     event ActivePoolAddressAdded(address _newActivePoolAddress);
 
-    constructor(address _owner) Ownable(_owner) ERC20(_NAME, _SYMBOL) ERC20Permit(_NAME) {}
+    function initialize(address _owner) external initializer {
+        __Ownable2Step_init();
+        _transferOwnership(_owner);
+        __ERC20_init(_NAME, _SYMBOL);
+        __ERC20Permit_init(_NAME);
+    }
 
     function setBranchAddresses(
         address _troveManagerAddress,
@@ -59,8 +64,6 @@ contract BoldToken is Ownable, IBoldToken, ERC20Permit {
     function setCollateralRegistry(address _collateralRegistryAddress) external override onlyOwner {
         collateralRegistryAddress = _collateralRegistryAddress;
         emit CollateralRegistryAddressChanged(_collateralRegistryAddress);
-
-        _renounceOwnership();
     }
 
     // --- Functions for intra-Liquity calls ---
@@ -87,14 +90,14 @@ contract BoldToken is Ownable, IBoldToken, ERC20Permit {
 
     // --- External functions ---
 
-    function transfer(address recipient, uint256 amount) public override(ERC20, IERC20) returns (bool) {
+    function transfer(address recipient, uint256 amount) public override(ERC20Upgradeable, IERC20Upgradeable) returns (bool) {
         _requireValidRecipient(recipient);
         return super.transfer(recipient, amount);
     }
 
     function transferFrom(address sender, address recipient, uint256 amount)
         public
-        override(ERC20, IERC20)
+        override(ERC20Upgradeable, IERC20Upgradeable)
         returns (bool)
     {
         _requireValidRecipient(recipient);

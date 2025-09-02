@@ -2,19 +2,20 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./Interfaces/ICollSurplusPool.sol";
 import "./Interfaces/IAddressesRegistry.sol";
 
-contract CollSurplusPool is ICollSurplusPool {
-    using SafeERC20 for IERC20;
+contract CollSurplusPool is Initializable, ICollSurplusPool {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     string public constant NAME = "CollSurplusPool";
 
-    IERC20 public immutable collToken;
-    address public immutable borrowerOperationsAddress;
-    address public immutable troveManagerAddress;
+    IERC20Upgradeable public collToken;
+    address public borrowerOperationsAddress;
+    address public troveManagerAddress;
 
     // deposited ether tracker
     uint256 internal collBalance;
@@ -28,8 +29,8 @@ contract CollSurplusPool is ICollSurplusPool {
 
     event CollBalanceUpdated(address indexed _account, uint256 _newBalance);
     event CollSent(address indexed _to, uint256 _amount);
-
-    constructor(IAddressesRegistry _addressesRegistry) {
+    
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         collToken = _addressesRegistry.collToken();
         borrowerOperationsAddress = address(_addressesRegistry.borrowerOperations());
         troveManagerAddress = address(_addressesRegistry.troveManager());

@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import "./IFlashLoanRecipient.sol";
 
 pragma solidity >=0.7.0 <0.9.0;
@@ -38,7 +38,7 @@ interface IVault {
      */
     function flashLoan(
         IFlashLoanRecipient recipient,
-        IERC20[] memory tokens,
+        IERC20Upgradeable[] memory tokens,
         uint256[] memory amounts,
         bytes memory userData
     ) external;
@@ -46,7 +46,7 @@ interface IVault {
     /**
      * @dev Emitted for each individual flash loan performed by `flashLoan`.
      */
-    event FlashLoan(IFlashLoanRecipient indexed recipient, IERC20 indexed token, uint256 amount, uint256 feeAmount);
+    event FlashLoan(IFlashLoanRecipient indexed recipient, IERC20Upgradeable indexed token, uint256 amount, uint256 feeAmount);
 
     /**
      * @dev Returns the Vault's WETH instance.

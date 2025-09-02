@@ -2,22 +2,22 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "../Interfaces/IBoldToken.sol";
 
 contract LeftoversSweep {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     struct InitialBalances {
-        IERC20[4] tokens; // paving the way for completely dynamic routes
+        IERC20Upgradeable[4] tokens; // paving the way for completely dynamic routes
         uint256[4] balances;
         address receiver;
     }
 
     function _setInitialTokensAndBalances(
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         InitialBalances memory _initialBalances
     ) internal view {
@@ -25,7 +25,7 @@ contract LeftoversSweep {
     }
 
     function _setInitialTokensBalancesAndReceiver(
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
         InitialBalances memory _initialBalances,
         address _receiver

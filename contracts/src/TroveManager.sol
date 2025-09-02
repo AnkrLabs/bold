@@ -27,21 +27,21 @@ contract TroveManager is LiquityBase, ITroveManager, ITroveEvents {
     ISortedTroves public sortedTroves;
     ICollateralRegistry internal collateralRegistry;
     // Wrapped ETH for liquidation reserve (gas compensation)
-    IWETH internal immutable WETH;
+    IWETH internal WETH;
 
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
-    uint256 public immutable CCR;
+    uint256 public CCR;
 
     // Minimum collateral ratio for individual troves
-    uint256 internal immutable MCR;
+    uint256 internal MCR;
     // Shutdown system collateral ratio. If the system's total collateral ratio (TCR) for a given collateral falls below the SCR,
     // the protocol triggers the shutdown of the borrow market and permanently disables all borrowing operations except for closing Troves.
-    uint256 internal immutable SCR;
+    uint256 internal SCR;
 
     // Liquidation penalty for troves offset to the SP
-    uint256 internal immutable LIQUIDATION_PENALTY_SP;
+    uint256 internal LIQUIDATION_PENALTY_SP;
     // Liquidation penalty for troves redistributed
-    uint256 internal immutable LIQUIDATION_PENALTY_REDISTRIBUTION;
+    uint256 internal LIQUIDATION_PENALTY_REDISTRIBUTION;
 
     // --- Data structures ---
 
@@ -186,7 +186,9 @@ contract TroveManager is LiquityBase, ITroveManager, ITroveEvents {
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event CollateralRegistryAddressChanged(address _collateralRegistryAddress);
 
-    constructor(IAddressesRegistry _addressesRegistry) LiquityBase(_addressesRegistry) {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
+        __LiquityBase_init(_addressesRegistry);
+
         CCR = _addressesRegistry.CCR();
         MCR = _addressesRegistry.MCR();
         SCR = _addressesRegistry.SCR();

@@ -13,17 +13,16 @@ import "./Interfaces/IExchange.sol";
 import "./Interfaces/IZapper.sol";
 
 abstract contract BaseZapper is AddRemoveManagers, LeftoversSweep, IFlashLoanReceiver, IZapper {
-    IBorrowerOperations public immutable borrowerOperations; // LST branch (i.e., not WETH as collateral)
-    ITroveManager public immutable troveManager;
-    IWETH public immutable WETH;
-    IBoldToken public immutable boldToken;
+    IBorrowerOperations public borrowerOperations; // LST branch (i.e., not WETH as collateral)
+    ITroveManager public troveManager;
+    IWETH public WETH;
+    IBoldToken public boldToken;
 
-    IFlashLoanProvider public immutable flashLoanProvider;
-    IExchange public immutable exchange;
+    IFlashLoanProvider public flashLoanProvider;
+    IExchange public exchange;
 
-    constructor(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange)
-        AddRemoveManagers(_addressesRegistry)
-    {
+    function __BaseZapper_init(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) internal onlyInitializing {
+        __AddRemoveManagers_init(_addressesRegistry);
         borrowerOperations = _addressesRegistry.borrowerOperations();
         troveManager = _addressesRegistry.troveManager();
         boldToken = _addressesRegistry.boldToken();

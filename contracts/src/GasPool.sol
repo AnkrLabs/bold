@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 
 import "./Interfaces/IAddressesRegistry.sol";
 import "./Interfaces/IBorrowerOperations.sol";
@@ -15,8 +16,8 @@ import "./Interfaces/ITroveManager.sol";
  * When a borrower closes their active trove, this gas compensation is refunded
  * When a trove is liquidated, this gas compensation is paid to liquidator
  */
-contract GasPool {
-    constructor(IAddressesRegistry _addressesRegistry) {
+contract GasPool is Initializable {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         IWETH WETH = _addressesRegistry.WETH();
         IBorrowerOperations borrowerOperations = _addressesRegistry.borrowerOperations();
         ITroveManager troveManager = _addressesRegistry.troveManager();

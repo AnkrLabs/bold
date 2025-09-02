@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./Interfaces/IStabilityPool.sol";
 import "./Interfaces/IAddressesRegistry.sol";
@@ -116,13 +116,13 @@ import "./Dependencies/LiquityBase.sol";
  *
  */
 contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     string public constant NAME = "StabilityPool";
 
-    IERC20 public immutable collToken;
-    ITroveManager public immutable troveManager;
-    IBoldToken public immutable boldToken;
+    IERC20Upgradeable public collToken;
+    ITroveManager public troveManager;
+    IBoldToken public boldToken;
 
     uint256 internal collBalance; // deposited coll tracker
 
@@ -189,7 +189,8 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event BoldTokenAddressChanged(address _newBoldTokenAddress);
 
-    constructor(IAddressesRegistry _addressesRegistry) LiquityBase(_addressesRegistry) {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
+        __LiquityBase_init(_addressesRegistry);
         collToken = _addressesRegistry.collToken();
         troveManager = _addressesRegistry.troveManager();
         boldToken = _addressesRegistry.boldToken();

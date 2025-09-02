@@ -6,11 +6,13 @@ import "./Interfaces/ICollateralRegistry.sol";
 import "./Interfaces/IMultiTroveGetter.sol";
 import "./Types/BatchId.sol";
 
-/*  Helper contract for grabbing Trove data for the front end. Not part of the core Liquity system. */
-contract MultiTroveGetter is IMultiTroveGetter {
-    ICollateralRegistry public immutable collateralRegistry;
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
-    constructor(ICollateralRegistry _collateralRegistry) {
+/*  Helper contract for grabbing Trove data for the front end. Not part of the core Liquity system. */
+contract MultiTroveGetter is Initializable, IMultiTroveGetter {
+    ICollateralRegistry public collateralRegistry;
+
+    function initialize(ICollateralRegistry _collateralRegistry) external initializer {
         collateralRegistry = _collateralRegistry;
     }
 

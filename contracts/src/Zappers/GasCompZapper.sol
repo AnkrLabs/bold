@@ -2,19 +2,23 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./BaseZapper.sol";
 import "../Dependencies/Constants.sol";
 
 contract GasCompZapper is BaseZapper {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20 public immutable collToken;
+    IERC20Upgradeable public collToken;
 
-    constructor(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange)
-        BaseZapper(_addressesRegistry, _flashLoanProvider, _exchange)
-    {
+    function initialize(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) external virtual initializer {
+        __GasCompZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
+    }
+
+    function __GasCompZapper_init(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) internal onlyInitializing {
+        __BaseZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
+
         collToken = _addressesRegistry.collToken();
         require(address(WETH) != address(collToken), "GCZ: Wrong coll branch");
 

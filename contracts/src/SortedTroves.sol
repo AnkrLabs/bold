@@ -7,6 +7,8 @@ import "./Interfaces/IAddressesRegistry.sol";
 import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/IBorrowerOperations.sol";
 
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+
 // ID of head & tail of the list. Callers should stop iterating with `getNext()` / `getPrev()`
 // when encountering this node ID.
 uint256 constant ROOT_NODE_ID = 0;
@@ -35,7 +37,7 @@ uint256 constant ROOT_NODE_ID = 0;
 *
 * - Public functions with parameters have been made internal to save gas, and given an external wrapper function for external access
 */
-contract SortedTroves is ISortedTroves {
+contract SortedTroves is Initializable, ISortedTroves {
     string public constant NAME = "SortedTroves";
 
     // Constants used for documentation purposes
@@ -45,8 +47,8 @@ contract SortedTroves is ISortedTroves {
     event TroveManagerAddressChanged(address _troveManagerAddress);
     event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
 
-    address public immutable borrowerOperationsAddress;
-    ITroveManager public immutable troveManager;
+    address public borrowerOperationsAddress;
+    ITroveManager public troveManager;
 
     // Information for a node in the list
     struct Node {
@@ -78,7 +80,7 @@ contract SortedTroves is ISortedTroves {
     // Lookup batches by the address of their manager
     mapping(BatchId => Batch) public batches;
 
-    constructor(IAddressesRegistry _addressesRegistry) {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         // Technically, this is not needed as long as ROOT_NODE_ID is 0, but it doesn't hurt
         nodes[ROOT_NODE_ID].nextId = ROOT_NODE_ID;
         nodes[ROOT_NODE_ID].prevId = ROOT_NODE_ID;

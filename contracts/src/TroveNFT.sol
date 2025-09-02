@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 import "./Interfaces/ITroveNFT.sol";
 import "./Interfaces/IAddressesRegistry.sol";
@@ -11,26 +11,22 @@ import "./Interfaces/IAddressesRegistry.sol";
 import {IMetadataNFT} from "./NFTMetadata/MetadataNFT.sol";
 import {ITroveManager} from "./Interfaces/ITroveManager.sol";
 
-contract TroveNFT is ERC721, ITroveNFT {
-    ITroveManager public immutable troveManager;
-    IERC20Metadata internal immutable collToken;
-    IBoldToken internal immutable boldToken;
+contract TroveNFT is ERC721Upgradeable, ITroveNFT {
+    ITroveManager public troveManager;
+    IERC20MetadataUpgradeable internal collToken;
+    IBoldToken internal boldToken;
 
-    IMetadataNFT public immutable metadataNFT;
+    IMetadataNFT public metadataNFT;
 
-    constructor(IAddressesRegistry _addressesRegistry)
-        ERC721(
-            string.concat("Liquity V2 - ", _addressesRegistry.collToken().name()),
-            string.concat("LV2_", _addressesRegistry.collToken().symbol())
-        )
-    {
+    function initialize(IAddressesRegistry _addressesRegistry) external initializer {
+        __ERC721_init(string.concat("Liquity V2 - ", _addressesRegistry.collToken().name()), string.concat("LV2_", _addressesRegistry.collToken().symbol()));
         troveManager = _addressesRegistry.troveManager();
         collToken = _addressesRegistry.collToken();
         metadataNFT = _addressesRegistry.metadataNFT();
         boldToken = _addressesRegistry.boldToken();
     }
 
-    function tokenURI(uint256 _tokenId) public view override(ERC721, IERC721Metadata) returns (string memory) {
+    function tokenURI(uint256 _tokenId) public view override(ERC721Upgradeable, IERC721MetadataUpgradeable) returns (string memory) {
         LatestTroveData memory latestTroveData = troveManager.getLatestTroveData(_tokenId);
 
         IMetadataNFT.TroveData memory troveData = IMetadataNFT.TroveData({

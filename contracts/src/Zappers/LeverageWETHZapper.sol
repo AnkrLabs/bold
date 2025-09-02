@@ -7,9 +7,8 @@ import "../Dependencies/Constants.sol";
 import "./Interfaces/ILeverageZapper.sol";
 
 contract LeverageWETHZapper is WETHZapper, ILeverageZapper {
-    constructor(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange)
-        WETHZapper(_addressesRegistry, _flashLoanProvider, _exchange)
-    {
+    function initialize(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) external override initializer {
+        __WETHZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
         // Approval of coll (WETH) to BorrowerOperations is done in parent WETHZapper
         // Approve Bold to exchange module (Coll is approved in parent WETHZapper)
         boldToken.approve(address(_exchange), type(uint256).max);

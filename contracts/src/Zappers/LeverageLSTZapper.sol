@@ -2,17 +2,16 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import "./GasCompZapper.sol";
 import "../Dependencies/Constants.sol";
 
 contract LeverageLSTZapper is GasCompZapper, ILeverageZapper {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    constructor(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange)
-        GasCompZapper(_addressesRegistry, _flashLoanProvider, _exchange)
-    {
+    function initialize(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) external override initializer {
+        __GasCompZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
         // Approval of WETH and Coll to BorrowerOperations is done in parent GasCompZapper
         // Approve Bold to exchange module (Coll is approved in parent GasCompZapper)
         boldToken.approve(address(_exchange), type(uint256).max);

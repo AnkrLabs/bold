@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.18;
 
-import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol";
 
 import "../../../Interfaces/IWETH.sol";
 import "../../LeftoversSweep.sol";
@@ -17,11 +17,11 @@ import "../../Interfaces/IExchange.sol";
 // import "forge-std/console2.sol";
 
 contract HybridCurveUniV3Exchange is LeftoversSweep, IExchange {
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20 public immutable collToken;
+    IERC20Upgradeable public immutable collToken;
     IBoldToken public immutable boldToken;
-    IERC20 public immutable USDC;
+    IERC20Upgradeable public immutable USDC;
     IWETH public immutable WETH;
 
     // Curve
@@ -35,9 +35,9 @@ contract HybridCurveUniV3Exchange is LeftoversSweep, IExchange {
     ISwapRouter public immutable uniV3Router;
 
     constructor(
-        IERC20 _collToken,
+        IERC20Upgradeable _collToken,
         IBoldToken _boldToken,
-        IERC20 _usdc,
+        IERC20Upgradeable _usdc,
         IWETH _weth,
         // Curve
         ICurveStableswapNGPool _curvePool,

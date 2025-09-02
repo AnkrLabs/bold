@@ -6,9 +6,13 @@ import "./BaseZapper.sol";
 import "../Dependencies/Constants.sol";
 
 contract WETHZapper is BaseZapper {
-    constructor(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange)
-        BaseZapper(_addressesRegistry, _flashLoanProvider, _exchange)
-    {
+    function initialize(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) external virtual initializer {
+        __WETHZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
+    }
+
+    function __WETHZapper_init(IAddressesRegistry _addressesRegistry, IFlashLoanProvider _flashLoanProvider, IExchange _exchange) internal onlyInitializing {
+        __BaseZapper_init(_addressesRegistry, _flashLoanProvider, _exchange);
+
         require(address(WETH) == address(_addressesRegistry.collToken()), "WZ: Wrong coll branch");
 
         // Approve coll to BorrowerOperations

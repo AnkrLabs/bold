@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.24;
 
-import "./Dependencies/Ownable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import {MIN_LIQUIDATION_PENALTY_SP, MAX_LIQUIDATION_PENALTY_REDISTRIBUTION} from "./Dependencies/Constants.sol";
 import "./Interfaces/IAddressesRegistry.sol";
 
-contract AddressesRegistry is Ownable, IAddressesRegistry {
-    IERC20Metadata public collToken;
+contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
+    IERC20MetadataUpgradeable public collToken;
     IBorrowerOperations public borrowerOperations;
     ITroveManager public troveManager;
     ITroveNFT public troveNFT;
@@ -27,19 +27,19 @@ contract AddressesRegistry is Ownable, IAddressesRegistry {
     IWETH public WETH;
 
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
-    uint256 public immutable CCR;
+    uint256 public CCR;
     // Shutdown system collateral ratio. If the system's total collateral ratio (TCR) for a given collateral falls below the SCR,
     // the protocol triggers the shutdown of the borrow market and permanently disables all borrowing operations except for closing Troves.
-    uint256 public immutable SCR;
+    uint256 public SCR;
 
     // Minimum collateral ratio for individual troves
-    uint256 public immutable MCR;
+    uint256 public MCR;
     // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
-    uint256 public immutable BCR;
+    uint256 public BCR;
     // Liquidation penalty for troves offset to the SP
-    uint256 public immutable LIQUIDATION_PENALTY_SP;
+    uint256 public LIQUIDATION_PENALTY_SP;
     // Liquidation penalty for troves redistributed
-    uint256 public immutable LIQUIDATION_PENALTY_REDISTRIBUTION;
+    uint256 public LIQUIDATION_PENALTY_REDISTRIBUTION;
 
     error InvalidCCR();
     error InvalidMCR();
@@ -68,7 +68,7 @@ contract AddressesRegistry is Ownable, IAddressesRegistry {
     event BoldTokenAddressChanged(address _boldTokenAddress);
     event WETHAddressChanged(address _wethAddress);
 
-    constructor(
+    function initialize(
         address _owner,
         uint256 _ccr,
         uint256 _mcr,
@@ -76,7 +76,8 @@ contract AddressesRegistry is Ownable, IAddressesRegistry {
         uint256 _scr,
         uint256 _liquidationPenaltySP,
         uint256 _liquidationPenaltyRedistribution
-    ) Ownable(_owner) {
+    ) external initializer {
+        _transferOwnership(_owner);
         if (_ccr <= 1e18 || _ccr >= 2e18) revert InvalidCCR();
         if (_mcr <= 1e18 || _mcr >= 2e18) revert InvalidMCR();
         if (_bcr < 5e16 || _bcr >= 50e16) revert InvalidBCR();
@@ -131,7 +132,5 @@ contract AddressesRegistry is Ownable, IAddressesRegistry {
         emit CollateralRegistryAddressChanged(address(_vars.collateralRegistry));
         emit BoldTokenAddressChanged(address(_vars.boldToken));
         emit WETHAddressChanged(address(_vars.WETH));
-
-        _renounceOwnership();
     }
 }

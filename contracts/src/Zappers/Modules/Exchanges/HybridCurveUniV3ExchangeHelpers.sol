@@ -15,7 +15,7 @@ contract HybridCurveUniV3ExchangeHelpers is IExchangeHelpers {
 
     //HybridCurveUniV3Exchange public immutable exchange;
 
-    IERC20 public immutable USDC;
+    IERC20Upgradeable public immutable USDC;
     IWETH public immutable WETH;
 
     // Curve
@@ -47,7 +47,7 @@ contract HybridCurveUniV3ExchangeHelpers is IExchangeHelpers {
     */
 
     constructor(
-        IERC20 _usdc,
+        IERC20Upgradeable _usdc,
         IWETH _weth,
         // Curve
         ICurveStableswapNGPool _curvePool,
@@ -72,7 +72,7 @@ contract HybridCurveUniV3ExchangeHelpers is IExchangeHelpers {
         uniV3Quoter = _uniV3Quoter;
     }
 
-    function getCollFromBold(uint256 _boldAmount, IERC20 _collToken, uint256 _desiredCollAmount)
+    function getCollFromBold(uint256 _boldAmount, IERC20Upgradeable _collToken, uint256 _desiredCollAmount)
         external /* view */
         returns (uint256 collAmount, uint256 deviation)
     {
