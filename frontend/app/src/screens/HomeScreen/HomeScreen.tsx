@@ -7,7 +7,6 @@ import { useBreakpoint } from "@/src/breakpoints";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { Positions } from "@/src/comps/Positions/Positions";
-import { FORKS_INFO } from "@/src/constants";
 import content from "@/src/content";
 import { DNUM_1 } from "@/src/dnum-utils";
 import {
@@ -26,8 +25,6 @@ import { IconBorrow, IconEarn, TokenIcon } from "@liquity2/uikit";
 import * as dn from "dnum";
 import { useState } from "react";
 import { HomeTable } from "./HomeTable";
-
-type ForkInfo = (typeof FORKS_INFO)[number];
 
 export function HomeScreen() {
   const account = useAccount();
@@ -353,20 +350,4 @@ function EarnRewardsRow({
       )}
     </tr>
   );
-}
-
-function pickRandomForks(count: number): ForkInfo[] {
-  const forks = [...FORKS_INFO];
-  if (forks.length < count) {
-    return forks;
-  }
-  const picked: ForkInfo[] = [];
-  for (let i = 0; i < count; i++) {
-    const [info] = forks.splice(
-      Math.floor(Math.random() * forks.length),
-      1,
-    );
-    if (info) picked.push(info);
-  }
-  return picked;
 }
