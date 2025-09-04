@@ -266,9 +266,8 @@ export function vVoteAllocations() {
 
 export function vCollateralSymbol() {
   return v.union([
-    v.literal("ETH"),
-    v.literal("RETH"),
-    v.literal("WSTETH"),
+    v.literal("ANKR"),
+    v.literal("USN"),
   ]);
 }
 
@@ -277,36 +276,7 @@ export function vTokenSymbol() {
     vCollateralSymbol(),
     v.literal("BOLD"),
     v.literal("LEGACY_BOLD"),
-    v.literal("LQTY"),
-    v.literal("LUSD"),
     v.literal("SBOLD"),
-  ]);
-}
-
-export function vEnvLegacyCheck() {
-  return v.union([
-    vEnvFlag(),
-    v.pipe(
-      v.string(),
-      v.transform((value) => JSON.parse(value)),
-      v.object({
-        BOLD_TOKEN: vAddress(),
-        COLLATERAL_REGISTRY: vAddress(),
-        GOVERNANCE: vAddress(),
-        INITIATIVES_SNAPSHOT_URL: v.string(),
-        TROVES_SNAPSHOT_URL: v.string(),
-        BRANCHES: v.array(
-          v.object({
-            symbol: vCollateralSymbol(),
-            name: v.string(),
-            COLL_TOKEN: vAddress(),
-            LEVERAGE_ZAPPER: vAddress(),
-            STABILITY_POOL: vAddress(),
-            TROVE_MANAGER: vAddress(),
-          }),
-        ),
-      }),
-    ),
   ]);
 }
 

@@ -3,7 +3,7 @@ import type { Address, TokenSymbol } from "@/src/types";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { Logo } from "@/src/comps/Logo/Logo";
-import { ACCOUNT_SCREEN, CHAIN_BLOCK_EXPLORER, CONTRACT_BOLD_TOKEN, CONTRACT_LQTY_TOKEN } from "@/src/env";
+import { ACCOUNT_SCREEN, CHAIN_BLOCK_EXPLORER, CONTRACT_BOLD_TOKEN } from "@/src/env";
 import { fmtnum } from "@/src/formatting";
 import { useLiquityStats } from "@/src/liquity-utils";
 import { usePrice } from "@/src/services/Prices";
@@ -14,7 +14,7 @@ import { blo } from "blo";
 import Image from "next/image";
 import { AboutButton } from "./AboutButton";
 
-const DISPLAYED_PRICES = ["LQTY", "BOLD", "ETH"] as const;
+const DISPLAYED_PRICES = ["BOLD", "ANKR"] as const;
 const ENABLE_REDEEM = false;
 
 export function BottomBar() {
@@ -214,9 +214,6 @@ export function BottomBar() {
 }
 
 function getTokenAddress(symbol: TokenSymbol) {
-  if (symbol === "LQTY") {
-    return CONTRACT_LQTY_TOKEN;
-  }
   if (symbol === "BOLD") {
     return CONTRACT_BOLD_TOKEN;
   }

@@ -211,9 +211,9 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
           value={[
             <div
               key="start"
-              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ETH`}
+              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ANKR`}
             >
-              {fmtnum(ETH_GAS_COMPENSATION, 4)} ETH
+              {fmtnum(ETH_GAS_COMPENSATION, 4)} ANKR
             </div>,
             "Only used in case of liquidation",
           ]}
@@ -373,7 +373,7 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
     const branch = getBranch(ctx.request.branchId);
 
     // ETH doesn't need approval
-    if (branch.symbol === "ETH") {
+    if (branch.symbol === "ANKR") {
       return ["openTroveEth"];
     }
 

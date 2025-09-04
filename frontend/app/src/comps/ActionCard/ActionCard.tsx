@@ -10,7 +10,7 @@ import { ActionIcon } from "./ActionIcon";
 export function ActionCard({
   type,
 }: {
-  type: "borrow" | "multiply" | "earn" | "stake";
+  type: "borrow" | "multiply" | "earn";
 }) {
   const [hint, setHint] = useState(false);
   const [active, setActive] = useState(false);
@@ -63,16 +63,6 @@ export function ActionCard({
       description: ac.earn.description,
       path: "/earn",
       title: ac.earn.title,
-    }))
-    .with("stake", () => ({
-      colors: {
-        background: token("colors.brandGolden"),
-        foreground: token("colors.brandGoldenContent"),
-        foregroundAlt: token("colors.brandGoldenContentAlt"),
-      },
-      description: ac.stake.description,
-      path: "/stake",
-      title: ac.stake.title,
     }))
     .exhaustive();
 

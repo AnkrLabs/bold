@@ -134,9 +134,9 @@ export const openLeveragePosition: FlowDeclaration<OpenLeveragePositionRequest> 
           value={[
             <div
               key="start"
-              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ETH`}
+              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ANKR`}
             >
-              {fmtnum(ETH_GAS_COMPENSATION, 4)} ETH
+              {fmtnum(ETH_GAS_COMPENSATION, 4)} ANKR
             </div>,
             "Only used in case of liquidation",
           ]}
@@ -219,7 +219,7 @@ export const openLeveragePosition: FlowDeclaration<OpenLeveragePositionRequest> 
         };
 
         // ETH collateral case
-        if (branch.symbol === "ETH") {
+        if (branch.symbol === "ANKR") {
           return ctx.writeContract({
             ...LeverageWETHZapper,
             functionName: "openLeveragedTroveWithRawETH",
@@ -278,7 +278,7 @@ export const openLeveragePosition: FlowDeclaration<OpenLeveragePositionRequest> 
     }
 
     // ETH doesn't need approval
-    if (collToken.symbol === "ETH") {
+    if (collToken.symbol === "ANKR") {
       return ["openLeveragedTrove"];
     }
 

@@ -90,9 +90,9 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
           value={[
             <div
               key="start"
-              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ETH`}
+              title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ANKR`}
             >
-              {fmtnum(ETH_GAS_COMPENSATION, 4)} ETH
+              {fmtnum(ETH_GAS_COMPENSATION, 4)} ANKR
             </div>,
           ]}
         />
@@ -118,7 +118,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
           args: [BigInt(loan.troveId)],
         });
 
-        const Zapper = branch.symbol === "ETH"
+        const Zapper = branch.symbol === "ANKR"
           ? branch.contracts.LeverageWETHZapper
           : branch.contracts.LeverageLSTZapper;
 
@@ -148,7 +148,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
         const branch = getBranch(loan.branchId);
 
         // repay with BOLD => get ETH
-        if (!ctx.request.repayWithCollateral && branch.symbol === "ETH") {
+        if (!ctx.request.repayWithCollateral && branch.symbol === "ANKR") {
           return ctx.writeContract({
             ...branch.contracts.LeverageWETHZapper,
             functionName: "closeTroveToRawETH",
@@ -178,7 +178,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
         }
 
         // repay with collateral => get ETH
-        if (branch.symbol === "ETH") {
+        if (branch.symbol === "ANKR") {
           return ctx.writeContract({
             ...branch.contracts.LeverageWETHZapper,
             functionName: "closeTroveFromCollateral",
@@ -216,7 +216,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
     const { loan } = ctx.request;
     const branch = getBranch(loan.branchId);
 
-    const Zapper = branch.symbol === "ETH"
+    const Zapper = branch.symbol === "ANKR"
       ? branch.contracts.LeverageWETHZapper
       : branch.contracts.LeverageLSTZapper;
 

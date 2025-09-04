@@ -9,7 +9,7 @@ export default {
   appName: "Liquity V2",
   appDescription: `
     Liquity V2 is a new borrowing protocol that lets users
-    deposit ETH or LSTs as collateral and mint the stablecoin BOLD.
+    deposit ANKR or LSTs as collateral and mint the stablecoin BOLD.
   `,
   appUrl: typeof window === "undefined"
     ? "https://www.liquity.org/"
@@ -24,7 +24,6 @@ export default {
     borrow: "Borrow",
     multiply: "Multiply",
     earn: "Earn",
-    stake: "Stake",
   },
 
   accountButton: {
@@ -66,10 +65,10 @@ export default {
       <>The collateral price at which a loan can be liquidated.</>,
     ],
     ethPrice: [
-      "ETH Price",
+      "ANKR Price",
       <>
-        The current price of ETH, as reported by the oracle. The ETH price is used to calculate the Loan-To-Value (LTV)
-        ratio of a loan.
+        The current price of ANKR, as reported by the oracle. The ANKR price is used to calculate the Loan-To-Value
+        (LTV) ratio of a loan.
       </>,
     ],
     interestRateBoldPerYear: [
@@ -206,20 +205,16 @@ export default {
       },
       multiply: {
         title: "Multiply",
-        description: "Increase your exposure to ETH and its staking yield with a single click",
+        description: "Increase your exposure to ANKR and its staking yield with a single click",
       },
       earn: {
         title: "Earn with BOLD",
         description: "Deposit BOLD to earn protocol revenues and liquidation proceeds",
       },
-      stake: {
-        title: "Stake LQTY",
-        description: "Direct protocol incentives with LQTY while earning from Liquity V1",
-      },
     },
     earnTable: {
       title: "Earn rewards with BOLD",
-      subtitle: "Earn BOLD & (staked) ETH rewards by depositing your BOLD in a stability pool",
+      subtitle: "Earn BOLD & (staked) ANKR rewards by depositing your BOLD in a stability pool",
       forksInfo: {
         text: (
           <>
@@ -247,7 +242,7 @@ export default {
     },
     infoTooltips: {
       avgInterestRate: [
-        "The current average interest rate being paid by ETH-backed positions.",
+        "The current average interest rate being paid by ANKR-backed positions.",
       ],
       spApr: [
         "Annual Percentage Rate",
@@ -278,7 +273,7 @@ export default {
       label: "Loan",
     },
     liquidationPriceField: {
-      label: "ETH liquidation price",
+      label: "ANKR liquidation price",
     },
     interestRateField: {
       label: "Interest rate",
@@ -302,7 +297,7 @@ export default {
       label: "You deposit",
     },
     liquidationPriceField: {
-      label: "ETH liquidation price",
+      label: "ANKR liquidation price",
     },
     interestRateField: {
       label: "Interest rate",
@@ -422,7 +417,7 @@ export default {
         "Average annualized return for BOLD deposits over the past 7 days.",
       ],
       rewardsEth: [
-        "ETH rewards",
+        "ANKR rewards",
         "Your proceeds from liquidations conducted by this stability pool.",
       ],
       rewardsBold: [
@@ -431,102 +426,7 @@ export default {
       ],
     },
   },
-
-  // Stake screen
-  stakeScreen: {
-    headline: (lqtyIcon: N) => (
-      <>
-        <span>Stake</span>
-        {lqtyIcon} <span>LQTY & get</span>
-        <span>voting power</span>
-      </>
-    ),
-    subheading: (
-      <>
-        By staking LQTY you can vote on incentives for Liquity V2, while still earning Liquity V1 fees.
-      </>
-    ),
-    learnMore: [
-      "https://docs.liquity.org/v2-faq/lqty-staking",
-      "Learn more",
-    ],
-    accountDetails: {
-      myDeposit: "My deposit",
-      votingPower: "Voting power",
-      votingPowerHelp: (
-        <>
-          Voting power is the percentage of the total staked LQTY that you own.
-        </>
-      ),
-      unclaimed: "Unclaimed rewards",
-    },
-    tabs: {
-      deposit: "Staking",
-      rewards: "Rewards",
-      voting: "Voting",
-    },
-    depositPanel: {
-      label: "Deposit",
-      shareLabel: "Pool share",
-      rewardsLabel: "Available rewards",
-      action: "Next: Summary",
-    },
-    rewardsPanel: {
-      label: "You claim",
-      details: (usdAmount: N, fee: N) => (
-        <>
-          ~${usdAmount} • Expected gas fee ~${fee}
-        </>
-      ),
-      action: "Next: Summary",
-    },
-    votingPanel: {
-      title: "Allocate your voting power",
-      intro: (
-        <>
-          Direct incentives from Liquity V2 protocol revenues towards liquidity providers for BOLD. Upvote from Thursday
-          to Tuesday. Downvote all week. <Link href="https://docs.liquity.org/v2-faq/lqty-staking">Learn more</Link>
-        </>
-      ),
-    },
-    infoTooltips: {
-      alsoClaimRewardsDeposit: [
-        <>
-          Rewards will be paid out as part of the update transaction.
-        </>,
-      ],
-      votingShare: (
-        <>
-          Your voting share is the amount of LQTY you have staked and that is available to vote, divided by the total
-          amount of LQTY staked via the governance contract.
-        </>
-      ),
-      votingPower: (
-        <>
-          Your relative voting power changes over time, depending on your and others allocations of LQTY.
-        </>
-      ),
-    },
-  },
 } as const;
-
-function Link({
-  href,
-  children,
-}: {
-  href: string;
-  children: N;
-}) {
-  const props = !href.startsWith("http") ? {} : {
-    target: "_blank",
-    rel: "noopener noreferrer",
-  };
-  return (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  );
-}
 
 function NoWrap({
   children,

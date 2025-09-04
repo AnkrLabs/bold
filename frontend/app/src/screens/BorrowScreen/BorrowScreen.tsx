@@ -143,7 +143,7 @@ export function BorrowScreen() {
     maxCollDeposit,
     dnumMax(
       // Only keep a reserve for ETH, not LSTs
-      dn.sub(collBalance.data, collSymbol === "ETH" ? ETH_MAX_RESERVE : 0),
+      dn.sub(collBalance.data, collSymbol === "ANKR" ? ETH_MAX_RESERVE : 0),
       dnum18(0),
     ),
   );
@@ -187,7 +187,7 @@ export function BorrowScreen() {
                     />
                   ))}
                 </TokenIcon.Group>
-                {NBSP}ETH
+                {NBSP}ANKR
               </div>,
               <div
                 className={css({

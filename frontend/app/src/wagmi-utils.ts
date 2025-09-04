@@ -2,7 +2,7 @@ import type { Dnum, Token } from "@/src/types";
 import type { Address } from "@liquity2/uikit";
 
 import { dnum18 } from "@/src/dnum-utils";
-import { CONTRACT_BOLD_TOKEN, CONTRACT_LQTY_TOKEN, CONTRACT_LUSD_TOKEN } from "@/src/env";
+import { CONTRACT_BOLD_TOKEN } from "@/src/env";
 import { getBranch } from "@/src/liquity-utils";
 import { getSafeStatus } from "@/src/safe-utils";
 import { isCollateralSymbol } from "@liquity2/uikit";
@@ -30,23 +30,21 @@ export function useBalances(
   const tokenConfigs = tokens.map((token) => {
     const tokenAddress = match(token)
       .when(
-        (symbol) => Boolean(symbol && isCollateralSymbol(symbol) && symbol !== "ETH"),
+        (symbol) => Boolean(symbol && isCollateralSymbol(symbol) && symbol !== "ANKR"),
         (symbol) => {
-          if (!symbol || !isCollateralSymbol(symbol) || symbol === "ETH") {
+          if (!symbol || !isCollateralSymbol(symbol) || symbol === "ANKR") {
             return null;
           }
           return getBranch(symbol).contracts.CollToken.address;
         },
       )
-      .with("LUSD", () => CONTRACT_LUSD_TOKEN)
       .with("BOLD", () => CONTRACT_BOLD_TOKEN)
-      .with("LQTY", () => CONTRACT_LQTY_TOKEN)
       .otherwise(() => null);
 
     return {
       token,
       tokenAddress,
-      isEth: token === "ETH",
+      isEth: token === "ANKR",
     };
   });
 
@@ -74,7 +72,7 @@ export function useBalances(
 
   // combine results
   return tokens.reduce((result, token) => {
-    if (token === "ETH") {
+    if (token === "ANKR") {
       result[token] = {
         data: ethBalance.data ? dnum18(ethBalance.data.value) : undefined,
         isLoading: ethBalance.isLoading,

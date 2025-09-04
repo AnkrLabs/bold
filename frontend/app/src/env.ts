@@ -2,14 +2,13 @@
 
 import type { Address, Branch, BranchId, IcStrategy } from "@/src/types";
 
-import { DEFAULT_COMMIT_URL, DEFAULT_LEGACY_CHECKS, DEFAULT_STRATEGIES, DEFAULT_VERSION_URL } from "@/src/constants";
+import { DEFAULT_COMMIT_URL, DEFAULT_STRATEGIES, DEFAULT_VERSION_URL } from "@/src/constants";
 import { isBranchId } from "@/src/types";
 import {
   vAddress,
   vEnvAddressAndBlock,
   vEnvCurrency,
   vEnvFlag,
-  vEnvLegacyCheck,
   vEnvLink,
   vEnvUrlOrDefault,
   vIcStrategy,
@@ -29,9 +28,8 @@ function isIcStrategyList(value: unknown): value is IcStrategy[] {
 }
 
 export const CollateralSymbolSchema = v.union([
-  v.literal("ETH"),
-  v.literal("RETH"),
-  v.literal("WSTETH"),
+  v.literal("ANKR"),
+  v.literal("USN"),
 ]);
 
 function isCollateralSymbol(value: unknown) {
@@ -176,7 +174,6 @@ export const EnvSchema = v.pipe(
       v.transform((value) => value.trim() || null),
     ),
     KNOWN_INITIATIVES_URL: v.optional(v.pipe(v.string(), v.url())),
-    LEGACY_CHECK: v.optional(vEnvLegacyCheck(), "true"),
     LIQUITY_STATS_URL: v.optional(v.pipe(v.string(), v.url())),
     LIQUITY_GOVERNANCE_URL: v.optional(v.union([v.pipe(v.string(), v.url()), v.literal("")])),
     SAFE_API_URL: v.optional(v.union([v.pipe(v.string(), v.url()), v.literal("")])),
@@ -196,13 +193,8 @@ export const EnvSchema = v.pipe(
 
     CONTRACT_BOLD_TOKEN: vAddress(),
     CONTRACT_COLLATERAL_REGISTRY: vAddress(),
-    CONTRACT_DEBT_IN_FRONT_HELPER: vAddress(),
     CONTRACT_EXCHANGE_HELPERS: vAddress(),
-    CONTRACT_GOVERNANCE: vAddress(),
     CONTRACT_HINT_HELPERS: vAddress(),
-    CONTRACT_LQTY_STAKING: vAddress(),
-    CONTRACT_LQTY_TOKEN: vAddress(),
-    CONTRACT_LUSD_TOKEN: vAddress(),
     CONTRACT_MULTI_TROVE_GETTER: vAddress(),
     CONTRACT_WETH: vAddress(),
 
@@ -286,11 +278,7 @@ export const EnvSchema = v.pipe(
       }
     }
 
-    const legacyCheck = env.LEGACY_CHECK === true
-      ? DEFAULT_LEGACY_CHECKS.get(env.CHAIN_ID) ?? null
-      : env.LEGACY_CHECK === false
-      ? null
-      : env.LEGACY_CHECK;
+    const legacyCheck = null;
 
     return {
       ...env,
@@ -353,23 +341,16 @@ const parsedEnv = v.safeParse(EnvSchema, {
 
   CONTRACT_BOLD_TOKEN: process.env.NEXT_PUBLIC_CONTRACT_BOLD_TOKEN,
   CONTRACT_COLLATERAL_REGISTRY: process.env.NEXT_PUBLIC_CONTRACT_COLLATERAL_REGISTRY,
-  CONTRACT_DEBT_IN_FRONT_HELPER: process.env.NEXT_PUBLIC_CONTRACT_DEBT_IN_FRONT_HELPER,
   CONTRACT_EXCHANGE_HELPERS: process.env.NEXT_PUBLIC_CONTRACT_EXCHANGE_HELPERS,
-  CONTRACT_GOVERNANCE: process.env.NEXT_PUBLIC_CONTRACT_GOVERNANCE,
   CONTRACT_HINT_HELPERS: process.env.NEXT_PUBLIC_CONTRACT_HINT_HELPERS,
-  CONTRACT_LQTY_STAKING: process.env.NEXT_PUBLIC_CONTRACT_LQTY_STAKING,
-  CONTRACT_LQTY_TOKEN: process.env.NEXT_PUBLIC_CONTRACT_LQTY_TOKEN,
-  CONTRACT_LUSD_TOKEN: process.env.NEXT_PUBLIC_CONTRACT_LUSD_TOKEN,
   CONTRACT_MULTI_TROVE_GETTER: process.env.NEXT_PUBLIC_CONTRACT_MULTI_TROVE_GETTER,
   CONTRACT_WETH: process.env.NEXT_PUBLIC_CONTRACT_WETH,
 
   COLL_0_TOKEN_ID: process.env.NEXT_PUBLIC_COLL_0_TOKEN_ID,
   COLL_1_TOKEN_ID: process.env.NEXT_PUBLIC_COLL_1_TOKEN_ID,
-  COLL_2_TOKEN_ID: process.env.NEXT_PUBLIC_COLL_2_TOKEN_ID,
 
   COLL_0_IC_STRATEGIES: process.env.NEXT_PUBLIC_COLL_0_IC_STRATEGIES,
   COLL_1_IC_STRATEGIES: process.env.NEXT_PUBLIC_COLL_1_IC_STRATEGIES,
-  COLL_2_IC_STRATEGIES: process.env.NEXT_PUBLIC_COLL_2_IC_STRATEGIES,
 
   COLL_0_CONTRACT_ACTIVE_POOL: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_ACTIVE_POOL,
   COLL_0_CONTRACT_BORROWER_OPERATIONS: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_BORROWER_OPERATIONS,
@@ -394,18 +375,6 @@ const parsedEnv = v.safeParse(EnvSchema, {
   COLL_1_CONTRACT_STABILITY_POOL: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_STABILITY_POOL,
   COLL_1_CONTRACT_TROVE_MANAGER: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_TROVE_MANAGER,
   COLL_1_CONTRACT_TROVE_NFT: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_TROVE_NFT,
-
-  COLL_2_CONTRACT_ACTIVE_POOL: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_ACTIVE_POOL,
-  COLL_2_CONTRACT_BORROWER_OPERATIONS: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_BORROWER_OPERATIONS,
-  COLL_2_CONTRACT_COLL_SURPLUS_POOL: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_COLL_SURPLUS_POOL,
-  COLL_2_CONTRACT_COLL_TOKEN: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_COLL_TOKEN,
-  COLL_2_CONTRACT_DEFAULT_POOL: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_DEFAULT_POOL,
-  COLL_2_CONTRACT_LEVERAGE_ZAPPER: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_LEVERAGE_ZAPPER,
-  COLL_2_CONTRACT_PRICE_FEED: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_PRICE_FEED,
-  COLL_2_CONTRACT_SORTED_TROVES: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_SORTED_TROVES,
-  COLL_2_CONTRACT_STABILITY_POOL: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_STABILITY_POOL,
-  COLL_2_CONTRACT_TROVE_MANAGER: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_TROVE_MANAGER,
-  COLL_2_CONTRACT_TROVE_NFT: process.env.NEXT_PUBLIC_COLL_2_CONTRACT_TROVE_NFT,
 });
 
 if (!parsedEnv.success) {
@@ -443,13 +412,8 @@ export const {
   CONTRACTS_COMMIT_URL,
   CONTRACT_BOLD_TOKEN,
   CONTRACT_COLLATERAL_REGISTRY,
-  CONTRACT_DEBT_IN_FRONT_HELPER,
   CONTRACT_EXCHANGE_HELPERS,
-  CONTRACT_GOVERNANCE,
   CONTRACT_HINT_HELPERS,
-  CONTRACT_LQTY_STAKING,
-  CONTRACT_LQTY_TOKEN,
-  CONTRACT_LUSD_TOKEN,
   CONTRACT_MULTI_TROVE_GETTER,
   CONTRACT_WETH,
   DEPLOYMENT_FLAVOR,

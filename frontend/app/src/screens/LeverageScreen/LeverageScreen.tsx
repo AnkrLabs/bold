@@ -17,7 +17,7 @@ import { useInputFieldValue } from "@/src/form-utils";
 import { fmtnum } from "@/src/formatting";
 import { useCheckLeverageSlippage } from "@/src/liquity-leverage";
 import { getRedemptionRisk } from "@/src/liquity-math";
-import { getBranch, getBranches, getCollToken, useNextOwnerIndex, useDebtPositioning } from "@/src/liquity-utils";
+import { getBranch, getBranches, getCollToken, useDebtPositioning, useNextOwnerIndex } from "@/src/liquity-utils";
 import { usePrice } from "@/src/services/Prices";
 import { useTransactionFlow } from "@/src/services/TransactionFlow";
 import { infoTooltipProps } from "@/src/uikit-utils";
@@ -102,7 +102,7 @@ export function LeverageScreen() {
   const collBalance = balances[collateral.symbol]?.data;
 
   const maxAmount = collBalance && dnumMax(
-    dn.sub(collBalance, collSymbol === "ETH" ? ETH_MAX_RESERVE : 0), // Only keep a reserve for ETH, not LSTs
+    dn.sub(collBalance, collSymbol === "ANKR" ? ETH_MAX_RESERVE : 0), // Only keep a reserve for ETH, not LSTs
     dnum18(0),
   );
 

@@ -121,7 +121,7 @@ export function PanelUpdateLeveragePosition({
   const collMax = depositMode === "remove" ? null : (
     collBalance.data && dn.sub(
       collBalance.data,
-      collToken?.symbol === "ETH" ? ETH_MAX_RESERVE : 0, // Only keep a reserve for ETH, not LSTs
+      collToken?.symbol === "ANKR" ? ETH_MAX_RESERVE : 0, // Only keep a reserve for ETH, not LSTs
     )
   );
 
@@ -279,7 +279,7 @@ export function PanelUpdateLeveragePosition({
           }
           footer={[
             {
-              start: <Field.FooterInfo label="ETH liquidation price" />,
+              start: <Field.FooterInfo label="ANKR liquidation price" />,
               end: (
                 <ValueUpdate
                   fontSize={14}
@@ -291,7 +291,7 @@ export function PanelUpdateLeveragePosition({
               ),
             },
             {
-              start: <Field.FooterInfo label="ETH exposure" />,
+              start: <Field.FooterInfo label="ANKR exposure" />,
               end: (
                 <ValueUpdate
                   fontSize={14}

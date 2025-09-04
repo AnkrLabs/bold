@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { ERC20Faucet } from "@/src/abi/ERC20Faucet";
 import { Positions } from "@/src/comps/Positions/Positions";
 import { Screen } from "@/src/comps/Screen/Screen";
-import { getBranchContract, getProtocolContract } from "@/src/contracts";
+import { getBranchContract } from "@/src/contracts";
 import { CHAIN_ID } from "@/src/env";
 import { fmtnum } from "@/src/formatting";
 import { getBranches } from "@/src/liquity-utils";
@@ -112,21 +112,6 @@ export function AccountScreen({
                 tokenSymbol="BOLD"
               />
             </GridItem>
-            <GridItem label="LQTY balance">
-              <Balance
-                address={address}
-                tokenSymbol="LQTY"
-                tapButton={tapEnabled
-                  && account.address
-                  && addressesEqual(address, account.address)}
-              />
-            </GridItem>
-            <GridItem label="LUSD balance">
-              <Balance
-                address={address}
-                tokenSymbol="LUSD"
-              />
-            </GridItem>
             {branches.map(({ symbol }) => (
               <GridItem
                 key={symbol}
@@ -136,7 +121,7 @@ export function AccountScreen({
                   address={address}
                   tokenSymbol={symbol}
                   tapButton={tapEnabled
-                    && symbol !== "ETH" && account.address
+                    && symbol !== "ANKR" && account.address
                     && addressesEqual(address, account.address)}
                 />
               </GridItem>
@@ -165,7 +150,6 @@ function Balance({
 }) {
   const balance = useBalance(address, tokenSymbol);
 
-  const LqtyToken = getProtocolContract("LqtyToken");
   const CollToken = getBranchContract(
     isCollateralSymbol(tokenSymbol) ? tokenSymbol : null,
     "CollToken",
@@ -201,25 +185,12 @@ function Balance({
           size="mini"
           label="tap"
           onClick={() => {
-            if ((tokenSymbol === "WSTETH" || tokenSymbol === "RETH") && CollToken) {
+            if ((tokenSymbol === "USN") && CollToken) {
               writeContract({
                 abi: ERC20Faucet,
                 address: CollToken.address,
                 functionName: "tap",
                 args: [],
-              }, {
-                onError: (error) => {
-                  alert(error.message);
-                },
-              });
-              return;
-            }
-
-            if (tokenSymbol === "LQTY") {
-              writeContract({
-                abi: LqtyToken.abi,
-                address: LqtyToken.address,
-                functionName: "tap",
               }, {
                 onError: (error) => {
                   alert(error.message);

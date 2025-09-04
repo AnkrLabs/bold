@@ -31,7 +31,7 @@ export function PanelClaimRewards({
     throw new Error(`Invalid branch: ${branchId}`);
   }
 
-  const ethPrice = usePrice("ETH");
+  const ankrPrice = usePrice("ETH");
   const boldPriceUsd = usePrice("BOLD");
   const collPriceUsd = usePrice(collateral.symbol);
 
@@ -59,8 +59,8 @@ export function PanelClaimRewards({
     ? dnum18(gasEstimate.data * gasPrice.data)
     : null;
 
-  const txGasPriceUsd = gasPriceEth && ethPrice.data
-    && dn.mul(gasPriceEth, ethPrice.data);
+  const txGasPriceUsd = gasPriceEth && ankrPrice.data
+    && dn.mul(gasPriceEth, ankrPrice.data);
 
   const allowSubmit = account.isConnected && totalRewards && dn.gt(totalRewards, 0);
 
