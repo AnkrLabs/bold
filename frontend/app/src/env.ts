@@ -32,6 +32,8 @@ export const CollateralSymbolSchema = v.union([
   v.literal("ETH"),
   v.literal("RETH"),
   v.literal("WSTETH"),
+  v.literal("USN"),
+  v.literal("WANKR"),
 ]);
 
 function isCollateralSymbol(value: unknown) {
@@ -176,7 +178,7 @@ export const EnvSchema = v.pipe(
       v.transform((value) => value.trim() || null),
     ),
     KNOWN_INITIATIVES_URL: v.optional(v.pipe(v.string(), v.url())),
-    LEGACY_CHECK: v.optional(vEnvLegacyCheck(), "true"),
+    LEGACY_CHECK: v.optional(vEnvLegacyCheck(), "false"),
     LIQUITY_STATS_URL: v.optional(v.pipe(v.string(), v.url())),
     LIQUITY_GOVERNANCE_URL: v.optional(v.union([v.pipe(v.string(), v.url()), v.literal("")])),
     SAFE_API_URL: v.optional(v.union([v.pipe(v.string(), v.url()), v.literal("")])),
