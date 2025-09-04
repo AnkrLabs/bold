@@ -100,7 +100,7 @@ export const DEFAULT_STRATEGIES: Array<[
   Array<[BranchId, IcStrategy[]]>,
 ]> = [
   // mainnet
-  [1, [
+  [267, [
     // ANKR
     [0, [{
       name: "Conservative Strategy",

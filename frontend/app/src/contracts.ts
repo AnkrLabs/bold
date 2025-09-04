@@ -6,7 +6,6 @@ import { BorrowerOperations } from "@/src/abi/BorrowerOperations";
 import { CollateralRegistry } from "@/src/abi/CollateralRegistry";
 import { CollSurplusPool } from "@/src/abi/CollSurplusPool";
 import { DefaultPool } from "@/src/abi/DefaultPool";
-import { ExchangeHelpers } from "@/src/abi/ExchangeHelpers";
 import { HintHelpers } from "@/src/abi/HintHelpers";
 import { LeverageLSTZapper } from "@/src/abi/LeverageLSTZapper";
 import { LeverageWETHZapper } from "@/src/abi/LeverageWETHZapper";
@@ -19,7 +18,6 @@ import { TroveNFT } from "@/src/abi/TroveNFT";
 import {
   CONTRACT_BOLD_TOKEN,
   CONTRACT_COLLATERAL_REGISTRY,
-  CONTRACT_EXCHANGE_HELPERS,
   CONTRACT_HINT_HELPERS,
   CONTRACT_MULTI_TROVE_GETTER,
   CONTRACT_WETH,
@@ -30,7 +28,6 @@ import { erc20Abi, zeroAddress } from "viem";
 const protocolAbis = {
   BoldToken: erc20Abi,
   CollateralRegistry,
-  ExchangeHelpers,
   HintHelpers,
   MultiTroveGetter,
   WETH: erc20Abi,
@@ -105,10 +102,6 @@ export const CONTRACTS: Contracts = {
   CollateralRegistry: {
     abi: abis.CollateralRegistry,
     address: CONTRACT_COLLATERAL_REGISTRY,
-  },
-  ExchangeHelpers: {
-    abi: abis.ExchangeHelpers,
-    address: CONTRACT_EXCHANGE_HELPERS,
   },
   HintHelpers: { abi: abis.HintHelpers, address: CONTRACT_HINT_HELPERS },
   MultiTroveGetter: {

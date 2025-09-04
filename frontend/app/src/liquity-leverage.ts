@@ -1,14 +1,8 @@
-import type { BranchId, Dnum, TroveId } from "@/src/types";
+import type { BranchId, TroveId } from "@/src/types";
 import type { Config as WagmiConfig } from "wagmi";
 
 import { CLOSE_FROM_COLLATERAL_SLIPPAGE } from "@/src/constants";
-import { getProtocolContract } from "@/src/contracts";
-import { dnum18 } from "@/src/dnum-utils";
 import { getBranch } from "@/src/liquity-utils";
-import { useDebouncedQueryKey } from "@/src/react-utils";
-import { useQuery } from "@tanstack/react-query";
-import * as dn from "dnum";
-import { useConfig as useWagmiConfig } from "wagmi";
 import { readContract, readContracts } from "wagmi/actions";
 
 const DECIMAL_PRECISION = 10n ** 18n;
@@ -186,62 +180,4 @@ export async function getCloseFlashLoanAmount(
 
 function leverageRatioToCollateralRatio(inputRatio: bigint) {
   return inputRatio * DECIMAL_PRECISION / (inputRatio - DECIMAL_PRECISION);
-}
-
-export function useCheckLeverageSlippage({
-  branchId,
-  initialDeposit,
-  leverageFactor,
-  ownerIndex,
-}: {
-  branchId: BranchId;
-  initialDeposit: Dnum | null;
-  leverageFactor: number;
-  ownerIndex: number | null;
-}) {
-  const wagmiConfig = useWagmiConfig();
-  const WethContract = getProtocolContract("WETH");
-  const ExchangeHelpersContract = getProtocolContract("ExchangeHelpers");
-
-  const debouncedQueryKey = useDebouncedQueryKey([
-    "openLeveragedTroveParams",
-    branchId,
-    String(!initialDeposit || initialDeposit[0]),
-    leverageFactor,
-    ownerIndex,
-  ], 100);
-
-  return useQuery({
-    queryKey: debouncedQueryKey,
-    queryFn: async () => {
-      const params = initialDeposit && (await getOpenLeveragedTroveParams(
-        branchId,
-        initialDeposit[0],
-        leverageFactor,
-        wagmiConfig,
-      ));
-
-      if (params === null) {
-        return null;
-      }
-
-      const [_, slippage] = await readContract(wagmiConfig, {
-        abi: ExchangeHelpersContract.abi,
-        address: ExchangeHelpersContract.address,
-        functionName: "getCollFromBold",
-        args: [
-          params.expectedBoldAmount,
-          WethContract.address,
-          params.flashLoanAmount,
-        ],
-      });
-
-      return dnum18(slippage);
-    },
-    enabled: Boolean(
-      initialDeposit
-        && dn.gt(initialDeposit, 0)
-        && ownerIndex !== null,
-    ),
-  });
 }
