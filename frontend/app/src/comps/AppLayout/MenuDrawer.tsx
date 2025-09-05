@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import type { MenuItem } from "./Menu";
 
 import { Logo } from "@/src/comps/Logo/Logo";
-import content from "@/src/content";
 import { css } from "@/styled-system/css";
 import { token } from "@/styled-system/tokens";
 import { Root } from "@liquity2/uikit";
