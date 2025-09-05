@@ -30,9 +30,9 @@ export function useBalances(
   const tokenConfigs = tokens.map((token) => {
     const tokenAddress = match(token)
       .when(
-        (symbol) => Boolean(symbol && isCollateralSymbol(symbol) && symbol !== "ANKR"),
+        (symbol) => Boolean(symbol && isCollateralSymbol(symbol)),
         (symbol) => {
-          if (!symbol || !isCollateralSymbol(symbol) || symbol === "ANKR") {
+          if (!symbol || !isCollateralSymbol(symbol)) {
             return null;
           }
           return getBranch(symbol).contracts.CollToken.address;
@@ -44,7 +44,7 @@ export function useBalances(
     return {
       token,
       tokenAddress,
-      isEth: token === "ANKR",
+      isEth: false,
     };
   });
 
@@ -72,20 +72,13 @@ export function useBalances(
 
   // combine results
   return tokens.reduce((result, token) => {
-    if (token === "ANKR") {
+    const erc20Index = erc20Tokens.findIndex((config) => config.token === token);
+    if (erc20Index !== -1) {
+      const balance = erc20Balances.data?.[erc20Index];
       result[token] = {
-        data: ethBalance.data ? dnum18(ethBalance.data.value) : undefined,
-        isLoading: ethBalance.isLoading,
+        data: balance?.result !== undefined ? dnum18(balance.result) : undefined,
+        isLoading: erc20Balances.isLoading,
       };
-    } else {
-      const erc20Index = erc20Tokens.findIndex((config) => config.token === token);
-      if (erc20Index !== -1) {
-        const balance = erc20Balances.data?.[erc20Index];
-        result[token] = {
-          data: balance?.result !== undefined ? dnum18(balance.result) : undefined,
-          isLoading: erc20Balances.isLoading,
-        };
-      }
     }
     return result;
   }, {} as Record<

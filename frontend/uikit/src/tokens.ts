@@ -19,27 +19,27 @@ export type Token = ExternalToken & {
 export type TokenSymbol =
   | "BOLD"
   | "SBOLD"
-  | "ANKR"
+  | "WANKR"
   | "USN";
 
 export type CollateralSymbol =
   & TokenSymbol
   & (
-    | "ANKR"
+    | "WANKR"
     | "USN"
   );
 
 export function isTokenSymbol(symbolOrUrl: string): symbolOrUrl is TokenSymbol {
   return (
     symbolOrUrl === "BOLD"
-    || symbolOrUrl === "ANKR"
+    || symbolOrUrl === "WANKR"
     || symbolOrUrl === "USN"
   );
 }
 
 export function isCollateralSymbol(symbol: string): symbol is CollateralSymbol {
   return (
-    symbol === "ANKR"
+    symbol === "WANKR"
     || symbol === "USN"
   );
 }
@@ -61,11 +61,11 @@ export const SBOLD: Token = {
   symbol: "SBOLD" as const,
 } as const;
 
-export const ANKR: CollateralToken = {
+export const WANKR: CollateralToken = {
   collateralRatio: 1.1,
   icon: tokenEth,
-  name: "ANKR",
-  symbol: "ANKR" as const,
+  name: "wANKR",
+  symbol: "WANKR" as const,
 } as const;
 
 export const USN: CollateralToken = {
@@ -76,13 +76,13 @@ export const USN: CollateralToken = {
 } as const;
 
 export const COLLATERALS: CollateralToken[] = [
-  ANKR,
+  WANKR,
   USN,
 ];
 
 export const TOKENS_BY_SYMBOL = {
   BOLD,
-  ANKR,
+  WANKR,
   USN,
   SBOLD,
 } as const;

@@ -28,7 +28,7 @@ const actionCards = [
 export function Positions({
   address,
   columns,
-  showNewPositionCard = true,
+  showNewPositionCard = false,
   title = (mode) => (
     mode === "loading"
       ? " "

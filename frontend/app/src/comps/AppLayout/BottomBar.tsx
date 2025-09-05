@@ -14,7 +14,7 @@ import { blo } from "blo";
 import Image from "next/image";
 import { AboutButton } from "./AboutButton";
 
-const DISPLAYED_PRICES = ["BOLD", "ANKR"] as const;
+const DISPLAYED_PRICES = ["BOLD", "WANKR"] as const;
 const ENABLE_REDEEM = false;
 
 export function BottomBar() {

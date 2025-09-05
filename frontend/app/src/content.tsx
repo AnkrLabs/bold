@@ -9,7 +9,7 @@ export default {
   appName: "Liquity V2",
   appDescription: `
     Liquity V2 is a new borrowing protocol that lets users
-    deposit ANKR or LSTs as collateral and mint the stablecoin BOLD.
+    deposit LSTs as collateral and mint the stablecoin BOLD.
   `,
   appUrl: typeof window === "undefined"
     ? "https://www.liquity.org/"

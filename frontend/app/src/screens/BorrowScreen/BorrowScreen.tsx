@@ -142,8 +142,7 @@ export function BorrowScreen() {
   const maxAmount = collBalance.data && dnumMin(
     maxCollDeposit,
     dnumMax(
-      // Only keep a reserve for ETH, not LSTs
-      dn.sub(collBalance.data, collSymbol === "ANKR" ? ETH_MAX_RESERVE : 0),
+      dn.sub(collBalance.data, 0),
       dnum18(0),
     ),
   );

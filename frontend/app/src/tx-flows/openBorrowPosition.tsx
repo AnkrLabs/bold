@@ -20,11 +20,13 @@ import { getIndexedTroveById } from "@/src/subgraph";
 import { sleep } from "@/src/utils";
 import { vAddress, vBranchId, vDnum } from "@/src/valibot-utils";
 import { css } from "@/styled-system/css";
-import { ADDRESS_ZERO, InfoTooltip } from "@liquity2/uikit";
+import { ADDRESS_ZERO, COLLATERALS, InfoTooltip, TOKENS_BY_SYMBOL } from "@liquity2/uikit";
 import * as dn from "dnum";
+import { match } from "ts-pattern";
 import * as v from "valibot";
 import { maxUint256, parseEventLogs } from "viem";
 import { readContract } from "wagmi/actions";
+import { getProtocolContract } from "../contracts";
 import { createRequestSchema, verifyTransaction } from "./shared";
 
 const RequestSchema = createRequestSchema(
@@ -213,7 +215,7 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
               key="start"
               title={`${fmtnum(ETH_GAS_COMPENSATION, "full")} ANKR`}
             >
-              {fmtnum(ETH_GAS_COMPENSATION, 4)} ANKR
+              {fmtnum(ETH_GAS_COMPENSATION, 4)} wANKR
             </div>,
             "Only used in case of liquidation",
           ]}
@@ -237,16 +239,20 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
       ),
       async commit(ctx) {
         const branch = getBranch(ctx.request.branchId);
-        const { LeverageLSTZapper, CollToken } = branch.contracts;
+        const { BorrowerOperations, CollToken } = branch.contracts;
+
+        const approveAmount = branch.symbol === "WANKR"
+          ? dn.add(ctx.request.collAmount, ETH_GAS_COMPENSATION)
+          : ctx.request.collAmount;
 
         return ctx.writeContract({
           ...CollToken,
           functionName: "approve",
           args: [
-            LeverageLSTZapper.address,
+            BorrowerOperations.address,
             ctx.preferredApproveMethod === "approve-infinite"
               ? maxUint256 // infinite approval
-              : ctx.request.collAmount[0], // exact amount
+              : approveAmount[0], // exact amount
           ],
         });
       },
@@ -255,7 +261,36 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
       },
     },
 
-    // LeverageLSTZapper mode
+    approveWETH: {
+      name: () => `Approve wANKR`,
+      Status: (props) => (
+        <TransactionStatus
+          {...props}
+          approval="approve-only"
+        />
+      ),
+      async commit(ctx) {
+        const branch = getBranch(ctx.request.branchId);
+        const wETH = getProtocolContract("WETH");
+        const { BorrowerOperations } = branch.contracts;
+
+        return ctx.writeContract({
+          ...wETH,
+          functionName: "approve",
+          args: [
+            BorrowerOperations.address,
+            ctx.preferredApproveMethod === "approve-infinite"
+              ? maxUint256 // infinite approval
+              : ETH_GAS_COMPENSATION[0], // exact amount
+          ],
+        });
+      },
+      async verify(ctx, hash) {
+        await verifyTransaction(ctx.wagmiConfig, hash, ctx.isSafe);
+      },
+    },
+
+    // BorrowerOperations mode
     openTroveLst: {
       name: () => "Open Position",
       Status: TransactionStatus,
@@ -269,28 +304,45 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
         });
 
         const branch = getBranch(ctx.request.branchId);
+        const isBatch = !!ctx.request.interestRateDelegate;
+
+        if (isBatch) {
+          return ctx.writeContract({
+            ...branch.contracts.BorrowerOperations,
+            functionName: "openTroveAndJoinInterestBatchManager",
+            args: [{
+              owner: ctx.request.owner,
+              ownerIndex: BigInt(ctx.request.ownerIndex),
+              collAmount: ctx.request.collAmount[0],
+              boldAmount: ctx.request.boldAmount[0],
+              upperHint,
+              lowerHint,
+              interestBatchManager: ctx.request.interestRateDelegate,
+              maxUpfrontFee: ctx.request.maxUpfrontFee[0],
+              addManager: ctx.request.owner,
+              removeManager: ctx.request.owner,
+              receiver: ctx.request.owner,
+            }],
+            // No ETH value is required when sending ERC20 collateral
+          });
+        }
+
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
-          functionName: "openTroveWithRawETH" as const,
-          args: [{
-            owner: ctx.request.owner,
-            ownerIndex: BigInt(ctx.request.ownerIndex),
-            collAmount: ctx.request.collAmount[0],
-            boldAmount: ctx.request.boldAmount[0],
+          ...branch.contracts.BorrowerOperations,
+          functionName: "openTrove",
+          args: [
+            ctx.request.owner,
+            BigInt(ctx.request.ownerIndex),
+            ctx.request.collAmount[0],
+            ctx.request.boldAmount[0],
             upperHint,
             lowerHint,
-            annualInterestRate: ctx.request.interestRateDelegate
-              ? 0n
-              : ctx.request.annualInterestRate[0],
-            batchManager: ctx.request.interestRateDelegate
-              ? ctx.request.interestRateDelegate
-              : ADDRESS_ZERO,
-            maxUpfrontFee: ctx.request.maxUpfrontFee[0],
-            addManager: ADDRESS_ZERO,
-            removeManager: ADDRESS_ZERO,
-            receiver: ADDRESS_ZERO,
-          }],
-          value: ETH_GAS_COMPENSATION[0],
+            ctx.request.annualInterestRate[0],
+            ctx.request.maxUpfrontFee[0],
+            ctx.request.owner,
+            ctx.request.owner,
+            ctx.request.owner,
+          ],
         });
       },
 
@@ -322,72 +374,41 @@ export const openBorrowPosition: FlowDeclaration<OpenBorrowPositionRequest> = {
         }
       },
     },
-
-    // LeverageWETHZapper mode
-    openTroveEth: {
-      name: () => "Open Position",
-      Status: TransactionStatus,
-
-      async commit(ctx) {
-        const { upperHint, lowerHint } = await getTroveOperationHints({
-          wagmiConfig: ctx.wagmiConfig,
-          contracts: ctx.contracts,
-          branchId: ctx.request.branchId,
-          interestRate: ctx.request.annualInterestRate[0],
-        });
-
-        const branch = getBranch(ctx.request.branchId);
-        return ctx.writeContract({
-          ...branch.contracts.LeverageWETHZapper,
-          functionName: "openTroveWithRawETH",
-          args: [{
-            owner: ctx.request.owner,
-            ownerIndex: BigInt(ctx.request.ownerIndex),
-            collAmount: 0n,
-            boldAmount: ctx.request.boldAmount[0],
-            upperHint,
-            lowerHint,
-            annualInterestRate: ctx.request.interestRateDelegate
-              ? 0n
-              : ctx.request.annualInterestRate[0],
-            batchManager: ctx.request.interestRateDelegate
-              ? ctx.request.interestRateDelegate
-              : ADDRESS_ZERO,
-            maxUpfrontFee: ctx.request.maxUpfrontFee[0],
-            addManager: ADDRESS_ZERO,
-            removeManager: ADDRESS_ZERO,
-            receiver: ADDRESS_ZERO,
-          }],
-          value: ctx.request.collAmount[0] + ETH_GAS_COMPENSATION[0],
-        });
-      },
-
-      async verify(...args) {
-        // same verification as openTroveLst
-        return openBorrowPosition.steps.openTroveLst?.verify(...args);
-      },
-    },
   },
 
   async getSteps(ctx) {
     const branch = getBranch(ctx.request.branchId);
 
-    // ETH doesn't need approval
-    if (branch.symbol === "ANKR") {
-      return ["openTroveEth"];
-    }
+    const spender = branch.contracts.BorrowerOperations;
 
-    // Check if approval is needed
-    const allowance = await readContract(ctx.wagmiConfig, {
+    // CollToken allowance threshold: for WANKR include gas compensation
+    const requiredCollAllowance = branch.symbol === "WANKR"
+      ? (dn.add(ctx.request.collAmount, ETH_GAS_COMPENSATION)[0])
+      : ctx.request.collAmount[0];
+
+    const collAllowance = await readContract(ctx.wagmiConfig, {
       ...branch.contracts.CollToken,
       functionName: "allowance",
-      args: [ctx.account, branch.contracts.LeverageLSTZapper.address],
+      args: [ctx.account, spender.address],
     });
 
     const steps: string[] = [];
 
-    if (allowance < ctx.request.collAmount[0]) {
+    if (collAllowance < requiredCollAllowance) {
       steps.push("approveLst");
+    }
+
+    // For non-WANKR collaterals, also require WETH allowance for gas compensation
+    if (branch.symbol !== "WANKR") {
+      const wETH = getProtocolContract("WETH");
+      const wethAllowance = await readContract(ctx.wagmiConfig, {
+        ...wETH,
+        functionName: "allowance",
+        args: [ctx.account, spender.address],
+      });
+      if (wethAllowance < ETH_GAS_COMPENSATION[0]) {
+        steps.push("approveWETH");
+      }
     }
 
     steps.push("openTroveLst");

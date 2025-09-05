@@ -64,20 +64,19 @@ export const redeemCollateral: FlowDeclaration<RedeemCollateralRequest> = {
         />
         {branches.map(({ symbol }) => {
           const collChange = collChanges?.find((change) => symbol === change.symbol)?.change;
-          const symbol_ = symbol === "ANKR" ? "WANKR" : symbol;
           return (
             <TransactionDetailsRow
               key={symbol}
-              label={`Receiving ${symbol_}`}
+              label={`Receiving ${symbol}`}
               value={[
                 <Amount
                   key="start"
                   value={collChange}
                   fallback="fetching…"
-                  suffix={` ${symbol_}`}
+                  suffix={` ${symbol}`}
                 />,
                 <Fragment key="end">
-                  Estimated {symbol_} you will receive.
+                  Estimated {symbol} you will receive.
                 </Fragment>,
               ]}
             />

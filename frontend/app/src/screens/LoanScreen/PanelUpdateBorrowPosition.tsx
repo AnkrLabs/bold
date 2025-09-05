@@ -81,7 +81,7 @@ export function PanelUpdateBorrowPosition({
     collBalance.data && dnumMax(
       dn.sub(
         collBalance.data,
-        collToken.symbol === "ANKR" ? ETH_MAX_RESERVE : 0, // Only keep a reserve for ETH, not LSTs
+        0,
       ),
       dnum18(0),
     )

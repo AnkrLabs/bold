@@ -27,10 +27,7 @@ export function PanelClosePosition({
   const boldPriceUsd = usePrice("BOLD");
   const boldBalance = useBalance(account.address, "BOLD");
 
-  // const [repayDropdownIndex, setRepayDropdownIndex] = useState(0);
-  const repayDropdownIndex = 0;
-
-  const repayToken = TOKENS_BY_SYMBOL[repayDropdownIndex === 0 ? "BOLD" : collateral.symbol];
+  const repayToken = TOKENS_BY_SYMBOL["BOLD"];
 
   // either in BOLD or in collateral
   const amountToRepay = repayToken.symbol === "BOLD"

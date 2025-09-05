@@ -266,7 +266,7 @@ export function vVoteAllocations() {
 
 export function vCollateralSymbol() {
   return v.union([
-    v.literal("ANKR"),
+    v.literal("WANKR"),
     v.literal("USN"),
   ]);
 }

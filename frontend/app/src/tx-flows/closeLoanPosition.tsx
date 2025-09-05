@@ -3,7 +3,6 @@ import type { FlowDeclaration } from "@/src/services/TransactionFlow";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { ETH_GAS_COMPENSATION } from "@/src/constants";
 import { fmtnum } from "@/src/formatting";
-import { getCloseFlashLoanAmount } from "@/src/liquity-leverage";
 import { getBranch, getCollToken } from "@/src/liquity-utils";
 import { LoanCard } from "@/src/screens/TransactionsScreen/LoanCard";
 import { TransactionDetailsRow } from "@/src/screens/TransactionsScreen/TransactionsScreen";
@@ -118,15 +117,11 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
           args: [BigInt(loan.troveId)],
         });
 
-        const Zapper = branch.symbol === "ANKR"
-          ? branch.contracts.LeverageWETHZapper
-          : branch.contracts.LeverageLSTZapper;
-
         return ctx.writeContract({
           ...ctx.contracts.BoldToken,
           functionName: "approve",
           args: [
-            Zapper.address,
+            branch.contracts.BorrowerOperations.address,
             ctx.preferredApproveMethod === "approve-infinite"
               ? maxUint256 // infinite approval
               : dn.mul([entireDebt, 18], 1.1)[0], // exact amount (TODO: better estimate)
@@ -147,51 +142,18 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
         const { loan } = ctx.request;
         const branch = getBranch(loan.branchId);
 
-        // repay with BOLD => get ETH
-        if (!ctx.request.repayWithCollateral && branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "closeTroveToRawETH",
-            args: [BigInt(loan.troveId)],
-          });
-        }
-
-        // repay with BOLD => get LST
+        // repay with BOLD => close trove directly on BorrowerOperations
         if (!ctx.request.repayWithCollateral) {
           return ctx.writeContract({
-            ...branch.contracts.LeverageLSTZapper,
-            functionName: "closeTroveToRawETH",
+            ...branch.contracts.BorrowerOperations,
+            functionName: "closeTrove",
             args: [BigInt(loan.troveId)],
           });
         }
 
-        // from here, we are repaying with the collateral
-
-        const closeFlashLoanAmount = await getCloseFlashLoanAmount(
-          loan.branchId,
-          loan.troveId,
-          ctx.wagmiConfig,
-        );
-
-        if (closeFlashLoanAmount === null) {
-          throw new Error("The flash loan amount could not be calculated.");
-        }
-
-        // repay with collateral => get ETH
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "closeTroveFromCollateral",
-            args: [BigInt(loan.troveId), closeFlashLoanAmount],
-          });
-        }
-
-        // repay with collateral => get LST
-        return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
-          functionName: "closeTroveFromCollateral",
-          args: [BigInt(loan.troveId), closeFlashLoanAmount],
-        });
+        // Repay with collateral path requires zapper/flash loan in current architecture.
+        // Since LeverageLSTZapper is removed, fall back to a standard close (user should repay with BOLD).
+        throw new Error("Repay with collateral is not supported without LeverageZapper. Please repay with BOLD.");
       },
 
       async verify(ctx, hash) {
@@ -216,10 +178,6 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
     const { loan } = ctx.request;
     const branch = getBranch(loan.branchId);
 
-    const Zapper = branch.symbol === "ANKR"
-      ? branch.contracts.LeverageWETHZapper
-      : branch.contracts.LeverageLSTZapper;
-
     const [{ entireDebt }, boldAllowance] = await readContracts(ctx.wagmiConfig, {
       contracts: [{
         ...branch.contracts.TroveManager,
@@ -228,7 +186,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
       }, {
         ...ctx.contracts.BoldToken,
         functionName: "allowance",
-        args: [ctx.account, Zapper.address],
+        args: [ctx.account, branch.contracts.BorrowerOperations.address],
       }],
       allowFailure: false,
     });

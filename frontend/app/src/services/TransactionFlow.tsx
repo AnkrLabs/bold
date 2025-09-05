@@ -30,12 +30,10 @@ import { closeLoanPosition, type CloseLoanPositionRequest } from "@/src/tx-flows
 import { earnClaimRewards, type EarnClaimRewardsRequest } from "@/src/tx-flows/earnClaimRewards";
 import { earnUpdate, type EarnUpdateRequest } from "@/src/tx-flows/earnUpdate";
 import { openBorrowPosition, type OpenBorrowPositionRequest } from "@/src/tx-flows/openBorrowPosition";
-import { openLeveragePosition, type OpenLeveragePositionRequest } from "@/src/tx-flows/openLeveragePosition";
 import { redeemCollateral, type RedeemCollateralRequest } from "@/src/tx-flows/redeemCollateral";
 import { sboldDeposit, type SboldDepositRequest } from "@/src/tx-flows/sboldDeposit";
 import { sboldRedeem, type SboldRedeemRequest } from "@/src/tx-flows/sboldRedeem";
 import { updateBorrowPosition, type UpdateBorrowPositionRequest } from "@/src/tx-flows/updateBorrowPosition";
-import { updateLeveragePosition, type UpdateLeveragePositionRequest } from "@/src/tx-flows/updateLeveragePosition";
 import { updateLoanInterestRate, type UpdateLoanInterestRateRequest } from "@/src/tx-flows/updateLoanInterestRate";
 
 export type FlowRequestMap = {
@@ -45,12 +43,10 @@ export type FlowRequestMap = {
   "earnClaimRewards": EarnClaimRewardsRequest;
   "earnUpdate": EarnUpdateRequest;
   "openBorrowPosition": OpenBorrowPositionRequest;
-  "openLeveragePosition": OpenLeveragePositionRequest;
   "redeemCollateral": RedeemCollateralRequest;
   "sboldDeposit": SboldDepositRequest;
   "sboldRedeem": SboldRedeemRequest;
   "updateBorrowPosition": UpdateBorrowPositionRequest;
-  "updateLeveragePosition": UpdateLeveragePositionRequest;
   "updateLoanInterestRate": UpdateLoanInterestRateRequest;
 };
 
@@ -61,7 +57,6 @@ const FlowIdSchema = v.union([
   v.literal("earnClaimRewards"),
   v.literal("earnUpdate"),
   v.literal("openBorrowPosition"),
-  v.literal("openLeveragePosition"),
   v.literal("redeemCollateral"),
   v.literal("sboldDeposit"),
   v.literal("sboldRedeem"),
@@ -77,12 +72,10 @@ export const flows: FlowsMap = {
   earnClaimRewards,
   earnUpdate,
   openBorrowPosition,
-  openLeveragePosition,
   redeemCollateral,
   sboldDeposit,
   sboldRedeem,
   updateBorrowPosition,
-  updateLeveragePosition,
   updateLoanInterestRate,
 };
 

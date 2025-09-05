@@ -7,8 +7,6 @@ import { CollateralRegistry } from "@/src/abi/CollateralRegistry";
 import { CollSurplusPool } from "@/src/abi/CollSurplusPool";
 import { DefaultPool } from "@/src/abi/DefaultPool";
 import { HintHelpers } from "@/src/abi/HintHelpers";
-import { LeverageLSTZapper } from "@/src/abi/LeverageLSTZapper";
-import { LeverageWETHZapper } from "@/src/abi/LeverageWETHZapper";
 import { MultiTroveGetter } from "@/src/abi/MultiTroveGetter";
 import { PriceFeed } from "@/src/abi/PriceFeed";
 import { SortedTroves } from "@/src/abi/SortedTroves";
@@ -23,7 +21,7 @@ import {
   CONTRACT_WETH,
   ENV_BRANCHES,
 } from "@/src/env";
-import { erc20Abi, zeroAddress } from "viem";
+import { erc20Abi } from "viem";
 
 const protocolAbis = {
   BoldToken: erc20Abi,
@@ -33,24 +31,12 @@ const protocolAbis = {
   WETH: erc20Abi,
 } as const;
 
-const BorrowerOperationsErrorsAbi = BorrowerOperations.filter(
-  (f) => f.type === "error",
-);
-
 const collateralAbis = {
   ActivePool,
   BorrowerOperations,
   CollSurplusPool,
   CollToken: erc20Abi,
   DefaultPool,
-  LeverageLSTZapper: [
-    ...LeverageLSTZapper,
-    ...BorrowerOperationsErrorsAbi,
-  ],
-  LeverageWETHZapper: [
-    ...LeverageWETHZapper,
-    ...BorrowerOperationsErrorsAbi,
-  ],
   PriceFeed: PriceFeed.map((f) => (
     f.name !== "fetchPrice" ? f : {
       ...f,
@@ -125,14 +111,6 @@ export const CONTRACTS: Contracts = {
       },
       CollToken: { address: contracts.COLL_TOKEN, abi: abis.CollToken },
       DefaultPool: { address: contracts.DEFAULT_POOL, abi: abis.DefaultPool },
-      LeverageLSTZapper: {
-        address: symbol === "ANKR" ? zeroAddress : contracts.LEVERAGE_ZAPPER,
-        abi: abis.LeverageLSTZapper,
-      },
-      LeverageWETHZapper: {
-        address: symbol === "ANKR" ? contracts.LEVERAGE_ZAPPER : zeroAddress,
-        abi: abis.LeverageWETHZapper,
-      },
       PriceFeed: { address: contracts.PRICE_FEED, abi: abis.PriceFeed },
       SortedTroves: { address: contracts.SORTED_TROVES, abi: abis.SortedTroves },
       StabilityPool: {

@@ -28,7 +28,7 @@ function isIcStrategyList(value: unknown): value is IcStrategy[] {
 }
 
 export const CollateralSymbolSchema = v.union([
-  v.literal("ANKR"),
+  v.literal("WANKR"),
   v.literal("USN"),
 ]);
 
@@ -42,7 +42,6 @@ const contractsEnvNames = [
   "COLL_SURPLUS_POOL",
   "COLL_TOKEN",
   "DEFAULT_POOL",
-  "LEVERAGE_ZAPPER",
   "PRICE_FEED",
   "SORTED_TROVES",
   "STABILITY_POOL",
@@ -63,7 +62,6 @@ function vBranchEnvVars(branchId: BranchId) {
     [`${prefix}_CONTRACT_COLL_SURPLUS_POOL`]: v.optional(vAddress()),
     [`${prefix}_CONTRACT_COLL_TOKEN`]: v.optional(vAddress()),
     [`${prefix}_CONTRACT_DEFAULT_POOL`]: v.optional(vAddress()),
-    [`${prefix}_CONTRACT_LEVERAGE_ZAPPER`]: v.optional(vAddress()),
     [`${prefix}_CONTRACT_PRICE_FEED`]: v.optional(vAddress()),
     [`${prefix}_CONTRACT_SORTED_TROVES`]: v.optional(vAddress()),
     [`${prefix}_CONTRACT_STABILITY_POOL`]: v.optional(vAddress()),
@@ -355,7 +353,6 @@ const parsedEnv = v.safeParse(EnvSchema, {
   COLL_0_CONTRACT_COLL_SURPLUS_POOL: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_COLL_SURPLUS_POOL,
   COLL_0_CONTRACT_COLL_TOKEN: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_COLL_TOKEN,
   COLL_0_CONTRACT_DEFAULT_POOL: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_DEFAULT_POOL,
-  COLL_0_CONTRACT_LEVERAGE_ZAPPER: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_LEVERAGE_ZAPPER,
   COLL_0_CONTRACT_PRICE_FEED: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_PRICE_FEED,
   COLL_0_CONTRACT_SORTED_TROVES: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_SORTED_TROVES,
   COLL_0_CONTRACT_STABILITY_POOL: process.env.NEXT_PUBLIC_COLL_0_CONTRACT_STABILITY_POOL,
@@ -367,7 +364,6 @@ const parsedEnv = v.safeParse(EnvSchema, {
   COLL_1_CONTRACT_COLL_SURPLUS_POOL: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_COLL_SURPLUS_POOL,
   COLL_1_CONTRACT_COLL_TOKEN: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_COLL_TOKEN,
   COLL_1_CONTRACT_DEFAULT_POOL: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_DEFAULT_POOL,
-  COLL_1_CONTRACT_LEVERAGE_ZAPPER: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_LEVERAGE_ZAPPER,
   COLL_1_CONTRACT_PRICE_FEED: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_PRICE_FEED,
   COLL_1_CONTRACT_SORTED_TROVES: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_SORTED_TROVES,
   COLL_1_CONTRACT_STABILITY_POOL: process.env.NEXT_PUBLIC_COLL_1_CONTRACT_STABILITY_POOL,

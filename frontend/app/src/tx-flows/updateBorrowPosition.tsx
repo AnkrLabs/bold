@@ -141,9 +141,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
         const branch = getBranch(ctx.request.loan.branchId);
 
-        const Controller = branch.symbol === "ANKR"
-          ? branch.contracts.LeverageWETHZapper
-          : branch.contracts.LeverageLSTZapper;
+        const Controller = branch.contracts.BorrowerOperations;
 
         return ctx.writeContract({
           ...ctx.contracts.BoldToken,
@@ -177,7 +175,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
         const branch = getBranch(ctx.request.loan.branchId);
 
-        const Controller = branch.contracts.LeverageLSTZapper;
+        const Controller = branch.contracts.BorrowerOperations;
 
         return ctx.writeContract({
           ...branch.contracts.CollToken,
@@ -207,24 +205,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
         const branch = getBranch(loan.branchId);
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "adjustTroveWithRawETH",
-            args: [
-              BigInt(loan.troveId),
-              dn.abs(collChange)[0],
-              dn.gt(collChange, 0n),
-              dn.abs(debtChange)[0],
-              dn.gt(debtChange, 0n),
-              maxUpfrontFee[0],
-            ],
-            value: dn.gt(collChange, 0n) ? collChange[0] : 0n,
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "adjustTrove",
           args: [
             BigInt(loan.troveId),
@@ -273,26 +255,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
           interestRate: loan.interestRate[0],
         });
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "adjustZombieTroveWithRawETH",
-            args: [
-              BigInt(loan.troveId),
-              dn.abs(collChange)[0],
-              dn.gt(collChange, 0n),
-              dn.abs(debtChange)[0],
-              dn.gt(debtChange, 0n),
-              upperHint,
-              lowerHint,
-              maxUpfrontFee[0],
-            ],
-            value: dn.gt(collChange, 0n) ? collChange[0] : 0n,
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "adjustZombieTrove",
           args: [
             BigInt(loan.troveId),
@@ -322,16 +286,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
         const branch = getBranch(loan.branchId);
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "repayBold",
-            args: [BigInt(loan.troveId), dn.abs(debtChange)[0]],
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "repayBold",
           args: [BigInt(loan.troveId), dn.abs(debtChange)[0]],
         });
@@ -352,17 +308,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
         const branch = getBranch(loan.branchId);
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "addCollWithRawETH",
-            args: [BigInt(loan.troveId)],
-            value: dn.abs(collChange)[0],
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "addColl",
           args: [BigInt(loan.troveId), dn.abs(collChange)[0]],
         });
@@ -382,16 +329,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
         const debtChange = getDebtChange(loan, ctx.request.prevLoan);
         const branch = getBranch(loan.branchId);
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "withdrawBold",
-            args: [BigInt(loan.troveId), dn.abs(debtChange)[0], maxUpfrontFee[0]],
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "withdrawBold",
           args: [BigInt(loan.troveId), dn.abs(debtChange)[0], maxUpfrontFee[0]],
         });
@@ -411,16 +350,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
         const collChange = getCollChange(loan, ctx.request.prevLoan);
         const branch = getBranch(loan.branchId);
 
-        if (branch.symbol === "ANKR") {
-          return ctx.writeContract({
-            ...branch.contracts.LeverageWETHZapper,
-            functionName: "withdrawCollToRawETH",
-            args: [BigInt(loan.troveId), dn.abs(collChange)[0]],
-          });
-        }
-
         return ctx.writeContract({
-          ...branch.contracts.LeverageLSTZapper,
+          ...branch.contracts.BorrowerOperations,
           functionName: "withdrawColl",
           args: [BigInt(loan.troveId), dn.abs(collChange)[0]],
         });
@@ -438,9 +369,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
     const branch = getBranch(ctx.request.loan.branchId);
 
-    const Controller = branch.symbol === "ANKR"
-      ? branch.contracts.LeverageWETHZapper
-      : branch.contracts.LeverageLSTZapper;
+    const Controller = branch.contracts.BorrowerOperations;
 
     const isBoldApproved = !dn.lt(debtChange, 0) || !dn.gt(
       dn.abs(debtChange),
@@ -455,7 +384,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
     );
 
     // Collateral token needs to be approved if collChange > 0 and collToken != "ETH" (no LeverageWETHZapper)
-    const isCollApproved = branch.symbol === "ANKR" || !dn.gt(collChange, 0) || !dn.gt(collChange, [
+    const isCollApproved = !dn.gt(collChange, 0) || !dn.gt(collChange, [
       (await ctx.readContract({
         ...branch.contracts.CollToken,
         functionName: "allowance",

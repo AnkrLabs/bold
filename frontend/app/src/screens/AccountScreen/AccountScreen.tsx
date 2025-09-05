@@ -121,7 +121,7 @@ export function AccountScreen({
                   address={address}
                   tokenSymbol={symbol}
                   tapButton={tapEnabled
-                    && symbol !== "ANKR" && account.address
+                    && account.address
                     && addressesEqual(address, account.address)}
                 />
               </GridItem>

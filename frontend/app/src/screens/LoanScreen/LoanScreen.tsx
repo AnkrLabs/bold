@@ -31,7 +31,6 @@ import { LoanScreenCard } from "./LoanScreenCard";
 import { PanelClosePosition } from "./PanelClosePosition";
 import { PanelInterestRate } from "./PanelInterestRate";
 import { PanelUpdateBorrowPosition } from "./PanelUpdateBorrowPosition";
-import { PanelUpdateLeveragePosition } from "./PanelUpdateLeveragePosition";
 
 const troveExplorers = [
   ...(TROVE_EXPLORER_0 ? [TROVE_EXPLORER_0] : []),
@@ -341,7 +340,7 @@ export function LoanScreen() {
 
                           {action === "colldebt" && (
                             loanMode === "multiply"
-                              ? <PanelUpdateLeveragePosition loan={loan.data} />
+                              ? null
                               : <PanelUpdateBorrowPosition loan={loan.data} />
                           )}
                           {action === "rate" && <PanelInterestRate loan={loan.data} />}

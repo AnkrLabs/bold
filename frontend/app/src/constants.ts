@@ -64,7 +64,7 @@ export const TROVE_STATUS_CLOSED_BY_LIQUIDATION = 3;
 export const TROVE_STATUS_ZOMBIE = 4;
 
 export const MAX_COLLATERAL_DEPOSITS: Record<CollateralSymbol, dn.Dnum> = {
-  ANKR: dn.from(100_000_000n, 18),
+  WANKR: dn.from(100_000_000n, 18),
   USN: dn.from(100_000_000n, 18),
 };
 
@@ -100,8 +100,8 @@ export const DEFAULT_STRATEGIES: Array<[
   Array<[BranchId, IcStrategy[]]>,
 ]> = [
   // mainnet
-  [267, [
-    // ANKR
+  [1, [
+    // WANKR
     [0, [{
       name: "Conservative Strategy",
       address: "0xE507E4d0763851A6287238aadD243948D18AB60a",

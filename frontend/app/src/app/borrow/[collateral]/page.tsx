@@ -1,6 +1,6 @@
 export function generateStaticParams() {
   return [
-    { collateral: "ankr" },
+    { collateral: "wankr" },
     { collateral: "usn" },
   ];
 }
