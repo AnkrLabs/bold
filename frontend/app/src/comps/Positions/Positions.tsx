@@ -25,7 +25,7 @@ const actionCards = [
 export function Positions({
   address,
   columns,
-  showNewPositionCard = false,
+  showNewPositionCard = true,
   title = (mode) => (
     mode === "loading"
       ? " "
@@ -112,10 +112,6 @@ function PositionsGroup({
     .returnType<Array<[number, ReactNode]>>()
     .with("positions", () => {
       let cards: Array<[number, ReactNode]> = [];
-
-      if (showNewPositionCard) {
-        cards.push([positions.length ?? -1, <NewPositionCard key="new" />]);
-      }
 
       cards = cards.concat(
         positions.map((position, index) => (
