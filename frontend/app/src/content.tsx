@@ -6,9 +6,9 @@ import { css } from "@/styled-system/css";
 
 export default {
   // Used in the top bar and other places
-  appName: "Liquity V2",
+  appName: "AlignMint",
   appDescription: `
-    Liquity V2 is a new borrowing protocol that lets users
+    AlignMint is a new borrowing protocol that lets users
     deposit LSTs as collateral and mint the stablecoin BOLD.
   `,
   appUrl: typeof window === "undefined"
@@ -225,7 +225,7 @@ export default {
         learnMore: {
           url: "https://docs.liquity.org/v2-documentation/friendly-fork-program",
           label: "Learn more",
-          title: "Learn more about the Liquity V2 Friendly Fork Program",
+          title: "Learn more about the AlignMint Friendly Fork Program",
         },
       },
     },

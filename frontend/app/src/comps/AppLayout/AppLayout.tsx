@@ -24,7 +24,7 @@ export function AppLayout({
         minHeight: "100vh",
         minWidth: "fit-content",
         height: "100%",
-        background: "background",
+        background: 'linear-gradient(180deg, #011837 0%, #03459D 134.73%)',
       })}
     >
       <div
@@ -32,6 +32,7 @@ export function AppLayout({
           display: "flex",
           flexDirection: "column",
           width: "100%",
+          position: "relative",
         })}
       >
         <div

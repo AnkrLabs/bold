@@ -1,1 +1,5 @@
 @layer reset, base, tokens, recipes, utilities;
+
+.bdr_8 {
+   border-radius: 28px !important;
+}

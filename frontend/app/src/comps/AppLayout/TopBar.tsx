@@ -48,7 +48,7 @@ export function TopBar() {
           },
           fontSize: 16,
           fontWeight: 500,
-          background: "background",
+          background: 'transparent',
         })}
       >
         <div
