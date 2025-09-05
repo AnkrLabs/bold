@@ -9,7 +9,6 @@ import { css } from "@/styled-system/css";
 import { a, useSpring, useTransition } from "@react-spring/web";
 import { useEffect, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
-import { NewPositionCard } from "./NewPositionCard";
 import { PositionCard } from "./PositionCard";
 import { PositionCardEarn } from "./PositionCardEarn";
 import { PositionCardLoan } from "./PositionCardLoan";
