@@ -227,7 +227,7 @@ function getTokenLink(address: Address) {
   return address && `${CHAIN_BLOCK_EXPLORER.url}token/${address}`;
 }
 
-function Price({ symbol }: { symbol: Exclude<TokenSymbol, "SBOLD"> }) {
+function Price({ symbol }: { symbol: TokenSymbol }) {
   const price = usePrice(symbol);
   const tokenAddress = getTokenAddress(symbol);
   const tokenUrl = tokenAddress && getTokenLink(tokenAddress);

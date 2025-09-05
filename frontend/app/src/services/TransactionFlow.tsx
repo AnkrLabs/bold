@@ -31,8 +31,6 @@ import { earnClaimRewards, type EarnClaimRewardsRequest } from "@/src/tx-flows/e
 import { earnUpdate, type EarnUpdateRequest } from "@/src/tx-flows/earnUpdate";
 import { openBorrowPosition, type OpenBorrowPositionRequest } from "@/src/tx-flows/openBorrowPosition";
 import { redeemCollateral, type RedeemCollateralRequest } from "@/src/tx-flows/redeemCollateral";
-import { sboldDeposit, type SboldDepositRequest } from "@/src/tx-flows/sboldDeposit";
-import { sboldRedeem, type SboldRedeemRequest } from "@/src/tx-flows/sboldRedeem";
 import { updateBorrowPosition, type UpdateBorrowPositionRequest } from "@/src/tx-flows/updateBorrowPosition";
 import { updateLoanInterestRate, type UpdateLoanInterestRateRequest } from "@/src/tx-flows/updateLoanInterestRate";
 
@@ -44,8 +42,6 @@ export type FlowRequestMap = {
   "earnUpdate": EarnUpdateRequest;
   "openBorrowPosition": OpenBorrowPositionRequest;
   "redeemCollateral": RedeemCollateralRequest;
-  "sboldDeposit": SboldDepositRequest;
-  "sboldRedeem": SboldRedeemRequest;
   "updateBorrowPosition": UpdateBorrowPositionRequest;
   "updateLoanInterestRate": UpdateLoanInterestRateRequest;
 };
@@ -58,10 +54,7 @@ const FlowIdSchema = v.union([
   v.literal("earnUpdate"),
   v.literal("openBorrowPosition"),
   v.literal("redeemCollateral"),
-  v.literal("sboldDeposit"),
-  v.literal("sboldRedeem"),
   v.literal("updateBorrowPosition"),
-  v.literal("updateLeveragePosition"),
   v.literal("updateLoanInterestRate"),
 ]);
 
@@ -73,8 +66,6 @@ export const flows: FlowsMap = {
   earnUpdate,
   openBorrowPosition,
   redeemCollateral,
-  sboldDeposit,
-  sboldRedeem,
   updateBorrowPosition,
   updateLoanInterestRate,
 };

@@ -1,6 +1,5 @@
 import tokenBold from "./token-icons/bold.svg";
 import tokenEth from "./token-icons/eth.svg";
-import tokenSbold from "./token-icons/sbold.svg";
 
 // any external token, without a known symbol
 export type ExternalToken = {
@@ -18,7 +17,6 @@ export type Token = ExternalToken & {
 
 export type TokenSymbol =
   | "BOLD"
-  | "SBOLD"
   | "WANKR"
   | "USN";
 
@@ -55,12 +53,6 @@ export const BOLD: Token = {
   symbol: "BOLD" as const,
 } as const;
 
-export const SBOLD: Token = {
-  icon: tokenSbold,
-  name: "sBOLD",
-  symbol: "SBOLD" as const,
-} as const;
-
 export const WANKR: CollateralToken = {
   collateralRatio: 1.1,
   icon: tokenEth,
@@ -84,5 +76,4 @@ export const TOKENS_BY_SYMBOL = {
   BOLD,
   WANKR,
   USN,
-  SBOLD,
 } as const;

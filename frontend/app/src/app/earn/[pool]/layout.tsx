@@ -1,5 +1,4 @@
 import { EarnPoolScreen } from "@/src/screens/EarnPoolScreen/EarnPoolScreen";
-import { SboldPoolScreen } from "@/src/screens/EarnPoolScreen/SboldPoolScreen";
 
 export function generateStaticParams() {
   return [

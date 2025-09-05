@@ -18,7 +18,6 @@ import {
   useBranchDebt,
   useEarnPool,
 } from "@/src/liquity-utils";
-import { useSboldStats } from "@/src/sbold";
 import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
 import { IconBorrow, IconEarn, TokenIcon } from "@liquity2/uikit";
@@ -268,12 +267,11 @@ function EarnRewardsRow({
   symbol,
 }: {
   compact: boolean;
-  symbol: CollateralSymbol | "SBOLD";
+  symbol: CollateralSymbol;
 }) {
-  const branch = symbol === "SBOLD" ? null : getBranch(symbol);
+  const branch = getBranch(symbol);
   const token = getToken(symbol);
   const earnPool = useEarnPool(branch?.id ?? null);
-  const sboldStats = useSboldStats();
   return (
     <tr>
       <td>
@@ -285,25 +283,21 @@ function EarnRewardsRow({
           })}
         >
           <TokenIcon symbol={symbol} size="mini" />
-          <span>{symbol === "SBOLD" ? "sBOLD by K3 Capital" : token?.name}</span>
+          <span>{token?.name}</span>
         </div>
       </td>
       <td>
         <Amount
           fallback="…"
           percentage
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.apr
-            : earnPool.data?.apr}
+          value={earnPool.data?.apr}
         />
       </td>
       <td>
         <Amount
           fallback="…"
           percentage
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.apr7d
-            : earnPool.data?.apr7d}
+          value={earnPool.data?.apr7d}
         />
       </td>
       <td>
@@ -311,9 +305,7 @@ function EarnRewardsRow({
           fallback="…"
           format="compact"
           prefix="$"
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.totalBold
-            : earnPool.data?.totalDeposited}
+          value={earnPool.data?.totalDeposited}
         />
       </td>
       {!compact && (
@@ -332,15 +324,7 @@ function EarnRewardsRow({
                 Earn
                 <TokenIcon.Group size="mini">
                   <TokenIcon symbol="BOLD" />
-                  {symbol === "SBOLD"
-                    ? (
-                      <div
-                        className={css({
-                          width: 16,
-                        })}
-                      />
-                    )
-                    : <TokenIcon symbol={symbol} />}
+                  <TokenIcon symbol={symbol} />
                 </TokenIcon.Group>
               </div>
             }

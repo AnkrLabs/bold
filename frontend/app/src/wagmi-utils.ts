@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useModal as useConnectKitModal } from "connectkit";
 import { match } from "ts-pattern";
 import { erc20Abi } from "viem";
-import { useAccount as useWagmiAccount, useBalance as useWagmiBalance, useEnsName, useReadContracts } from "wagmi";
+import { useAccount as useWagmiAccount, useEnsName, useReadContracts } from "wagmi";
 
 export function useBalance(
   address: Address | undefined,
@@ -48,7 +48,6 @@ export function useBalances(
     };
   });
 
-  const ethTokens = tokenConfigs.filter((config) => config.isEth);
   const erc20Tokens = tokenConfigs.filter((config) => !config.isEth && config.tokenAddress);
 
   const erc20Balances = useReadContracts({
@@ -60,13 +59,6 @@ export function useBalances(
     })),
     query: {
       enabled: Boolean(address && erc20Tokens.length > 0),
-    },
-  });
-
-  const ethBalance = useWagmiBalance({
-    address,
-    query: {
-      enabled: Boolean(address && ethTokens.length > 0),
     },
   });
 

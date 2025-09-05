@@ -237,15 +237,6 @@ export function vPositionEarn() {
   });
 }
 
-export function vPositionSbold() {
-  return v.object({
-    type: v.literal("sbold"),
-    owner: vAddress(),
-    bold: vDnum(),
-    sbold: vDnum(),
-  });
-}
-
 export function vVote() {
   return v.union([
     v.literal("for"),
@@ -275,8 +266,6 @@ export function vTokenSymbol() {
   return v.union([
     vCollateralSymbol(),
     v.literal("BOLD"),
-    v.literal("LEGACY_BOLD"),
-    v.literal("SBOLD"),
   ]);
 }
 

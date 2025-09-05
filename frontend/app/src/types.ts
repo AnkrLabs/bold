@@ -115,17 +115,9 @@ export type PositionEarn = {
   };
 };
 
-export type PositionSbold = {
-  type: "sbold";
-  bold: Dnum;
-  owner: Address;
-  sbold: Dnum;
-};
-
 export type Position =
   | PositionEarn
-  | PositionLoan
-  | PositionSbold;
+  | PositionLoan;
 
 export type Delegate = {
   address: Address;

@@ -5,17 +5,14 @@ import { useBreakpointName } from "@/src/breakpoints";
 import { ActionCard } from "@/src/comps/ActionCard/ActionCard";
 import content from "@/src/content";
 import { useEarnPositionsByAccount, useLoansByAccount } from "@/src/liquity-utils";
-import { useSboldPosition } from "@/src/sbold";
 import { css } from "@/styled-system/css";
 import { a, useSpring, useTransition } from "@react-spring/web";
-import * as dn from "dnum";
 import { useEffect, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { NewPositionCard } from "./NewPositionCard";
 import { PositionCard } from "./PositionCard";
 import { PositionCardEarn } from "./PositionCardEarn";
 import { PositionCardLoan } from "./PositionCardLoan";
-import { PositionCardSbold } from "./PositionCardSbold";
 
 type Mode = "positions" | "loading" | "actions";
 
@@ -44,22 +41,17 @@ export function Positions({
 }) {
   const loans = useLoansByAccount(address);
   const earnPositions = useEarnPositionsByAccount(address);
-  const sboldPosition = useSboldPosition(address);
 
   const isPositionsPending = Boolean(
     address && (
       loans.isPending
       || earnPositions.isPending
-      || sboldPosition.isPending
     ),
   );
-
-  const hasSboldPosition = sboldPosition.data && dn.gt(sboldPosition.data.sbold, 0);
 
   const positions = isPositionsPending ? [] : [
     ...(loans.data ?? []),
     ...(earnPositions.data ?? []),
-    ...(sboldPosition.data && hasSboldPosition ? [sboldPosition.data] : []),
   ];
 
   let mode: Mode = address && positions && positions.length > 0
@@ -136,10 +128,6 @@ function PositionsGroup({
             .with({ type: "earn" }, (p) => [
               index,
               <PositionCardEarn key={index} {...p} />,
-            ])
-            .with({ type: "sbold" }, (p) => [
-              index,
-              <PositionCardSbold key={index} {...p} />,
             ])
             .exhaustive()
         )) ?? [],
