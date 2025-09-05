@@ -36,7 +36,8 @@ export function ActionCard({
   const { description, path, title, colors } = match(type)
     .with("borrow", () => ({
       colors: {
-        background: token("colors.brandDarkBlue"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandDarkBlueContent"),
         foregroundAlt: token("colors.brandDarkBlueContentAlt"),
       },
@@ -46,7 +47,8 @@ export function ActionCard({
     }))
     .with("multiply", () => ({
       colors: {
-        background: token("colors.brandGreen"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandGreenContent"),
         foregroundAlt: token("colors.brandGreenContentAlt"),
       },
@@ -56,7 +58,8 @@ export function ActionCard({
     }))
     .with("earn", () => ({
       colors: {
-        background: token("colors.brandBlue"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandBlueContent"),
         foregroundAlt: token("colors.brandBlueContentAlt"),
       },
@@ -108,15 +111,12 @@ export function ActionCard({
           ...hintSpring,
         }}
       >
-        <h1>{title}</h1>
+        <h1 style={{ color: colors.title }}>{title}</h1>
         <p
           className={css({
             height: 64,
             fontSize: 14,
           })}
-          style={{
-            color: colors.foregroundAlt,
-          }}
         >
           {description}
         </p>
@@ -129,7 +129,7 @@ export function ActionCard({
           <ActionIcon
             colors={colors}
             iconType={type}
-            state={hint ? "active" : "idle"}
+            state={"active"}
           />
         </div>
       </a.section>

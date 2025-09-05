@@ -46,8 +46,6 @@ const actionsEntries = Object.entries(actions);
 
 const RESET_DELAY = 500;
 const COMPRESSED_WIDTH = 28;
-const ANIMATE_ICONS = true;
-
 export function NewPositionCard() {
   const [hovered, setHovered_] = useState(-1);
 
@@ -194,7 +192,7 @@ export function NewPositionCard() {
                 <ActionIcon
                   colors={colors}
                   iconType={type as keyof typeof actions}
-                  state={ANIMATE_ICONS && hovered === index ? "active" : "idle"}
+                  state={"active"}
                 />
               </a.div>
             </section>

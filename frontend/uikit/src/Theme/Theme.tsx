@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useState } from "react";
 
 export const colors = {
-  "blue:50": "#F0F3FE",
-  "blue:100": "#DEE4FB",
+  "blue:50": "rgba(255, 255, 255, 0.10)",
+  "blue:100": "rgba(255, 255, 255, 0.10)",
   "blue:200": "#C4D0F9",
-  "blue:300": "#9CB1F4",
+  "blue:300": "#1C1D4F",
   "blue:400": "#6D8AED",
   "blue:500": "#405AE5",
   "blue:600": "#3544DB",

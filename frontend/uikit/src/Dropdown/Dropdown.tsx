@@ -242,9 +242,9 @@ export function Dropdown({
                 padding: "0 10px 0 16px",
                 height: "100%",
                 whiteSpace: "nowrap",
-                borderWidth: "1px 1px 0 1px",
+                borderWidth: "2px",
                 borderStyle: "solid",
-                borderColor: "#F5F6F8",
+                borderColor: "token(colors.brandGreen)",
                 boxShadow: `
                   0 2px 2px rgba(0, 0, 0, 0.1),
                   0 4px 10px rgba(18, 27, 68, 0.05),
@@ -329,7 +329,7 @@ export function Dropdown({
                   display: "flex",
                   flexDirection: "column",
                   gap: 12,
-                  background: "controlSurface",
+                  background: "#011837",
                   borderRadius: 20,
                   border: "1px solid token(colors.border)",
                   boxShadow: `

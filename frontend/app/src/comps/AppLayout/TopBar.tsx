@@ -97,7 +97,6 @@ export function TopBar() {
                 whiteSpace: "nowrap",
               })}
             >
-              <div>{content.appName}</div>
               {DEPLOYMENT_FLAVOR && (
                 <div
                   className={css({

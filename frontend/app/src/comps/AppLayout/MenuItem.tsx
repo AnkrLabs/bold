@@ -18,7 +18,6 @@ export function MenuItem({
       className={css({
         display: "flex",
         alignItems: "center",
-        gap: 12,
         width: "100%",
         height: "100%",
         color: "content",

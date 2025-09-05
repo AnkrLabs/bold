@@ -32,11 +32,11 @@ export function Menu({
           position: "relative",
           zIndex: 2,
           display: "flex",
-          gap: 8,
+          gap: 2,
           height: "100%",
         })}
       >
-        {menuItems.map(([label, href, Icon]) => {
+        {menuItems.map(([label, href]) => {
           const selected = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <li key={label + href}>
@@ -61,7 +61,7 @@ export function Menu({
                 }}
               >
                 <MenuItem
-                  icon={<Icon />}
+                  icon={null}
                   label={label}
                   selected={selected}
                 />
