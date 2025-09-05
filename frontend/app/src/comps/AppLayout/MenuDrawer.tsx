@@ -132,16 +132,7 @@ function MenuDrawer({
                           flexShrink: 0,
                         })}
                       >
-                        <Logo size={20} />
-                      </div>
-                      <div
-                        className={css({
-                          flexShrink: 0,
-                          fontSize: 15,
-                          whiteSpace: "nowrap",
-                        })}
-                      >
-                        {content.appName}
+                        <Logo size={118} />
                       </div>
                     </a.div>
                     <NavItems
