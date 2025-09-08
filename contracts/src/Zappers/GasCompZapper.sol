@@ -31,7 +31,7 @@ contract GasCompZapper is BaseZapper {
     }
 
     function openTroveWithRawETH(OpenTroveParams calldata _params) external payable returns (uint256) {
-        require(msg.value == ETH_GAS_COMPENSATION, "GCZ: Wrong ETH");
+        require(msg.value == parameters.ETH_GAS_COMPENSATION(), "GCZ: Wrong ETH");
         require(
             _params.batchManager == address(0) || _params.annualInterestRate == 0,
             "GCZ: Cannot choose interest if joining a batch"
@@ -243,8 +243,9 @@ contract GasCompZapper is BaseZapper {
         collToken.safeTransfer(receiver, trove.entireColl);
 
         // Send gas compensation
-        WETH.withdraw(ETH_GAS_COMPENSATION);
-        (bool success,) = receiver.call{value: ETH_GAS_COMPENSATION}("");
+        uint256 ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
+        WETH.withdraw(ethGasCompensation);
+        (bool success,) = receiver.call{value: ethGasCompensation}("");
         require(success, "GCZ: Sending ETH failed");
     }
 
@@ -305,8 +306,9 @@ contract GasCompZapper is BaseZapper {
         collToken.safeTransfer(_params.receiver, collLeft);
 
         // Send gas compensation
-        WETH.withdraw(ETH_GAS_COMPENSATION);
-        (bool success,) = _params.receiver.call{value: ETH_GAS_COMPENSATION}("");
+        uint256 ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
+        WETH.withdraw(ethGasCompensation);
+        (bool success,) = _params.receiver.call{value: ethGasCompensation}("");
         require(success, "GCZ: Sending ETH failed");
     }
 

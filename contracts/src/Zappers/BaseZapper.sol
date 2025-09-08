@@ -5,6 +5,7 @@ pragma solidity 0.8.24;
 import "../Interfaces/IWETH.sol";
 import "../Interfaces/IAddressesRegistry.sol";
 import "../Interfaces/IBorrowerOperations.sol";
+import "../Interfaces/IParameters.sol";
 import "../Dependencies/AddRemoveManagers.sol";
 import "./LeftoversSweep.sol";
 import "./Interfaces/IFlashLoanProvider.sol";
@@ -17,6 +18,7 @@ abstract contract BaseZapper is AddRemoveManagers, LeftoversSweep, IFlashLoanRec
     ITroveManager public troveManager;
     IWETH public WETH;
     IBoldToken public boldToken;
+    IParameters public parameters;
 
     IFlashLoanProvider public flashLoanProvider;
     IExchange public exchange;
@@ -27,6 +29,7 @@ abstract contract BaseZapper is AddRemoveManagers, LeftoversSweep, IFlashLoanRec
         troveManager = _addressesRegistry.troveManager();
         boldToken = _addressesRegistry.boldToken();
         WETH = _addressesRegistry.WETH();
+        parameters = _addressesRegistry.parameters();
 
         flashLoanProvider = _flashLoanProvider;
         exchange = _exchange;

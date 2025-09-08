@@ -12,6 +12,7 @@ import "./Interfaces/IAddressesRegistry.sol";
 import "./Interfaces/IBoldToken.sol";
 import "./Interfaces/IInterestRouter.sol";
 import "./Interfaces/IDefaultPool.sol";
+import "./Interfaces/IParameters.sol";
 
 /*
  * The Active Pool holds the collateral and Bold debt (but not Bold tokens) for all active troves.
@@ -31,6 +32,7 @@ contract ActivePool is Initializable, IActivePool {
     address public defaultPoolAddress;
 
     IBoldToken public boldToken;
+    IParameters public parameters;
 
     IInterestRouter public interestRouter;
     IBoldRewardsReceiver public stabilityPool;
@@ -80,6 +82,7 @@ contract ActivePool is Initializable, IActivePool {
         defaultPoolAddress = address(_addressesRegistry.defaultPool());
         interestRouter = _addressesRegistry.interestRouter();
         boldToken = _addressesRegistry.boldToken();
+        parameters = _addressesRegistry.parameters();
 
         emit CollTokenAddressChanged(address(collToken));
         emit BorrowerOperationsAddressChanged(borrowerOperationsAddress);
@@ -114,7 +117,7 @@ contract ActivePool is Initializable, IActivePool {
     }
 
     function calcPendingSPYield() external view returns (uint256) {
-        return calcPendingAggInterest() * SP_YIELD_SPLIT / DECIMAL_PRECISION;
+        return calcPendingAggInterest() * parameters.SP_YIELD_SPLIT() / DECIMAL_PRECISION;
     }
 
     function calcPendingAggBatchManagementFee() public view returns (uint256) {
@@ -251,7 +254,7 @@ contract ActivePool is Initializable, IActivePool {
 
         // Mint part of the BOLD interest to the SP and part to the router for LPs.
         if (mintedAmount > 0) {
-            uint256 spYield = SP_YIELD_SPLIT * mintedAmount / DECIMAL_PRECISION;
+            uint256 spYield = parameters.SP_YIELD_SPLIT() * mintedAmount / DECIMAL_PRECISION;
             uint256 remainderToLPs = mintedAmount - spYield;
 
             boldToken.mint(address(interestRouter), remainderToLPs);

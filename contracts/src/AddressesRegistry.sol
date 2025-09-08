@@ -3,7 +3,6 @@
 pragma solidity 0.8.24;
 
 import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
-import {MIN_LIQUIDATION_PENALTY_SP, MAX_LIQUIDATION_PENALTY_REDISTRIBUTION} from "./Dependencies/Constants.sol";
 import "./Interfaces/IAddressesRegistry.sol";
 
 contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
@@ -25,29 +24,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     ICollateralRegistry public collateralRegistry;
     IBoldToken public boldToken;
     IWETH public WETH;
-
-    // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
-    uint256 public CCR;
-    // Shutdown system collateral ratio. If the system's total collateral ratio (TCR) for a given collateral falls below the SCR,
-    // the protocol triggers the shutdown of the borrow market and permanently disables all borrowing operations except for closing Troves.
-    uint256 public SCR;
-
-    // Minimum collateral ratio for individual troves
-    uint256 public MCR;
-    // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
-    uint256 public BCR;
-    // Liquidation penalty for troves offset to the SP
-    uint256 public LIQUIDATION_PENALTY_SP;
-    // Liquidation penalty for troves redistributed
-    uint256 public LIQUIDATION_PENALTY_REDISTRIBUTION;
-
-    error InvalidCCR();
-    error InvalidMCR();
-    error InvalidBCR();
-    error InvalidSCR();
-    error SPPenaltyTooLow();
-    error SPPenaltyGtRedist();
-    error RedistPenaltyTooHigh();
+    IParameters public parameters;
 
     event CollTokenAddressChanged(address _collTokenAddress);
     event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
@@ -67,32 +44,15 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     event CollateralRegistryAddressChanged(address _collateralRegistryAddress);
     event BoldTokenAddressChanged(address _boldTokenAddress);
     event WETHAddressChanged(address _wethAddress);
+    event ParametersAddressChanged(address _parameters);
 
     function initialize(
-        address _owner,
-        uint256 _ccr,
-        uint256 _mcr,
-        uint256 _bcr,
-        uint256 _scr,
-        uint256 _liquidationPenaltySP,
-        uint256 _liquidationPenaltyRedistribution
+        address _owner
     ) external initializer {
         __Ownable2Step_init();
-        _transferOwnership(_owner);
-        if (_ccr <= 1e18 || _ccr >= 2e18) revert InvalidCCR();
-        if (_mcr <= 1e18 || _mcr >= 2e18) revert InvalidMCR();
-        if (_bcr < 5e16 || _bcr >= 50e16) revert InvalidBCR();
-        if (_scr <= 1e18 || _scr >= 2e18) revert InvalidSCR();
-        if (_liquidationPenaltySP < MIN_LIQUIDATION_PENALTY_SP) revert SPPenaltyTooLow();
-        if (_liquidationPenaltySP > _liquidationPenaltyRedistribution) revert SPPenaltyGtRedist();
-        if (_liquidationPenaltyRedistribution > MAX_LIQUIDATION_PENALTY_REDISTRIBUTION) revert RedistPenaltyTooHigh();
-
-        CCR = _ccr;
-        SCR = _scr;
-        MCR = _mcr;
-        BCR = _bcr;
-        LIQUIDATION_PENALTY_SP = _liquidationPenaltySP;
-        LIQUIDATION_PENALTY_REDISTRIBUTION = _liquidationPenaltyRedistribution;
+        if (msg.sender != _owner) {
+            _transferOwnership(_owner);
+        }
     }
 
     function setAddresses(AddressVars memory _vars) external onlyOwner {
@@ -114,6 +74,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         collateralRegistry = _vars.collateralRegistry;
         boldToken = _vars.boldToken;
         WETH = _vars.WETH;
+        parameters = _vars.parameters;
 
         emit CollTokenAddressChanged(address(_vars.collToken));
         emit BorrowerOperationsAddressChanged(address(_vars.borrowerOperations));
@@ -133,5 +94,6 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         emit CollateralRegistryAddressChanged(address(_vars.collateralRegistry));
         emit BoldTokenAddressChanged(address(_vars.boldToken));
         emit WETHAddressChanged(address(_vars.WETH));
+        emit ParametersAddressChanged(address(_vars.parameters));
     }
 }

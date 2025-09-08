@@ -20,7 +20,6 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
 
     // --- Connected contract declarations ---
 
-    IERC20Upgradeable internal collToken;
     ITroveManager internal troveManager;
     address internal gasPoolAddress;
     ICollSurplusPool internal collSurplusPool;
@@ -30,19 +29,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     // Wrapped ETH for liquidation reserve (gas compensation)
     IWETH internal WETH;
 
-    // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
-    uint256 public CCR;
-
-    // Shutdown system collateral ratio. If the system's total collateral ratio (TCR) for a given collateral falls below the SCR,
-    // the protocol triggers the shutdown of the borrow market and permanently disables all borrowing operations except for closing Troves.
-    uint256 public SCR;
     bool public hasBeenShutDown;
-
-    // Minimum collateral ratio for individual troves
-    uint256 public MCR;
-
-    // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
-    uint256 public BCR;
 
     /*
     * Mapping from TroveId to individual delegate for interest rate setting.
@@ -155,30 +142,34 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     error MinInterestRateChangePeriodTooLow();
     error NewOracleFailureDetected();
     error BatchSharesRatioTooLow();
+    error BranchParametersNotSet(address _collToken);
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event GasPoolAddressChanged(address _gasPoolAddress);
     event CollSurplusPoolAddressChanged(address _collSurplusPoolAddress);
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event BoldTokenAddressChanged(address _boldTokenAddress);
-
     event ShutDown(uint256 _tcr);
 
     function initialize(IAddressesRegistry _addressesRegistry) external initializer {
-        // This makes impossible to open a trove with zero withdrawn Bold
-        assert(MIN_DEBT > 0);
 
         __LiquityBase_init(_addressesRegistry);
         __AddRemoveManagers_init(_addressesRegistry);
 
-        collToken = _addressesRegistry.collToken();
+        IParameters.BranchParams memory bp = parameters.getBranchParams(address(collToken));
+        if (
+            bp.CCR == 0 ||
+            bp.MCR == 0 ||
+            bp.SCR == 0 ||
+            bp.BCR == 0 ||
+            bp.LIQUIDATION_PENALTY_SP == 0 ||
+            bp.LIQUIDATION_PENALTY_REDISTRIBUTION == 0
+        ) revert BranchParametersNotSet(address(collToken));
+
+        // This makes impossible to open a trove with zero withdrawn Bold
+        assert(parameters.MIN_DEBT() > 0);
 
         WETH = _addressesRegistry.WETH();
-
-        CCR = _addressesRegistry.CCR();
-        SCR = _addressesRegistry.SCR();
-        MCR = _addressesRegistry.MCR();
-        BCR = _addressesRegistry.BCR();
 
         troveManager = _addressesRegistry.troveManager();
         gasPoolAddress = _addressesRegistry.gasPoolAddress();
@@ -373,7 +364,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
 
         // Mint the requested _boldAmount to the borrower and mint the gas comp to the GasPool
         vars.boldToken.mint(msg.sender, _boldAmount);
-        WETH.transferFrom(msg.sender, gasPoolAddress, ETH_GAS_COMPENSATION);
+        WETH.transferFrom(msg.sender, gasPoolAddress, parameters.ETH_GAS_COMPENSATION());
 
         return vars.troveId;
     }
@@ -536,7 +527,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         troveChange.oldWeightedRecordedDebt = trove.weightedRecordedDebt;
 
         // Apply upfront fee on premature adjustments. It checks the resulting ICR
-        if (block.timestamp < trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN) {
+        if (block.timestamp < trove.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()) {
             newDebt = _applyUpfrontFee(trove.entireColl, newDebt, troveChange, _maxUpfrontFee, false);
         }
 
@@ -567,7 +558,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         vars.boldToken = boldToken;
 
         vars.price = _requireOraclesLive();
-        vars.isBelowCriticalThreshold = _checkBelowCriticalThreshold(vars.price, CCR);
+        vars.isBelowCriticalThreshold = _checkBelowCriticalThreshold(vars.price, parameters.CCR(address(collToken)));
 
         // --- Checks ---
 
@@ -591,7 +582,8 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
 
         // When the adjustment is a debt repayment, check it's a valid amount and that the caller has enough Bold
         if (_troveChange.debtDecrease > 0) {
-            uint256 maxRepayment = vars.trove.entireDebt > MIN_DEBT ? vars.trove.entireDebt - MIN_DEBT : 0;
+            uint256 minDebt = parameters.MIN_DEBT();
+            uint256 maxRepayment = vars.trove.entireDebt > minDebt ? vars.trove.entireDebt - minDebt : 0;
             if (_troveChange.debtDecrease > maxRepayment) {
                 _troveChange.debtDecrease = maxRepayment;
             }
@@ -738,7 +730,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         activePoolCached.mintAggInterestAndAccountForTroveChange(troveChange, batchManager);
 
         // Return ETH gas compensation
-        WETH.transferFrom(gasPoolAddress, receiver, ETH_GAS_COMPENSATION);
+        WETH.transferFrom(gasPoolAddress, receiver, parameters.ETH_GAS_COMPENSATION());
         // Burn the remainder of the Trove's entire debt from the user
         boldTokenCached.burn(msg.sender, trove.entireDebt);
 
@@ -791,7 +783,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         activePool.mintAggInterestAndAccountForTroveChange(change, batchManager);
 
         // If the trove was zombie, and now it’s not anymore, put it back in the list
-        if (_checkTroveIsZombie(troveManagerCached, _troveId) && trove.entireDebt >= MIN_DEBT) {
+        if (_checkTroveIsZombie(troveManagerCached, _troveId) && trove.entireDebt >= parameters.MIN_DEBT()) {
             troveManagerCached.setTroveStatusToActive(_troveId);
             _reInsertIntoSortedTroves(
                 _troveId, trove.annualInterestRate, _upperHint, _lowerHint, batchManager, batch.annualInterestRate
@@ -862,8 +854,8 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         _requireInterestRateInRange(_currentInterestRate, _minInterestRate, _maxInterestRate);
         // Not needed, implicitly checked in the condition above:
         //_requireValidAnnualInterestRate(_currentInterestRate);
-        if (_annualManagementFee > MAX_ANNUAL_BATCH_MANAGEMENT_FEE) revert AnnualManagementFeeTooHigh();
-        if (_minInterestRateChangePeriod < MIN_INTEREST_RATE_CHANGE_PERIOD) revert MinInterestRateChangePeriodTooLow();
+        if (_annualManagementFee > parameters.MAX_ANNUAL_BATCH_MANAGEMENT_FEE()) revert AnnualManagementFeeTooHigh();
+        if (_minInterestRateChangePeriod < parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()) revert MinInterestRateChangePeriodTooLow();
 
         interestBatchManagers[msg.sender] =
             InterestBatchManager(_minInterestRate, _maxInterestRate, _minInterestRateChangePeriod);
@@ -932,7 +924,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         // Apply upfront fee on premature adjustments
         if (
             batch.annualInterestRate != _newAnnualInterestRate
-                && block.timestamp < batch.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+                && block.timestamp < batch.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()
         ) {
             uint256 price = _requireOraclesLive();
 
@@ -1087,7 +1079,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         vars.batch = vars.troveManager.getLatestBatchData(vars.batchManager);
 
         if (_kick) {
-            if (vars.batch.totalDebtShares * MAX_BATCH_SHARES_RATIO >= vars.batch.entireDebtWithoutRedistribution) {
+            if (vars.batch.totalDebtShares * parameters.MAX_BATCH_SHARES_RATIO() >= vars.batch.entireDebtWithoutRedistribution) {
                 revert BatchSharesRatioTooLow();
             }
             _newAnnualInterestRate = vars.batch.annualInterestRate;
@@ -1115,7 +1107,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         // Apply upfront fee on premature adjustments. It checks the resulting ICR
         if (
             vars.batch.annualInterestRate != _newAnnualInterestRate
-                && block.timestamp < vars.trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+                && block.timestamp < vars.trove.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()
         ) {
             vars.trove.entireDebt =
                 _applyUpfrontFee(vars.trove.entireColl, vars.trove.entireDebt, vars.batchChange, _maxUpfrontFee, false);
@@ -1191,8 +1183,8 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         return _troveEntireDebt;
     }
 
-    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal pure returns (uint256) {
-        return _calcInterest(_debt * _avgInterestRate, UPFRONT_INTEREST_PERIOD);
+    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal view returns (uint256) {
+        return _calcInterest(_debt * _avgInterestRate, parameters.UPFRONT_INTEREST_PERIOD());
     }
 
     // Call from TM to clean state here
@@ -1227,7 +1219,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
 
         // Otherwise, proceed with the TCR check:
         uint256 TCR = LiquityMath._computeCR(totalColl, totalDebt, price);
-        if (TCR >= SCR) revert TCRNotBelowSCR();
+        if (TCR >= parameters.SCR(address(collToken))) revert TCRNotBelowSCR();
 
         _applyShutdown();
 
@@ -1442,19 +1434,19 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     }
 
     function _requireICRisAboveMCR(uint256 _newICR) internal view {
-        if (_newICR < MCR) {
+        if (_newICR < parameters.MCR(address(collToken))) {
             revert ICRBelowMCR();
         }
     }
 
     function _requireICRisAboveMCRPlusBCR(uint256 _newICR) internal view {
-        if (_newICR < MCR + BCR) {
+        if (_newICR < parameters.MCR(address(collToken)) + parameters.BCR(address(collToken))) {
             revert ICRBelowMCRPlusBCR();
         }
     }
 
     function _requireNoBorrowingUnlessNewTCRisAboveCCR(uint256 _debtIncrease, uint256 _newTCR) internal view {
-        if (_debtIncrease > 0 && _newTCR < CCR) {
+        if (_debtIncrease > 0 && _newTCR < parameters.CCR(address(collToken))) {
             revert TCRBelowCCR();
         }
     }
@@ -1466,13 +1458,13 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     }
 
     function _requireNewTCRisAboveCCR(uint256 _newTCR) internal view {
-        if (_newTCR < CCR) {
+        if (_newTCR < parameters.CCR(address(collToken))) {
             revert TCRBelowCCR();
         }
     }
 
-    function _requireAtLeastMinDebt(uint256 _debt) internal pure {
-        if (_debt < MIN_DEBT) {
+    function _requireAtLeastMinDebt(uint256 _debt) internal view {
+        if (_debt < parameters.MIN_DEBT()) {
             revert DebtBelowMin();
         }
     }
@@ -1492,11 +1484,11 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         }
     }
 
-    function _requireValidAnnualInterestRate(uint256 _annualInterestRate) internal pure {
-        if (_annualInterestRate < MIN_ANNUAL_INTEREST_RATE) {
+    function _requireValidAnnualInterestRate(uint256 _annualInterestRate) internal view {
+        if (_annualInterestRate < parameters.MIN_ANNUAL_INTEREST_RATE()) {
             revert InterestRateTooLow();
         }
-        if (_annualInterestRate > MAX_ANNUAL_INTEREST_RATE) {
+        if (_annualInterestRate > parameters.MAX_ANNUAL_INTEREST_RATE()) {
             revert InterestRateTooHigh();
         }
     }

@@ -37,7 +37,9 @@ contract BoldToken is Ownable2StepUpgradeable, IBoldToken, ERC20PermitUpgradeabl
 
     function initialize(address _owner) external initializer {
         __Ownable2Step_init();
-        _transferOwnership(_owner);
+        if (msg.sender != _owner) {
+            _transferOwnership(_owner);
+        }
         __ERC20_init(_NAME, _SYMBOL);
         __ERC20Permit_init(_NAME);
     }

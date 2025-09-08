@@ -22,7 +22,8 @@ contract WETHZapper is BaseZapper {
     }
 
     function openTroveWithRawETH(OpenTroveParams calldata _params) external payable returns (uint256) {
-        require(msg.value > ETH_GAS_COMPENSATION, "WZ: Insufficient ETH");
+        uint256 ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
+        require(msg.value > ethGasCompensation, "WZ: Insufficient ETH");
         require(
             _params.batchManager == address(0) || _params.annualInterestRate == 0,
             "WZ: Cannot choose interest if joining a batch"
@@ -38,7 +39,7 @@ contract WETHZapper is BaseZapper {
             troveId = borrowerOperations.openTrove(
                 _params.owner,
                 index,
-                msg.value - ETH_GAS_COMPENSATION,
+                msg.value - ethGasCompensation,
                 _params.boldAmount,
                 _params.upperHint,
                 _params.lowerHint,
@@ -56,7 +57,7 @@ contract WETHZapper is BaseZapper {
                     .OpenTroveAndJoinInterestBatchManagerParams({
                     owner: _params.owner,
                     ownerIndex: index,
-                    collAmount: msg.value - ETH_GAS_COMPENSATION,
+                    collAmount: msg.value - ethGasCompensation,
                     boldAmount: _params.boldAmount,
                     upperHint: _params.upperHint,
                     lowerHint: _params.lowerHint,
@@ -240,8 +241,9 @@ contract WETHZapper is BaseZapper {
 
         borrowerOperations.closeTrove(_troveId);
 
-        WETH.withdraw(trove.entireColl + ETH_GAS_COMPENSATION);
-        (bool success,) = receiver.call{value: trove.entireColl + ETH_GAS_COMPENSATION}("");
+        uint256 ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
+        WETH.withdraw(trove.entireColl + ethGasCompensation);
+        (bool success,) = receiver.call{value: trove.entireColl + ethGasCompensation}("");
         require(success, "WZ: Sending ETH failed");
     }
 
@@ -298,7 +300,7 @@ contract WETHZapper is BaseZapper {
         // Send coll back to return flash loan
         WETH.transfer(address(flashLoanProvider), _params.flashLoanAmount);
 
-        uint256 ethToSendBack = collLeft + ETH_GAS_COMPENSATION;
+        uint256 ethToSendBack = collLeft + parameters.ETH_GAS_COMPENSATION();
         // Send coll left and gas compensation
         WETH.withdraw(ethToSendBack);
         (bool success,) = _params.receiver.call{value: ethToSendBack}("");

@@ -9,6 +9,7 @@ import "../Interfaces/IActivePool.sol";
 import "../Interfaces/IDefaultPool.sol";
 import "../Interfaces/IPriceFeed.sol";
 import "../Interfaces/ILiquityBase.sol";
+import "../Interfaces/IParameters.sol";
 
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
@@ -20,19 +21,25 @@ abstract contract LiquityBase is Initializable, ILiquityBase {
     IActivePool public activePool;
     IDefaultPool internal defaultPool;
     IPriceFeed internal priceFeed;
+    IERC20Upgradeable public collToken;
+    IParameters public parameters;
 
     event ActivePoolAddressChanged(address _newActivePoolAddress);
     event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
     event PriceFeedAddressChanged(address _newPriceFeedAddress);
-    
+    event ParametersAddressChanged(address _newParametersAddress);
+
     function __LiquityBase_init(IAddressesRegistry _addressesRegistry) internal onlyInitializing {
         activePool = _addressesRegistry.activePool();
         defaultPool = _addressesRegistry.defaultPool();
         priceFeed = _addressesRegistry.priceFeed();
+        collToken = _addressesRegistry.collToken();
+        parameters = _addressesRegistry.parameters();
 
         emit ActivePoolAddressChanged(address(activePool));
         emit DefaultPoolAddressChanged(address(defaultPool));
         emit PriceFeedAddressChanged(address(priceFeed));
+        emit ParametersAddressChanged(address(parameters));
     }
 
     // --- Gas compensation functions ---

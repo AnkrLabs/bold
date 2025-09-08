@@ -15,7 +15,7 @@ contract LeverageWETHZapper is WETHZapper, ILeverageZapper {
     }
 
     function openLeveragedTroveWithRawETH(OpenLeveragedTroveParams memory _params) external payable {
-        require(msg.value == ETH_GAS_COMPENSATION + _params.collAmount, "LZ: Wrong amount of ETH");
+        require(msg.value == parameters.ETH_GAS_COMPENSATION() + _params.collAmount, "LZ: Wrong amount of ETH");
         require(
             _params.batchManager == address(0) || _params.annualInterestRate == 0,
             "LZ: Cannot choose interest if joining a batch"

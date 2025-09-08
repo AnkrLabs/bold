@@ -120,7 +120,6 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
 
     string public constant NAME = "StabilityPool";
 
-    IERC20Upgradeable public collToken;
     ITroveManager public troveManager;
     IBoldToken public boldToken;
 
@@ -191,7 +190,6 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
 
     function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         __LiquityBase_init(_addressesRegistry);
-        collToken = _addressesRegistry.collToken();
         troveManager = _addressesRegistry.troveManager();
         boldToken = _addressesRegistry.boldToken();
 
@@ -316,7 +314,7 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
         _sendBoldtoDepositor(msg.sender, boldToWithdraw + yieldGainToSend);
         _sendCollGainToDepositor(collToSend);
 
-        require(newTotalBoldDeposits >= MIN_BOLD_IN_SP, "Withdrawal must leave totalBoldDeposits >= MIN_BOLD_IN_SP");
+        require(newTotalBoldDeposits >= parameters.MIN_BOLD_IN_SP(), "Withdrawal must leave totalBoldDeposits >= MIN_BOLD_IN_SP");
     }
 
     function _getNewStashedCollAndCollToSend(address _depositor, uint256 _currentCollGain, bool _doClaim)
@@ -362,7 +360,7 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
 
         // When total deposits is very small, B is not updated. In this case, the BOLD issued is held
         // until the total deposits reach 1 BOLD (remains in the balance of the SP).
-        if (totalBoldDeposits < MIN_BOLD_IN_SP) {
+        if (totalBoldDeposits < parameters.MIN_BOLD_IN_SP()) {
             yieldGainsPending = accumulatedYieldGains;
             return;
         }
@@ -486,7 +484,7 @@ contract StabilityPool is LiquityBase, IStabilityPool, IStabilityPoolEvents {
     }
 
     function getDepositorYieldGainWithPending(address _depositor) external view override returns (uint256) {
-        if (totalBoldDeposits < MIN_BOLD_IN_SP) return 0;
+        if (totalBoldDeposits < parameters.MIN_BOLD_IN_SP()) return 0;
 
         uint256 initialDeposit = deposits[_depositor].initialValue;
         if (initialDeposit == 0) return 0;

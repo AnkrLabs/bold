@@ -3,6 +3,7 @@
 pragma solidity 0.8.24;
 
 import "./Interfaces/ICollateralRegistry.sol";
+import "./Interfaces/IParameters.sol";
 import "./Dependencies/LiquityMath.sol";
 import "./Dependencies/Constants.sol";
 import "./Interfaces/IHintHelpers.sol";
@@ -13,9 +14,11 @@ contract HintHelpers is Initializable, IHintHelpers {
     string public constant NAME = "HintHelpers";
 
     ICollateralRegistry public collateralRegistry;
+    IParameters public parameters;
 
     function initialize(ICollateralRegistry _collateralRegistry) external initializer {
         collateralRegistry = _collateralRegistry;
+        parameters = collateralRegistry.parameters();
     }
 
     /* getApproxHint() - return id of a Trove that is, on average, (length / numTrials) positions away in the
@@ -66,8 +69,8 @@ contract HintHelpers is Initializable, IHintHelpers {
         }
     }
 
-    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal pure returns (uint256) {
-        return _debt * _avgInterestRate * UPFRONT_INTEREST_PERIOD / ONE_YEAR / DECIMAL_PRECISION;
+    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal view returns (uint256) {
+        return _debt * _avgInterestRate * parameters.UPFRONT_INTEREST_PERIOD() / ONE_YEAR / DECIMAL_PRECISION;
     }
 
     function predictOpenTroveUpfrontFee(uint256 _collIndex, uint256 _borrowedAmount, uint256 _interestRate)
@@ -97,7 +100,7 @@ contract HintHelpers is Initializable, IHintHelpers {
 
         if (
             _newInterestRate == trove.annualInterestRate
-                || block.timestamp >= trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+                || block.timestamp >= trove.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()
         ) {
             return 0;
         }
@@ -174,7 +177,7 @@ contract HintHelpers is Initializable, IHintHelpers {
 
         if (
             _newInterestRate == batch.annualInterestRate
-                || block.timestamp >= batch.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+                || block.timestamp >= batch.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()
         ) {
             return 0;
         }
@@ -242,7 +245,7 @@ contract HintHelpers is Initializable, IHintHelpers {
 
         if (
             _newInterestRate == batch.annualInterestRate
-                || block.timestamp >= trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+                || block.timestamp >= trove.lastInterestRateAdjTime + parameters.INTEREST_RATE_ADJ_COOLDOWN()
         ) {
             return 0;
         }

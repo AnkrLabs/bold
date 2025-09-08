@@ -7,6 +7,7 @@ import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/IERC
 
 import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/IBoldToken.sol";
+import "./Interfaces/IParameters.sol";
 import "./Dependencies/Constants.sol";
 import "./Dependencies/LiquityMath.sol";
 
@@ -39,6 +40,7 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
     ITroveManager internal troveManager9;
 
     IBoldToken public boldToken;
+    IParameters public parameters;
 
     uint256 public baseRate;
 
@@ -48,13 +50,14 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
 
-    function initialize(IBoldToken _boldToken, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
+    function initialize(IBoldToken _boldToken, IParameters _parameters, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
         uint256 numTokens = _tokens.length;
         require(numTokens > 0, "Collateral list cannot be empty");
         require(numTokens <= 10, "Collateral list too long");
         totalCollaterals = numTokens;
 
         boldToken = _boldToken;
+        parameters = _parameters;
 
         token0 = _tokens[0];
         token1 = numTokens > 1 ? _tokens[1] : IERC20MetadataUpgradeable(address(0));
@@ -221,7 +224,7 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
         // get the fraction of total supply that was redeemed
         uint256 redeemedBoldFraction = _redeemAmount * DECIMAL_PRECISION / _totalBoldSupply;
 
-        uint256 newBaseRate = decayedBaseRate + redeemedBoldFraction / REDEMPTION_BETA;
+        uint256 newBaseRate = decayedBaseRate + redeemedBoldFraction / parameters.REDEMPTION_BETA();
         newBaseRate = LiquityMath._min(newBaseRate, DECIMAL_PRECISION); // cap baseRate at a maximum of 100%
 
         return newBaseRate;
@@ -229,14 +232,14 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
 
     function _calcDecayedBaseRate() internal view returns (uint256) {
         uint256 minutesPassed = _minutesPassedSinceLastFeeOp();
-        uint256 decayFactor = LiquityMath._decPow(REDEMPTION_MINUTE_DECAY_FACTOR, minutesPassed);
+        uint256 decayFactor = LiquityMath._decPow(parameters.REDEMPTION_MINUTE_DECAY_FACTOR(), minutesPassed);
 
         return baseRate * decayFactor / DECIMAL_PRECISION;
     }
 
-    function _calcRedemptionRate(uint256 _baseRate) internal pure returns (uint256) {
+    function _calcRedemptionRate(uint256 _baseRate) internal view returns (uint256) {
         return LiquityMath._min(
-            REDEMPTION_FEE_FLOOR + _baseRate,
+            parameters.REDEMPTION_FEE_FLOOR() + _baseRate,
             DECIMAL_PRECISION // cap at a maximum of 100%
         );
     }
@@ -304,9 +307,9 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
 
     // require functions
 
-    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage) internal pure {
+    function _requireValidMaxFeePercentage(uint256 _maxFeePercentage) internal view {
         require(
-            _maxFeePercentage >= REDEMPTION_FEE_FLOOR && _maxFeePercentage <= DECIMAL_PRECISION,
+            _maxFeePercentage >= parameters.REDEMPTION_FEE_FLOOR() && _maxFeePercentage <= DECIMAL_PRECISION,
             "Max fee percentage must be between 0.5% and 100%"
         );
     }
