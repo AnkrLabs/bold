@@ -99,7 +99,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
         URGENT_REDEMPTION_BONUS = 2e16;                       // 2%
         MAX_BATCH_SHARES_RATIO = 1e9;
         
-        SP_YIELD_SPLIT = 75 * _1pct; // 100%
+        SP_YIELD_SPLIT = _100pct; // 100%
 
         emit DefaultGlobalsSet();
     }
