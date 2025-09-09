@@ -49,7 +49,7 @@ export type CollateralToken = Token & {
 
 export const BOLD: Token = {
   icon: tokenBold,
-  name: "BOLD",
+  name: "MINT",
   symbol: "BOLD" as const,
 } as const;
 
@@ -74,6 +74,7 @@ export const COLLATERALS: CollateralToken[] = [
 
 export const TOKENS_BY_SYMBOL = {
   BOLD,
+  MINT: BOLD,
   WANKR,
   USN,
 } as const;

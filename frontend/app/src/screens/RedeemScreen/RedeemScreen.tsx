@@ -91,7 +91,7 @@ export function RedeemScreen() {
               contextual={
                 <InputField.Badge
                   icon={<TokenIcon symbol="BOLD" />}
-                  label="BOLD"
+                  label="MINT"
                 />
               }
               drawer={amount.isFocused
@@ -101,7 +101,7 @@ export function RedeemScreen() {
                     && dn.gt(amount.parsed, boldBalance.data)
                 ? {
                   mode: "error",
-                  message: `Insufficient BOLD balance. You have ${fmtnum(boldBalance.data)} BOLD.`,
+                  message: `Insufficient MINT balance. You have ${fmtnum(boldBalance.data)} MINT.`,
                 }
                 : null}
               label="Redeeming"

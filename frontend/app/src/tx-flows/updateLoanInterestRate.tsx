@@ -120,7 +120,7 @@ export const updateLoanInterestRate: FlowDeclaration<UpdateLoanInterestRateReque
                     <Amount
                       format="2z"
                       prefix="~"
-                      suffix=" BOLD per year"
+                      suffix=" MINT per year"
                       value={yearlyBoldInterest}
                     />
                   </>

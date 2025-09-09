@@ -195,7 +195,7 @@ export function BorrowScreen() {
                 })}
               >
                 <TokenIcon symbol="BOLD" />
-                {NBSP}BOLD
+                {NBSP}MINT
               </div>,
             )}
           </div>
@@ -276,12 +276,12 @@ export function BorrowScreen() {
             contextual={
               <InputField.Badge
                 icon={<TokenIcon symbol="BOLD" />}
-                label="BOLD"
+                label="MINT"
               />
             }
             drawer={debt.isFocused || !isBelowMinDebt ? null : {
               mode: "error",
-              message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} BOLD.`,
+              message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} MINT.`,
             }}
             label={content.borrowScreen.borrowField.label}
             placeholder="0.00"
@@ -420,7 +420,7 @@ export function BorrowScreen() {
             fontSize: 16,
             color: "content",
             background: "infoSurface",
-            border: "1px solid token(colors.infoSurfaceBorder)",
+            border: "2px solid token(colors.infoSurfaceBorder)",
             borderRadius: 8,
           })}
         >

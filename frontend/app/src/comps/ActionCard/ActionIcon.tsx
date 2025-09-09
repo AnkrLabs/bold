@@ -1,3 +1,8 @@
+import type { ReactNode } from "react";
+
+import { a, useSpring } from "@react-spring/web";
+import { match } from "ts-pattern";
+
 type IconProps = {
   background: string;
   foreground: string;
@@ -10,8 +15,11 @@ export const springConfig = {
   friction: 40,
 };
 
-// @ts-ignore
-export function ActionIcon(props: {
+export function ActionIcon({
+  colors,
+  iconType,
+  state,
+}: {
   colors: {
     background: string;
     foreground: string;
@@ -19,27 +27,162 @@ export function ActionIcon(props: {
   iconType: "borrow" | "multiply" | "earn" | "stake";
   state: IconProps["state"];
 }) {
+  const Icon = match(iconType)
+    .with("borrow", () => ActionIconBorrow)
+    .with("multiply", () => ActionIconLeverage)
+    .with("earn", () => ActionIconEarn)
+    .with("stake", () => ActionIconStake)
+    .exhaustive();
 
   return (
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="32" height="32" rx="16" fill="#011837"/>
-        <mask id="mask0_1245_615" {...({ maskType: "alpha" } as any)} maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
-          <rect width="32" height="32" rx="16" fill="#011936"/>
-        </mask>
-        <g mask="url(#mask0_1245_615)">
-          <path
-            d="M16.0147 26.2868C16.0147 26.2868 6.27935 24.3378 6.27935 14.7525C6.27935 12.5662 7.31106 9.25 7.31106 9.25C10.5804 10.0991 14.38 12.3145 16.0147 14.6768C17.5833 12.6401 20.3839 10.5524 24.743 9.25C25.3629 10.9594 25.75 12.8061 25.75 14.7525C25.75 24.5135 16.0147 26.2868 16.0147 26.2868Z"
-            fill="#88FD9D"/>
-          <path
-            d="M15.922 26.7503L16.0105 26.768L16.0993 26.7518L16.0147 26.2872L15.922 26.7503ZM6.75152 14.753C6.75152 13.7171 6.99846 12.3856 7.25496 11.2894C7.38202 10.7464 7.50918 10.2703 7.60452 9.93023C7.61435 9.89515 7.62388 9.86152 7.63299 9.82944C9.0934 10.2581 10.6429 10.9517 12.0296 11.7993C13.5617 12.7358 14.8604 13.839 15.6264 14.9459L15.9943 15.4776L16.3887 14.9653C17.8364 13.0858 20.4147 11.1203 24.447 9.83596C24.9637 11.3808 25.2778 13.0287 25.2778 14.753C25.2778 19.4438 22.9515 22.1943 20.6159 23.7906C19.442 24.5929 18.265 25.1028 17.3801 25.4119C16.9384 25.5661 16.5715 25.6697 16.3168 25.7343C16.1896 25.7666 16.0906 25.7891 16.0245 25.8034C16.0226 25.8038 16.0206 25.8042 16.0187 25.8046C16.0167 25.8041 16.0146 25.8037 16.0125 25.8032C15.9462 25.7877 15.8471 25.7634 15.7196 25.729C15.4647 25.66 15.0973 25.5504 14.6551 25.3893C13.7693 25.0666 12.5911 24.5402 11.4158 23.7264C9.07549 22.1057 6.75152 19.3536 6.75152 14.753ZM5.80713 14.753C5.80713 19.7376 8.35084 22.7526 10.8782 24.5028C12.1368 25.3744 13.3923 25.9344 14.3319 26.2767C14.8023 26.448 15.1956 26.5655 15.473 26.6406C15.6118 26.6781 15.7218 26.7051 15.7981 26.7229C15.8363 26.7318 15.8662 26.7384 15.887 26.7429C15.8974 26.7452 15.9056 26.7469 15.9114 26.7481C15.9143 26.7487 15.9167 26.7492 15.9185 26.7496C15.9193 26.7497 15.9201 26.7499 15.9207 26.75C15.921 26.7501 15.9213 26.7502 15.9214 26.7502C15.9218 26.7501 15.9237 26.7418 16.0147 26.2872C16.0993 26.7518 16.0995 26.7518 16.0998 26.7517C16.1 26.7517 16.1003 26.7516 16.1006 26.7516C16.1012 26.7515 16.1019 26.7513 16.1028 26.7512C16.1046 26.7508 16.107 26.7504 16.1099 26.7498C16.1158 26.7487 16.124 26.7471 16.1344 26.745C16.1553 26.7409 16.1852 26.7348 16.2235 26.7265C16.3 26.71 16.4102 26.685 16.5491 26.6497C16.8269 26.5792 17.2205 26.468 17.6915 26.3035C18.632 25.975 19.8888 25.4315 21.1488 24.5703C23.6808 22.8398 26.2222 19.8231 26.2222 14.753C26.2222 12.7433 25.8224 10.842 25.1869 9.08946L25.0349 8.67041L24.6078 8.79798C20.5015 10.0249 17.7197 11.9468 16.0288 13.9127C15.1546 12.8422 13.9043 11.8383 12.5221 10.9935C10.9234 10.0163 9.1135 9.23071 7.42971 8.79341L6.99391 8.68023L6.86017 9.11017L7.31104 9.25044C6.86734 9.1124 6.86025 9.11024 6.86012 9.11027C6.86011 9.11031 6.86009 9.1104 6.86007 9.11048C6.86002 9.11064 6.85994 9.11084 6.85986 9.1111C6.8597 9.11161 6.85948 9.11234 6.8592 9.11326C6.85863 9.11508 6.85782 9.11769 6.85678 9.12107C6.85469 9.12786 6.85166 9.13779 6.84773 9.15067C6.83988 9.17646 6.82849 9.21419 6.81407 9.26272C6.78524 9.35977 6.74427 9.5002 6.69519 9.67529C6.59708 10.0253 6.46627 10.5149 6.3354 11.0742C6.07604 12.1827 5.80713 13.6025 5.80713 14.753Z"
-            fill="#88FD9D"/>
-          <path
-            d="M24.9628 8.42253C24.9628 8.42253 27.8248 14.9339 25.3247 19.9759C22.8247 25.0179 15.9094 26.6812 15.9094 26.6812C15.9094 26.6812 13.0474 20.1699 15.5475 15.1279C18.0475 10.0859 24.9628 8.42253 24.9628 8.42253Z"
-            fill="#011837"/>
-          <path
-            d="M23.7569 19.1985C24.7648 17.1658 24.7337 14.7184 24.3585 12.6159C24.2224 11.8533 24.0466 11.1676 23.8794 10.6075C23.3324 10.8135 22.6801 11.0886 21.9908 11.4419C20.0901 12.4159 18.1232 13.8726 17.1153 15.9053C16.1074 17.938 16.1385 20.3854 16.5137 22.4878C16.6498 23.2504 16.8256 23.9361 16.9928 24.4962C17.5398 24.2902 18.1921 24.0151 18.8815 23.6619C20.7821 22.6879 22.749 21.2311 23.7569 19.1985ZM25.2952 20.0348C22.7708 25.0308 15.9094 26.6812 15.9094 26.6812L15.8778 26.6069C15.5738 25.8761 13.2234 19.9048 15.5184 15.187L15.5475 15.1279C18.0452 10.0907 24.9497 8.42568 24.9628 8.42252C24.9628 8.42252 27.8248 14.9339 25.3247 19.9759L25.2952 20.0348Z"
-            fill="#88FD9D"/>
-        </g>
-      </svg>
+    <Icon
+      background={colors.background}
+      foreground={colors.foreground}
+      state={state}
+    />
+  );
+}
+
+function ActionIconBorrow(_: IconProps) {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="20" fill="#011837"/>
+      <path
+        d="M30 19.8095V20.2381V20C30 14.4772 25.5228 10 20 10V10C14.4772 10 10 14.4772 10 20V20C10 25.5228 14.4772 30 20 30H20.2381H19.8095"
+        stroke="#88FD9D" strokeWidth="2.5" strokeLinejoin="round"/>
+      <path d="M23 18.6665L19 22.6665L23 26.6665" stroke="#88FD9D" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M26.6665 30.6665L30.6665 26.6665L26.6665 22.6665" stroke="#88FD9D" strokeWidth="2"
+            strokeLinecap="round"/>
+    </svg>
+
+  );
+}
+
+function ActionIconLeverage({ foreground, state }: IconProps) {
+  const { t1, t2 } = useSpring({
+    t1: state === 'active'
+      ? 'translate(0 56) scale(0)'
+      : 'translate(0 36) scale(2)',
+    t2: state === 'active'
+      ? 'translate(-6 -6) scale(6.8)'
+      : 'translate(20 0) scale(3.6)',
+    config: springConfig,
+  });
+
+  return (
+    <IconBase>
+      <a.path
+        fill={foreground}
+        d="
+          M0 0
+          h 10
+          v 10
+          h -10
+          z
+        "
+        transform={t1}
+      />
+      <a.path
+        fill={foreground}
+        d="
+          M0 0
+          h 10
+          v 10
+          h -10
+          z
+        "
+        transform={t2}
+      />
+    </IconBase>
+  );
+}
+
+function ActionIconEarn(_: IconProps) {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="20" fill="#011837"/>
+      <ellipse cx="5.625" cy="2.8125" rx="5.625" ry="2.8125" transform="matrix(-1 0 0 1 30 10.625)" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M18.75 13.4375C18.75 14.9908 21.2684 16.25 24.375 16.25C27.4816 16.25 30 14.9908 30 13.4375" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M18.75 22.1875C18.75 23.7408 21.2684 25 24.375 25C27.4816 25 30 23.7408 30 22.1875" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M18.75 17.8125C18.75 19.3658 21.2684 20.625 24.375 20.625C27.4816 20.625 30 19.3658 30 17.8125" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <ellipse cx="5.625" cy="2.8125" rx="5.625" ry="2.8125" transform="matrix(-1 0 0 1 18.75 19.375)" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M18.75 13.4375V26.5625C18.75 28.1158 21.2684 29.375 24.375 29.375C27.4816 29.375 30 28.1158 30 26.5625V13.4375" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M7.5 22.5V26.5625C7.5 28.1158 10.0184 29.375 13.125 29.375C16.2316 29.375 18.75 28.1158 18.75 26.5625V22.5" stroke="#88FD9D" strokeWidth="2" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+export function ActionIconStake({ foreground, state }: IconProps) {
+  const active = state === "active";
+
+  // style transform
+  const tr = (x: number, y: number, w: number = 1, h: number = 1) => `
+    translate(${x * 56 / 3}px, ${y * 56 / 3}px)
+    scale(${w}, ${h})
+  `;
+
+  const { sq1, sq2, sq3, sq4 } = useSpring({
+    sq1: active ? tr(2, 0, 1, 3) : tr(1, 0),
+    sq2: active ? tr(0, 0, 3, 1) : tr(2, 1),
+    sq3: active ? tr(0, 0, 1, 3) : tr(1, 2),
+    sq4: active ? tr(0, 2, 3, 1) : tr(0, 1),
+    config: springConfig,
+  });
+
+  // square
+  // const { sq1, sq2, sq3, sq4 } = useSpring({
+  //   sq1: active ? tr(0, 0) : tr(1, 0),
+  //   sq2: active ? tr(2, 0) : tr(2, 1),
+  //   sq3: active ? tr(2, 2) : tr(1, 2),
+  //   sq4: active ? tr(0, 2) : tr(0, 1),
+  //   config: springConfig,
+  // });
+
+  // arrow compact
+  // const { sq1, sq2, sq3, sq4 } = useSpring({
+  //   sq1: active ? pos(0.5, 0.5) : pos(1, 0),
+  //   sq2: active ? pos(1.5, 0.5) : pos(2, 1),
+  //   sq3: active ? pos(1.5, 1.5) : pos(1, 2),
+  //   sq4: active ? pos(0, 2) : pos(0, 1),
+  //   config: springConfig,
+  // });
+
+  // arrow wide
+  // const { sq1, sq2, sq3, sq4 } = useSpring({
+  //   sq1: active ? tr(1, 0, 1) : tr(1, 0, 1),
+  //   sq2: active ? tr(2, 0, 1) : tr(2, 1, 1),
+  //   sq3: active ? tr(2, 1, 1) : tr(1, 2, 1),
+  //   sq4: active ? tr(0, 2, 1) : tr(0, 1, 1),
+  //   config: springConfig,
+  // });
+
+  return (
+    <IconBase>
+      {[sq1, sq2, sq3, sq4].map((transform, index) => (
+        <a.rect
+          key={index}
+          fill={foreground}
+          width={56 / 3}
+          height={56 / 3}
+          style={{
+            transform,
+            transformOrigin: "0 0",
+          }}
+        />
+      ))}
+    </IconBase>
+  );
+}
+
+function IconBase({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 56 56"
+      style={{ overflow: "visible" }}
+    >
+      {children}
+    </svg>
   );
 }

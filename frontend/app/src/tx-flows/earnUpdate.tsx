@@ -36,7 +36,7 @@ export const earnUpdate: FlowDeclaration<EarnUpdateRequest> = {
         earnPosition={{
           ...request.earnPosition,
 
-          // compound BOLD rewards if not claiming
+          // compound MINT rewards if not claiming
           deposit: dn.add(
             request.earnPosition.deposit,
             request.claimRewards

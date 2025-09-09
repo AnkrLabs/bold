@@ -14,7 +14,7 @@ import { blo } from "blo";
 import Image from "next/image";
 import { AboutButton } from "./AboutButton";
 
-const DISPLAYED_PRICES = ["BOLD", "WANKR"] as const;
+const DISPLAYED_PRICES = ["MINT", "WANKR"] as const;
 const ENABLE_REDEEM = false;
 
 export function BottomBar() {
@@ -103,7 +103,7 @@ export function BottomBar() {
             <div
               title={`Total supply: ${
                 fmtnum(boldSupply, {
-                  suffix: " BOLD",
+                  suffix: " MINT",
                   preset: "2z",
                 })
               }`}
@@ -132,7 +132,7 @@ export function BottomBar() {
                     fallback="…"
                     format="compact"
                     value={boldSupply}
-                    suffix=" BOLD"
+                    suffix=" MINT"
                   />
                 )}
               </span>
@@ -150,7 +150,7 @@ export function BottomBar() {
                       whiteSpace: "nowrap",
                     })}
                   >
-                    Redeem BOLD
+                    Redeem MINT
                   </div>
                 }
                 className={css({

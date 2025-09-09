@@ -69,7 +69,7 @@ export const closeLoanPosition: FlowDeclaration<CloseLoanPositionRequest> = {
               <Amount
                 key="start"
                 value={amountToRepay}
-                suffix={` ${repayWithCollateral ? collateral.symbol : "BOLD"}`}
+                suffix={` ${repayWithCollateral ? collateral.symbol : "MINT"}`}
               />,
             ]}
           />

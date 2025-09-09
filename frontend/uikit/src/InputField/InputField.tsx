@@ -269,7 +269,7 @@ function InputField({
             display: "none",
             position: "absolute",
             inset: -1,
-            border: "2px solid token(colors.fieldBorderFocused)",
+            border: "1px solid token(colors.fieldBorderFocused)",
             borderRadius: 8,
             pointerEvents: "none",
           })}
@@ -377,7 +377,7 @@ export function InputFieldBadge({
         padding: "0 16px",
         paddingLeft: icon ? 8 : 16,
         background: "rgba(255, 255, 255, 0.20)",
-        border: '2px solid rgba(136, 253, 157, 0.50)',
+        border: '1px solid rgba(136, 253, 157, 0.50)',
         borderRadius: 20,
         userSelect: "none",
       }}

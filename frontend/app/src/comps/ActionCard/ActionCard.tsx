@@ -96,11 +96,14 @@ export function ActionCard({
           gap: 16,
           width: "100%",
           padding: "20px 24px",
-          borderRadius: 8,
+          borderRadius: 28,
+          border: '2px solid var(--colors-table-border)',
+
           _groupFocusVisible: {
             outline: "2px solid token(colors.focused)",
             outlineOffset: 2,
           },
+
           _groupHover: {
             transform: "scale(1.05)",
           },
@@ -111,11 +114,15 @@ export function ActionCard({
           ...hintSpring,
         }}
       >
-        <h1 style={{ color: colors.title }}>{title}</h1>
+        <h1 style={{ color: colors.title, fontSize: 24, fontWeight: 600, }}>{title}</h1>
         <p
           className={css({
             height: 64,
             fontSize: 14,
+            fontWeight: 400,
+            maxWidth: 400,
+            marginRight: 48,
+            opacity: 0.7,
           })}
         >
           {description}

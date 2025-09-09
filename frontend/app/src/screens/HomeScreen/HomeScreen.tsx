@@ -110,7 +110,7 @@ function BorrowTable({
   return (
     <div className={css({ gridArea: "borrow" })}>
       <HomeTable
-        title="Borrow BOLD against ANKR and staked ANKR"
+        title="Borrow MINT against ANKR and staked ANKR"
         subtitle="You can adjust your loans, including your interest rate, at any time"
         icon={<IconBorrow />}
         columns={columns}
@@ -328,7 +328,7 @@ function EarnRewardsRow({
                 </TokenIcon.Group>
               </div>
             }
-            title={`Earn BOLD with ${token?.name}`}
+            title={`Earn MINT with ${token?.name}`}
           />
         </td>
       )}

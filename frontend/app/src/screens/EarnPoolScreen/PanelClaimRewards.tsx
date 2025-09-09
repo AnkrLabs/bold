@@ -170,14 +170,14 @@ export function PanelClaimRewards({
                   checked={compound}
                   onChange={setCompound}
                 />
-                Compound BOLD rewards
+                Compound MINT rewards
               </label>
               <InfoTooltip
                 content={{
-                  heading: "Compound BOLD rewards",
+                  heading: "Compound MINT rewards",
                   body: (
                     <>
-                      When enabled, your BOLD rewards will be automatically added back to your stability pool deposit,
+                      When enabled, your MINT rewards will be automatically added back to your stability pool deposit,
                       earning you more rewards over time. Collateral rewards will still be claimed normally.
                     </>
                   ),

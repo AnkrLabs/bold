@@ -280,13 +280,13 @@ export function PanelUpdateBorrowPosition({
                 <InputTokenBadge
                   background={false}
                   icon={<TokenIcon symbol="BOLD" />}
-                  label="BOLD"
+                  label="MINT"
                 />
               }
               drawer={!debtChange.isFocused && isBelowMinDebt
-                ? { mode: "error", message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} BOLD.` }
+                ? { mode: "error", message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} MINT.` }
                 : insufficientBold
-                ? { mode: "error", message: "Insufficient BOLD balance." }
+                ? { mode: "error", message: "Insufficient MINT balance." }
                 : null}
               label={{
                 start: debtMode === "remove"
@@ -318,7 +318,7 @@ export function PanelUpdateBorrowPosition({
                 end: (
                   boldMax && (
                     <TextButton
-                      label={`Max ${fmtnum(boldMax)} BOLD`}
+                      label={`Max ${fmtnum(boldMax)} MINT`}
                       onClick={() => {
                         debtChange.setValue(dn.toString(boldMax));
                       }}
@@ -349,15 +349,15 @@ export function PanelUpdateBorrowPosition({
                     >
                       <Amount
                         value={newLoanDetails.debt}
-                        suffix=" BOLD"
+                        suffix=" MINT"
                       />
                     </div>
                     <InfoTooltip heading="Debt update">
                       <div>
-                        Before: <Amount value={loanDetails.debt} suffix=" BOLD" />
+                        Before: <Amount value={loanDetails.debt} suffix=" MINT" />
                       </div>
                       <div>
-                        After: <Amount value={newLoanDetails.debt} suffix=" BOLD" />
+                        After: <Amount value={newLoanDetails.debt} suffix=" MINT" />
                       </div>
                     </InfoTooltip>
                   </HFlex>

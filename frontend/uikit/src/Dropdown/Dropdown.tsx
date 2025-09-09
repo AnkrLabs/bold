@@ -263,7 +263,7 @@ export function Dropdown({
                   boxShadow: `0 1px 1px rgba(0, 0, 0, 0.1)`,
                 },
                 _groupFocusVisible: {
-                  outline: "2px solid token(colors.focused)",
+                  outline: "1px solid token(colors.focused)",
                 },
               })}
               style={{

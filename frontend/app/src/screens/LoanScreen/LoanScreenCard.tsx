@@ -88,7 +88,7 @@ export function LoanScreenCard({
   );
 
   const nftUrl = useTroveNftUrl(loan?.branchId ?? null, troveId);
-  const title = mode === "multiply" ? "Multiply" : "BOLD loan";
+  const title = mode === "multiply" ? "Multiply" : "MINT loan";
 
   const fullyRedeemed = loan && loan.status === "redeemed" && dn.eq(loan.borrowed, 0);
 
@@ -398,7 +398,7 @@ function LoanCard(props: {
         troveId,
         nftUrl,
       }) => {
-        const title = mode === "multiply" ? "Multiply" : "BOLD loan";
+        const title = mode === "multiply" ? "Multiply" : "MINT loan";
         return (
           <a.div
             className={css({
@@ -637,7 +637,7 @@ function LoanCard(props: {
                       )
                       : (
                         <div
-                          title={`${fmtnum(loan.borrowed)} BOLD`}
+                          title={`${fmtnum(loan.borrowed)} MINT`}
                           className={css({
                             display: "flex",
                             alignItems: "center",
