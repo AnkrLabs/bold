@@ -333,12 +333,12 @@ function Drawer({
           className={css({
             display: "flex",
             alignItems: "center",
-            padding: "8px 16px 0",
+            padding: "0 16px",
             height: 48,
             fontSize: 14,
             borderWidth: 1,
             borderStyle: "solid",
-            borderRadius: "0 0 8px 8px",
+            borderRadius: 28,
           })}
           style={{
             marginTop,
