@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.24;
 
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 import "./Interfaces/ITroveManager.sol";
@@ -13,31 +13,13 @@ import "./Dependencies/LiquityMath.sol";
 
 import "./Interfaces/ICollateralRegistry.sol";
 
-contract CollateralRegistry is Initializable, ICollateralRegistry {
+contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
     // See: https://github.com/ethereum/solidity/issues/12587
     uint256 public totalCollaterals;
 
-    IERC20MetadataUpgradeable internal token0;
-    IERC20MetadataUpgradeable internal token1;
-    IERC20MetadataUpgradeable internal token2;
-    IERC20MetadataUpgradeable internal token3;
-    IERC20MetadataUpgradeable internal token4;
-    IERC20MetadataUpgradeable internal token5;
-    IERC20MetadataUpgradeable internal token6;
-    IERC20MetadataUpgradeable internal token7;
-    IERC20MetadataUpgradeable internal token8;
-    IERC20MetadataUpgradeable internal token9;
-
-    ITroveManager internal troveManager0;
-    ITroveManager internal troveManager1;
-    ITroveManager internal troveManager2;
-    ITroveManager internal troveManager3;
-    ITroveManager internal troveManager4;
-    ITroveManager internal troveManager5;
-    ITroveManager internal troveManager6;
-    ITroveManager internal troveManager7;
-    ITroveManager internal troveManager8;
-    ITroveManager internal troveManager9;
+    IERC20MetadataUpgradeable[] public tokens;
+    ITroveManager[] public troveManagers;
+    mapping(IERC20MetadataUpgradeable _token => uint256 _index) public arrayIndex;
 
     IBoldToken public boldToken;
     IParameters public parameters;
@@ -50,40 +32,69 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
 
-    function initialize(IBoldToken _boldToken, IParameters _parameters, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
+    function initialize(address _owner, IBoldToken _boldToken, IParameters _parameters, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
+        
+        __Ownable2Step_init();
+        if (msg.sender != _owner) {
+            _transferOwnership(_owner);
+        }
+        
         uint256 numTokens = _tokens.length;
         require(numTokens > 0, "Collateral list cannot be empty");
-        require(numTokens <= 10, "Collateral list too long");
         totalCollaterals = numTokens;
 
         boldToken = _boldToken;
         parameters = _parameters;
 
-        token0 = _tokens[0];
-        token1 = numTokens > 1 ? _tokens[1] : IERC20MetadataUpgradeable(address(0));
-        token2 = numTokens > 2 ? _tokens[2] : IERC20MetadataUpgradeable(address(0));
-        token3 = numTokens > 3 ? _tokens[3] : IERC20MetadataUpgradeable(address(0));
-        token4 = numTokens > 4 ? _tokens[4] : IERC20MetadataUpgradeable(address(0));
-        token5 = numTokens > 5 ? _tokens[5] : IERC20MetadataUpgradeable(address(0));
-        token6 = numTokens > 6 ? _tokens[6] : IERC20MetadataUpgradeable(address(0));
-        token7 = numTokens > 7 ? _tokens[7] : IERC20MetadataUpgradeable(address(0));
-        token8 = numTokens > 8 ? _tokens[8] : IERC20MetadataUpgradeable(address(0));
-        token9 = numTokens > 9 ? _tokens[9] : IERC20MetadataUpgradeable(address(0));
+        for (uint256 i = 0; i < numTokens; i++) {
+            tokens.push(_tokens[i]);
+            troveManagers.push(_troveManagers[i]);
+            arrayIndex[_tokens[i]] = i;
 
-        troveManager0 = _troveManagers[0];
-        troveManager1 = numTokens > 1 ? _troveManagers[1] : ITroveManager(address(0));
-        troveManager2 = numTokens > 2 ? _troveManagers[2] : ITroveManager(address(0));
-        troveManager3 = numTokens > 3 ? _troveManagers[3] : ITroveManager(address(0));
-        troveManager4 = numTokens > 4 ? _troveManagers[4] : ITroveManager(address(0));
-        troveManager5 = numTokens > 5 ? _troveManagers[5] : ITroveManager(address(0));
-        troveManager6 = numTokens > 6 ? _troveManagers[6] : ITroveManager(address(0));
-        troveManager7 = numTokens > 7 ? _troveManagers[7] : ITroveManager(address(0));
-        troveManager8 = numTokens > 8 ? _troveManagers[8] : ITroveManager(address(0));
-        troveManager9 = numTokens > 9 ? _troveManagers[9] : ITroveManager(address(0));
+        }
 
         // Initialize the baseRate state variable
         baseRate = INITIAL_BASE_RATE;
         emit BaseRateUpdated(INITIAL_BASE_RATE);
+    }
+
+    // add/remove collaterals
+
+    function addCollaterals(IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external onlyOwner {
+        uint256 numTokens = _tokens.length;
+        require(numTokens > 0, "Collateral list cannot be empty");
+        totalCollaterals += _tokens.length;
+
+        for (uint256 i = 0; i < numTokens; i++) {
+            tokens.push(_tokens[i]);
+            troveManagers.push(_troveManagers[i]);
+            arrayIndex[_tokens[i]] = i;
+
+        }
+    }
+
+    function removeCollaterals(IERC20MetadataUpgradeable[] memory _tokens, bool _forced) external onlyOwner {
+        uint256 numTokens = _tokens.length;
+        require(numTokens > 0, "Collateral list cannot be empty");
+        totalCollaterals -= _tokens.length;
+
+        for (uint256 i = 0; i < numTokens; i++) {
+            uint256 index = arrayIndex[_tokens[i]];
+
+            if (!_forced) {
+                require(troveManagers[index].getTroveIdsCount() == 0, "No troves must be present");
+            }
+            require(troveManagers[index].shutdownTime() != 0, "Branch is live");
+
+            tokens[index] = tokens[tokens.length - 1];
+            troveManagers[index] = troveManagers[troveManagers.length - 1];
+            
+            arrayIndex[tokens[tokens.length - 1]] = arrayIndex[_tokens[i]];
+            delete arrayIndex[_tokens[i]];
+
+            tokens.pop();
+            troveManagers.pop();
+        }
     }
 
     struct RedemptionTotals {
@@ -278,30 +289,12 @@ contract CollateralRegistry is Initializable, ICollateralRegistry {
     // getters
 
     function getToken(uint256 _index) external view returns (IERC20MetadataUpgradeable) {
-        if (_index == 0) return token0;
-        else if (_index == 1) return token1;
-        else if (_index == 2) return token2;
-        else if (_index == 3) return token3;
-        else if (_index == 4) return token4;
-        else if (_index == 5) return token5;
-        else if (_index == 6) return token6;
-        else if (_index == 7) return token7;
-        else if (_index == 8) return token8;
-        else if (_index == 9) return token9;
+        if (_index < tokens.length) return tokens[_index];
         else revert("Invalid index");
     }
 
     function getTroveManager(uint256 _index) public view returns (ITroveManager) {
-        if (_index == 0) return troveManager0;
-        else if (_index == 1) return troveManager1;
-        else if (_index == 2) return troveManager2;
-        else if (_index == 3) return troveManager3;
-        else if (_index == 4) return troveManager4;
-        else if (_index == 5) return troveManager5;
-        else if (_index == 6) return troveManager6;
-        else if (_index == 7) return troveManager7;
-        else if (_index == 8) return troveManager8;
-        else if (_index == 9) return troveManager9;
+        if (_index < tokens.length) return troveManagers[_index];
         else revert("Invalid index");
     }
 
