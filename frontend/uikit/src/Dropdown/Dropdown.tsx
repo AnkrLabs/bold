@@ -229,7 +229,8 @@ export function Dropdown({
         )}
         style={customButton_ ? {} : {
           height: size === "small" ? 32 : 40,
-          fontSize: size === "small" ? 16 : 24,
+          fontSize: size === "small" ? 16 : 20,
+          fontWeight: 400,
         }}
       >
         {customButton_ ?? (
@@ -244,13 +245,14 @@ export function Dropdown({
                 whiteSpace: "nowrap",
                 borderWidth: "2px",
                 borderStyle: "solid",
-                borderColor: "token(colors.brandGreen)",
+                borderColor: "token(colors.accent)",
                 boxShadow: `
                   0 2px 2px rgba(0, 0, 0, 0.1),
                   0 4px 10px rgba(18, 27, 68, 0.05),
                   inset 0 -1px 4px rgba(0, 0, 0, 0.05)
                 `,
-                borderRadius: 90,
+                background: 'transparent',
+                borderRadius: 20,
                 cursor: "pointer",
 
                 "--color-normal": "token(colors.content)",
@@ -269,7 +271,7 @@ export function Dropdown({
               style={{
                 gap: size === "small" ? 6 : 8,
                 color: `var(--color-${buttonItem === placeholder ? "placeholder" : "normal"})`,
-                background: `var(--background-${buttonItem === placeholder ? "placeholder" : "normal"})`,
+                background: `transparent`,
               } as CSSProperties}
             >
               {buttonItem.icon && buttonDisplay !== "label-only" && (

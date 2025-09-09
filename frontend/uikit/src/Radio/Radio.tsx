@@ -63,12 +63,12 @@ export function Radio({
       friction: 100,
     },
     initial: {
-      tickColor: color(disabled ? "disabledBorder" : "controlSurface"),
+      tickColor: color(disabled ? "disabledBorder" : "accentContent"),
       ringColor: color("accent"),
       tickProgress: 0,
     },
     from: {
-      tickColor: color(disabled ? "disabledBorder" : "controlSurface"),
+      tickColor: color(disabled ? "disabledBorder" : "accentContent"),
       ringColor: color("accent"),
       tickProgress: 1,
     },
@@ -76,7 +76,7 @@ export function Radio({
       tickProgress: 0,
     },
     leave: {
-      tickColor: color(disabled ? "disabledBorder" : "controlSurface"),
+      tickColor: color(disabled ? "disabledBorder" : "accentContent"),
       ringColor: color("controlBorder"),
       tickProgress: 1,
     },

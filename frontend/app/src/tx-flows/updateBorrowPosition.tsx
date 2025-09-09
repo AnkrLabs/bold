@@ -117,7 +117,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
                   fallback="…"
                   prefix="Incl. "
                   value={upfrontFeeData.data.upfrontFee}
-                  suffix=" BOLD interest rate adjustment fee"
+                  suffix=" MINT interest rate adjustment fee"
                 />
               ),
             ]}
@@ -129,7 +129,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
 
   steps: {
     approveBold: {
-      name: () => "Approve BOLD",
+      name: () => "Approve MINT",
       Status: (props) => (
         <TransactionStatus
           {...props}
@@ -233,8 +233,8 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
         if (!dn.eq(collChange, 0) && !dn.eq(debtChange, 0)) return "Update Position";
         if (dn.gt(collChange, 0)) return "Deposit Collateral";
         if (dn.lt(collChange, 0)) return "Withdraw Collateral";
-        if (dn.gt(debtChange, 0)) return "Borrow BOLD";
-        if (dn.lt(debtChange, 0)) return "Repay BOLD";
+        if (dn.gt(debtChange, 0)) return "Borrow MINT";
+        if (dn.lt(debtChange, 0)) return "Repay MINT";
 
         throw new Error("Invalid request");
       },
@@ -277,7 +277,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
     },
 
     depositBold: {
-      name: () => "Repay BOLD",
+      name: () => "Repay MINT",
       Status: TransactionStatus,
 
       async commit(ctx) {
@@ -321,7 +321,7 @@ export const updateBorrowPosition: FlowDeclaration<UpdateBorrowPositionRequest> 
     },
 
     withdrawBold: {
-      name: () => "Borrow BOLD",
+      name: () => "Borrow MINT",
       Status: TransactionStatus,
 
       async commit(ctx) {

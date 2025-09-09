@@ -350,7 +350,7 @@ export const InterestRateField = memo(
                         ? fmtnum(bracket?.debtInFront, "compact")
                         : "−"}
                     </span>
-                    {breakpoint === "large" && <span>{" BOLD"}</span>}
+                    {breakpoint === "large" && <span>{" MINT"}</span>}
                   </span>
                 </a.div>
               )

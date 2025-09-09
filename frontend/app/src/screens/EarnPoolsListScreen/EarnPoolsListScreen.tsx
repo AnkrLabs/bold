@@ -61,11 +61,12 @@ export function EarnPoolsListScreen() {
         subtitle: (
           <>
             {content.earnHome.subheading}{" "}
-            <LinkTextButton
+
+            {content.earnHome.learnMore[0] && (<LinkTextButton
               label={content.earnHome.learnMore[1]}
               href={content.earnHome.learnMore[0]}
               external
-            />
+            />)}
           </>
         ),
       }}

@@ -67,7 +67,7 @@ export const claimBribes: FlowDeclaration<ClaimBribesRequest> = {
           value={[
             <div
               key="bold"
-              title={`${fmtnum(boldAmount)} BOLD`}
+              title={`${fmtnum(boldAmount)} MINT`}
               className={css({
                 display: "flex",
                 alignItems: "center",

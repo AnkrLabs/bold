@@ -43,9 +43,11 @@ import {
   TokenIcon,
 } from "@liquity2/uikit";
 import * as dn from "dnum";
+import Image from 'next/image';
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { maxUint256 } from "viem";
+import tokensIcon from "./assets/tokens.svg";
 
 const KNOWN_COLLATERAL_SYMBOLS = KNOWN_COLLATERALS.map(({ symbol }) => symbol);
 
@@ -179,22 +181,17 @@ export function BorrowScreen() {
                 })}
               >
                 <TokenIcon.Group>
-                  {collaterals.map(({ symbol }) => (
-                    <TokenIcon
-                      key={symbol}
-                      symbol={symbol}
-                    />
-                  ))}
+                  <Image src={tokensIcon} alt="Tokens" />
                 </TokenIcon.Group>
-                {NBSP}ANKR
               </div>,
+
               <div
                 className={css({
                   display: "flex",
                   alignItems: "center",
                 })}
               >
-                <TokenIcon symbol="BOLD" />
+                <TokenIcon symbol="BOLD" size={32} />
                 {NBSP}MINT
               </div>,
             )}

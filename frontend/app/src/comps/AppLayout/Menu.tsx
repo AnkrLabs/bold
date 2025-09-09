@@ -32,12 +32,13 @@ export function Menu({
           position: "relative",
           zIndex: 2,
           display: "flex",
-          gap: 2,
+          gap: 32,
           height: "100%",
         })}
       >
         {menuItems.map(([label, href]) => {
           const selected = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          console.log('selected', selected);
           return (
             <li key={label + href}>
               <Link
@@ -45,19 +46,17 @@ export function Menu({
                 className={css({
                   display: "flex",
                   height: "100%",
-                  padding: "0 8px",
+                  borderBottom: selected ? `2px solid token(colors.content)` : "2px solid transparent",
+
                   _active: {
                     translate: "0 1px",
                   },
                   _focusVisible: {
-                    outline: "2px solid token(colors.focused)",
                     borderRadius: 4,
                   },
                 })}
                 style={{
-                  color: token(
-                    `colors.${selected ? "selected" : "interactive"}`,
-                  ),
+                  color: selected ? token(`colors.content`) : 'rgba(255, 255, 255, 0.70)',
                 }}
               >
                 <MenuItem

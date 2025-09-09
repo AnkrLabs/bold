@@ -369,24 +369,23 @@ export function InputFieldBadge({
 }) {
   return (
     <div
-      style={{
+      className={css({
         display: "flex",
         alignItems: "center",
         gap: 8,
-        height: 40,
-        padding: "0 16px",
-        paddingLeft: icon ? 8 : 16,
-        background: "rgba(255, 255, 255, 0.20)",
-        border: '1px solid rgba(136, 253, 157, 0.50)',
+        minHeight: 40,
+        padding: "0 20px",
+        background: "transparent",
+        border: '2px solid token(colors.accent)',
         borderRadius: 20,
         userSelect: "none",
-      }}
+      })}
     >
       {icon}
       <div
         style={{
-          fontSize: 24,
-          fontWeight: 500,
+          fontSize: 20,
+          fontWeight: 400,
         }}
       >
         {label}

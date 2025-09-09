@@ -73,7 +73,7 @@ export const colors = {
   "white": "#FFFFFF",
 
   "primary:green": "#88FD9D",
-  "primary:hover": "#2EFF54",
+  "primary:hover": "#88FD9D",
   "primary:disabled": "#88FD9D80",
   "primary:20": "#88FD9D33",
 
@@ -121,7 +121,7 @@ export const lightTheme = {
 
     content: "white:100",
     contentAlt: "white:70",
-    contentAlt2: "white:40",
+    contentAlt2: "white:70",
 
     surface: "white:10",
     controlSurface: "white:10",
@@ -216,7 +216,7 @@ export const lightTheme = {
 
     position: "navy",
     positionContent: "white:100",
-    positionContentAlt: "white:40",
+    positionContentAlt: "white:70",
 
     riskGradientDimmed1: "error:20",
     riskGradientDimmed2: "white:20",

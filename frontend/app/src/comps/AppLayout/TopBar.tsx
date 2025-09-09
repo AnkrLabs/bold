@@ -68,7 +68,7 @@ export function TopBar() {
               height: "100%",
               _focusVisible: {
                 borderRadius: 4,
-                outline: "2px solid token(colors.focused)",
+                outline: "none",
               },
               _active: {
                 translate: "0 1px",

@@ -84,7 +84,9 @@ export function PositionCard({
           padding: "12px 16px",
           borderRadius: 8,
           outline: "none",
-          "--background": "token(colors.position)",
+          "--background": "token(colors.brandBlueContentAlt)",
+          border: "2px solid token(colors.border)",
+
           _focusVisible: {
             outline: "2px solid token(colors.focused)",
           },

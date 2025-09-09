@@ -12,7 +12,7 @@ export default {
     deposit LSTs as collateral and mint the stablecoin MINT.
   `,
   appUrl: typeof window === "undefined"
-    ? "https://www.liquity.org/"
+    ? "https://alignmint.io/"
     : window.location.origin,
   appIcon: (
     typeof window === "undefined" ? "" : window.location.origin
@@ -93,10 +93,6 @@ export default {
           interest rate get redeemed first.
         </>
       ),
-      footerLink: {
-        href: "https://docs.liquity.org/v2-faq/redemptions-and-delegation",
-        label: "Learn more",
-      },
     },
   },
 
@@ -125,7 +121,7 @@ export default {
     ],
     learnMore: {
       text: "Learn more about redemptions",
-      href: "https://docs.liquity.org/v2-faq/redemptions-and-delegation",
+      href: "",
     },
   },
 
@@ -223,7 +219,7 @@ export default {
         ),
         titleAttr: "Stability Pool depositors earn additional rewards from forks.",
         learnMore: {
-          url: "https://docs.liquity.org/v2-documentation/friendly-fork-program",
+          url: "",
           label: "Learn more",
           title: "Learn more about the AlignMint Friendly Fork Program",
         },
@@ -233,7 +229,7 @@ export default {
       title: "Top 3 external yield opportunities",
       hint: {
         title: "All yield sources on Dune",
-        url: "https://dune.com/liquity/liquity-v2-yields",
+        url: "",
         label: "Learn more",
       },
     },
@@ -336,11 +332,11 @@ export default {
     ),
     subheading: (
       <>
-        A MINT deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the BOLD may
+        A MINT deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the MINT may
         be swapped to collateral in case the system needs to liquidate positions.
       </>
     ),
-    learnMore: ["https://docs.liquity.org/v2-faq/bold-and-earn", "Learn more"],
+    learnMore: ["", "Learn more"],
     poolsColumns: {
       pool: "Pool",
       apr: "APR",
