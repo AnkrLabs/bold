@@ -296,7 +296,7 @@ function Drawer({
     },
     enter: {
       contentOpacity: 1,
-      marginTop: 0,
+      marginTop: 20,
     },
     leave: {
       contentOpacity: 0,
