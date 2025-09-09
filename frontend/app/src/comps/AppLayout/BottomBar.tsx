@@ -9,12 +9,12 @@ import { useLiquityStats } from "@/src/liquity-utils";
 import { usePrice } from "@/src/services/Prices";
 import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
-import { shortenAddress, TokenIcon } from "@liquity2/uikit";
+import { shortenAddress, TokenIcon, TOKENS_BY_SYMBOL } from "@liquity2/uikit";
 import { blo } from "blo";
 import Image from "next/image";
 import { AboutButton } from "./AboutButton";
 
-const DISPLAYED_PRICES = ["MINT", "WANKR"] as const;
+const DISPLAYED_PRICES = ["BOLD", "WANKR"] as const;
 const ENABLE_REDEEM = false;
 
 export function BottomBar() {
@@ -231,6 +231,7 @@ function Price({ symbol }: { symbol: TokenSymbol }) {
   const price = usePrice(symbol);
   const tokenAddress = getTokenAddress(symbol);
   const tokenUrl = tokenAddress && getTokenLink(tokenAddress);
+  const tokenName = TOKENS_BY_SYMBOL[symbol].name;
   const token = (
     <div
       className={css({
@@ -244,7 +245,7 @@ function Price({ symbol }: { symbol: TokenSymbol }) {
         symbol={symbol}
         title={null}
       />
-      <span>{symbol}</span>
+      <span>{tokenName}</span>
     </div>
   );
   return (
