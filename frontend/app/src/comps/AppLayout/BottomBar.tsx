@@ -84,10 +84,10 @@ export function BottomBar() {
               className={css({
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 12,
               })}
             >
-              <Logo size={16} />
+              <Logo size={80} />
               <span>TVL</span>{" "}
               <span>
                 {tvl && (
