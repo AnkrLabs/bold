@@ -94,7 +94,7 @@ export function EarnPositionSummary({
                   + "deposits earned over the last 24 hours.",
                 footerLink: {
                   label: "Check Dune for more details",
-                  href: "https://dune.com/liquity/liquity-v2",
+                  href: "",
                 },
               }}
             />
@@ -127,7 +127,7 @@ export function EarnPositionSummary({
                   + "deposits earned over the past 7 days.",
                 footerLink: {
                   label: "Check Dune for more details",
-                  href: "https://dune.com/liquity/liquity-v2",
+                  href: "",
                 },
               }}
             />
@@ -146,7 +146,7 @@ export function EarnPositionSummary({
             />
           </div>
           <InfoTooltip heading="Total Value Locked (TVL)">
-            Total amount of MINT deposited in this stability pool.
+            Total amount of $MINT deposited in this stability pool.
           </InfoTooltip>
         </>
       }

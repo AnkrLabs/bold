@@ -54,7 +54,7 @@ export function InfoTooltip(
             })}
           >
             <Body>{props.content.body}</Body>
-            {props.content.footerLink && (
+            {props.content.footerLink?.href && (
               <AnchorButton
                 external
                 href={props.content.footerLink.href}

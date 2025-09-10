@@ -43,20 +43,20 @@ export default {
     loanRedemptionRisk: [
       "Redemption risk",
       <>
-        Users paying the lowest interest rate can get redeemed, if the price of MINT falls below $1. By raising your
+        Users paying the lowest interest rate can get redeemed, if the price of $MINT falls below $1. By raising your
         interest rate, you reduce this risk.
       </>,
     ],
     loanLtv: [
       "Loan-to-value ratio",
       <>
-        The ratio between the amount of MINT borrowed and the deposited collateral (in USD).
+        The ratio between the amount of $MINT borrowed and the deposited collateral (in USD).
       </>,
     ],
     loanMaxLtv: [
       "Maximum Loan-To-Value (LTV) Ratio",
       <>
-        The maximum ratio between the USD value of a loan (in MINT) and the collateral backing it. The LTV will
+        The maximum ratio between the USD value of a loan (in $MINT) and the collateral backing it. The LTV will
         fluctuate as the price of the collateral changes. To decrease the LTV add more colateral or reduce debt.
       </>,
     ],
@@ -67,14 +67,14 @@ export default {
     ethPrice: [
       "ANKR Price",
       <>
-        The current price of ANKR, as reported by the oracle. The ANKR price is used to calculate the Loan-To-Value
+        The current price of $ANKR, as reported by the oracle. The $ANKR price is used to calculate the Loan-To-Value
         (LTV) ratio of a loan.
       </>,
     ],
     interestRateBoldPerYear: [
       "Interest rate",
       <>
-        The annualized interest amount in MINT for the selected interest rate. The accumulated interest is added to the
+        The annualized interest amount in $MINT for the selected interest rate. The accumulated interest is added to the
         loan.
       </>,
     ],
@@ -89,7 +89,7 @@ export default {
       heading: "Your collateral and debt are reduced by the same value.",
       body: (
         <>
-          When MINT trades for under $1, anyone can redeem positions to get MINT back at $1. Positions with the lowest
+          When $MINT trades for under $1, anyone can redeem positions to get $MINT back at $1. Positions with the lowest
           interest rate get redeemed first.
         </>
       ),
@@ -101,14 +101,14 @@ export default {
     title: "Redemptions in a nutshell",
     subtitle: (
       <>
-        Redemptions help maintain MINT’s peg in a decentralized way. If a user is redeemed, their collateral and debt
+        Redemptions help maintain $MINT’s peg in a decentralized way. If a user is redeemed, their collateral and debt
         are reduced equally, resulting in no net loss.
       </>
     ),
     infoItems: [
       {
         icon: "bold",
-        text: "Redemptions occur when MINT drops below $1.",
+        text: "Redemptions occur when $MINT drops below $1.",
       },
       {
         icon: "redemption",
@@ -197,7 +197,7 @@ export default {
     actions: {
       borrow: {
         title: "Borrow",
-        description: "Mint MINT against your collateral at whatever interest rate you want",
+        description: "Mint $MINT against your collateral at whatever interest rate you want",
       },
       multiply: {
         title: "Multiply",
@@ -205,12 +205,12 @@ export default {
       },
       earn: {
         title: "Earn with MINT",
-        description: "Deposit MINT to earn protocol revenues and liquidation proceeds",
+        description: "Deposit $MINT to earn protocol revenues and liquidation proceeds",
       },
     },
     earnTable: {
       title: "Earn rewards with MINT",
-      subtitle: "Earn MINT & (staked) ANKR rewards by depositing your MINT in a stability pool",
+      subtitle: "Earn $MINT & (staked) $ANKR rewards by depositing your $MINT in a stability pool",
       forksInfo: {
         text: (
           <>
@@ -246,7 +246,7 @@ export default {
       ],
       spTvl: [
         "Total Value Locked",
-        "The total amount of MINT deposited in each stability pool.",
+        "The total amount of $MINT deposited in each stability pool.",
       ],
       borrowTvl: [
         "Total Value Locked",
@@ -277,7 +277,7 @@ export default {
     action: "Next: Summary",
     infoTooltips: {
       interestRateSuggestions: [
-        "Positions with lower interest rates are the first to be redeemed by MINT holders.",
+        "Positions with lower interest rates are the first to be redeemed by $MINT holders.",
       ],
     },
   },
@@ -309,7 +309,7 @@ export default {
       ],
       interestRateSuggestions: [
         <>
-          Positions with lower interest rates are the first to be redeemed by MINT holders.
+          Positions with lower interest rates are the first to be redeemed by $MINT holders.
         </>,
       ],
       exposure: [
@@ -332,7 +332,7 @@ export default {
     ),
     subheading: (
       <>
-        A MINT deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the MINT may
+        A $MINT deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the $MINT may
         be swapped to collateral in case the system needs to liquidate positions.
       </>
     ),
@@ -344,7 +344,7 @@ export default {
     },
     infoTooltips: {
       tvl: (collateral: N) => [
-        <>Total MINT covering {collateral}-backed position liquidations</>,
+        <>Total $MINT covering {collateral}-backed position liquidations</>,
       ],
     },
   },
@@ -392,10 +392,10 @@ export default {
     },
     infoTooltips: {
       tvl: (collateral: N) => [
-        <>Total MINT covering {collateral}-backed position liquidations.</>,
+        <>Total $MINT covering {collateral}-backed position liquidations.</>,
       ],
       depositPoolShare: [
-        "Percentage of your MINT deposit compared to the total deposited in this stability pool.",
+        "Percentage of your $MINT deposit compared to the total deposited in this stability pool.",
       ],
       alsoClaimRewardsDeposit: [
         <>
@@ -410,7 +410,7 @@ export default {
         </>,
       ],
       currentApr: [
-        "Average annualized return for MINT deposits over the past 7 days.",
+        "Average annualized return for $MINT deposits over the past 7 days.",
       ],
       rewardsEth: [
         "ANKR rewards",
