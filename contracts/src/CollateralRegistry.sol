@@ -31,6 +31,8 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
 
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
+    event ShutdownCollaterals(IERC20MetadataUpgradeable[] _tokens);
+    event ResumedCollaterals(IERC20MetadataUpgradeable[] _tokens);
 
     function initialize(address _owner, IBoldToken _boldToken, IParameters _parameters, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
         
@@ -58,7 +60,7 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
         emit BaseRateUpdated(INITIAL_BASE_RATE);
     }
 
-    // add/remove collaterals
+    // add/remove/shutdown/resume collaterals
 
     function addCollaterals(IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external onlyOwner {
         uint256 numTokens = _tokens.length;
@@ -95,6 +97,26 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
             tokens.pop();
             troveManagers.pop();
         }
+    }
+
+    function shutdownCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external onlyOwner {
+        
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            uint256 index = arrayIndex[_tokens[i]];
+            troveManagers[index].shutdownForcefully();
+        }
+
+        emit ShutdownCollaterals(_tokens);
+    }
+
+    function resumeCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external onlyOwner {
+        
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            uint256 index = arrayIndex[_tokens[i]];
+            troveManagers[index].resumeForcefully();
+        }
+
+        emit ResumedCollaterals(_tokens);
     }
 
     struct RedemptionTotals {

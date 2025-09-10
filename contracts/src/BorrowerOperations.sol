@@ -143,6 +143,7 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     error NewOracleFailureDetected();
     error BatchSharesRatioTooLow();
     error BranchParametersNotSet(address _collToken);
+    error OracleNotResumedYet();
 
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event GasPoolAddressChanged(address _gasPoolAddress);
@@ -150,6 +151,8 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
     event SortedTrovesAddressChanged(address _sortedTrovesAddress);
     event BoldTokenAddressChanged(address _boldTokenAddress);
     event ShutDown(uint256 _tcr);
+    event ShutDownForcefully();
+    event ResumedForcefully(uint256 _tcr);
 
     function initialize(IAddressesRegistry _addressesRegistry) external initializer {
 
@@ -1241,6 +1244,33 @@ contract BorrowerOperations is LiquityBase, AddRemoveManagers, IBorrowerOperatio
         activePool.mintAggInterest();
         hasBeenShutDown = true;
         troveManager.shutdown();
+    }
+
+    function shutdownForcefully() external {
+        _requireCallerIsTroveManager();
+
+        activePool.mintAggInterest();
+        hasBeenShutDown = true;
+
+        emit ShutDownForcefully();
+    }
+
+    function resumeForcefully() external {
+        _requireCallerIsTroveManager();
+
+        uint256 totalColl = getEntireBranchColl();
+        uint256 totalDebt = getEntireBranchDebt();
+        (uint256 price, bool newOracleFailureDetected) = priceFeed.fetchPrice();
+        // If the oracle failed, the above call to PriceFeed will have shut this branch down
+        if (newOracleFailureDetected) revert OracleNotResumedYet();
+
+        // Otherwise, proceed with the TCR check:
+        uint256 TCR = LiquityMath._computeCR(totalColl, totalDebt, price);
+        _requireNewTCRisAboveCCR(TCR);
+
+        delete hasBeenShutDown;
+
+        emit ResumedForcefully(TCR);
     }
 
     // --- Helper functions ---

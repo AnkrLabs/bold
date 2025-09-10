@@ -161,6 +161,7 @@ contract TroveManager is LiquityBase, ITroveManager, ITroveEvents {
     error MinCollNotReached(uint256 _coll);
     error BatchSharesRatioTooHigh();
     error BranchParametersNotSet(address _collToken);
+    error AlreadyShutdown(uint256 _time);
 
     // --- Events ---
 
@@ -929,6 +930,26 @@ contract TroveManager is LiquityBase, ITroveManager, ITroveEvents {
         _requireCallerIsBorrowerOperations();
         shutdownTime = block.timestamp;
         activePool.setShutdownFlag();
+    }
+
+    function shutdownForcefully() external {
+        if (shutdownTime != 0) revert AlreadyShutdown(shutdownTime);
+        _requireCallerIsCollateralRegistry();
+
+        shutdownTime = block.timestamp;
+        activePool.setShutdownFlag();
+
+        borrowerOperations.shutdownForcefully();
+    }
+
+    function resumeForcefully() external {
+        _requireIsShutDown();
+        _requireCallerIsCollateralRegistry();
+        
+        delete shutdownTime;
+        activePool.setResumeFlag();
+
+        borrowerOperations.resumeForcefully();
     }
 
     // --- Helper functions ---

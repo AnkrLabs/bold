@@ -308,6 +308,11 @@ contract ActivePool is Initializable, IActivePool {
         shutdownTime = block.timestamp;
     }
 
+    function setResumeFlag() external {
+        _requireCallerIsTroveManager();
+        delete shutdownTime;
+    }
+
     function hasBeenShutDown() external view returns (bool) {
         return shutdownTime != 0;
     }

@@ -66,6 +66,8 @@ interface ITroveManager is ILiquityBase {
     ) external returns (uint256 _redemeedAmount);
 
     function shutdown() external;
+    function shutdownForcefully() external;
+    function resumeForcefully() external;
     function urgentRedemption(uint256 _boldAmount, uint256[] calldata _troveIds, uint256 _minCollateral) external;
 
     function getUnbackedPortionPriceAndRedeemability() external returns (uint256, uint256, bool);

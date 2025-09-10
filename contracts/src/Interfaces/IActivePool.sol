@@ -36,6 +36,7 @@ interface IActivePool {
         external;
 
     function setShutdownFlag() external;
+    function setResumeFlag() external;
     function hasBeenShutDown() external view returns (bool);
     function shutdownTime() external view returns (uint256);
 

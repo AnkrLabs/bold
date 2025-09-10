@@ -96,7 +96,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
         REDEMPTION_FEE_FLOOR = _1pct / 2;                     // 0.5%
         REDEMPTION_MINUTE_DECAY_FACTOR = 998076443575628800;
         REDEMPTION_BETA = 1;
-        URGENT_REDEMPTION_BONUS = 2e16;                       // 2%
+        URGENT_REDEMPTION_BONUS = 0;                          // 0%
         MAX_BATCH_SHARES_RATIO = 1e9;
         
         SP_YIELD_SPLIT = _100pct; // 100%
