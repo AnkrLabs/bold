@@ -24,11 +24,13 @@ contract DefaultPool is Initializable, IDefaultPool {
     IERC20Upgradeable public collToken;
     address public troveManagerAddress;
     address public activePoolAddress;
+    address public activePoolVaultAddress;
     uint256 internal collBalance; // deposited Coll tracker
     uint256 internal BoldDebt; // debt
 
     event CollTokenAddressChanged(address _newCollTokenAddress);
     event ActivePoolAddressChanged(address _newActivePoolAddress);
+    event ActivePoolVaultAddressChanged(address _newActivePoolAddress);
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event DefaultPoolBoldDebtUpdated(uint256 _boldDebt);
     event DefaultPoolCollBalanceUpdated(uint256 _collBalance);
@@ -37,10 +39,12 @@ contract DefaultPool is Initializable, IDefaultPool {
         collToken = _addressesRegistry.collToken();
         troveManagerAddress = address(_addressesRegistry.troveManager());
         activePoolAddress = address(_addressesRegistry.activePool());
+        activePoolVaultAddress = address(_addressesRegistry.collateralVault());
 
         emit CollTokenAddressChanged(address(collToken));
         emit TroveManagerAddressChanged(troveManagerAddress);
         emit ActivePoolAddressChanged(activePoolAddress);
+        emit ActivePoolVaultAddressChanged(activePoolVaultAddress);
 
         // Allow funds movements between Liquity contracts
         collToken.approve(activePoolAddress, type(uint256).max);
@@ -79,8 +83,8 @@ contract DefaultPool is Initializable, IDefaultPool {
         uint256 newCollBalance = collBalance + _amount;
         collBalance = newCollBalance;
 
-        // Pull Coll tokens from ActivePool
-        collToken.safeTransferFrom(msg.sender, address(this), _amount);
+        // Pull Coll tokens from ActivePool vault
+        collToken.safeTransferFrom(activePoolVaultAddress, address(this), _amount);
 
         emit DefaultPoolCollBalanceUpdated(newCollBalance);
     }
