@@ -25,7 +25,8 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     IBoldToken public boldToken;
     IWETH public WETH;
     IParameters public parameters;
-
+    ICollateralVault public collateralVault;
+    
     event CollTokenAddressChanged(address _collTokenAddress);
     event BorrowerOperationsAddressChanged(address _borrowerOperationsAddress);
     event TroveManagerAddressChanged(address _troveManagerAddress);
@@ -45,6 +46,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     event BoldTokenAddressChanged(address _boldTokenAddress);
     event WETHAddressChanged(address _wethAddress);
     event ParametersAddressChanged(address _parameters);
+    event CollateralVaultChanged(address _collateralVault);
 
     function initialize(
         address _owner
@@ -75,6 +77,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         boldToken = _vars.boldToken;
         WETH = _vars.WETH;
         parameters = _vars.parameters;
+        collateralVault = _vars.collateralVault;
 
         emit CollTokenAddressChanged(address(_vars.collToken));
         emit BorrowerOperationsAddressChanged(address(_vars.borrowerOperations));
@@ -95,5 +98,6 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         emit BoldTokenAddressChanged(address(_vars.boldToken));
         emit WETHAddressChanged(address(_vars.WETH));
         emit ParametersAddressChanged(address(_vars.parameters));
+        emit CollateralVaultChanged(address(_vars.collateralVault));
     }
 }

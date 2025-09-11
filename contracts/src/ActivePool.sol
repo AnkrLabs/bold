@@ -64,6 +64,9 @@ contract ActivePool is Initializable, IActivePool {
     // Last time at which the aggregate batch fees and weighted sum were updated
     uint256 public lastAggBatchManagementFeesUpdateTime;
 
+    // vault for collateral funds
+    ICollateralVault vault;
+
     // --- Events ---
 
     event CollTokenAddressChanged(address _newCollTokenAddress);
@@ -73,6 +76,7 @@ contract ActivePool is Initializable, IActivePool {
     event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
     event ActivePoolBoldDebtUpdated(uint256 _recordedDebtSum);
     event ActivePoolCollBalanceUpdated(uint256 _collBalance);
+    event CollateralVaultChanged(address _newCollateralVault);
 
     function initialize(IAddressesRegistry _addressesRegistry) external initializer {
         collToken = _addressesRegistry.collToken();
@@ -83,12 +87,14 @@ contract ActivePool is Initializable, IActivePool {
         interestRouter = _addressesRegistry.interestRouter();
         boldToken = _addressesRegistry.boldToken();
         parameters = _addressesRegistry.parameters();
+        vault = _addressesRegistry.collateralVault();
 
         emit CollTokenAddressChanged(address(collToken));
         emit BorrowerOperationsAddressChanged(borrowerOperationsAddress);
         emit TroveManagerAddressChanged(troveManagerAddress);
         emit StabilityPoolAddressChanged(address(stabilityPool));
         emit DefaultPoolAddressChanged(defaultPoolAddress);
+        emit CollateralVaultChanged(address(vault));
 
         // Allow funds movements between Liquity contracts
         collToken.approve(defaultPoolAddress, type(uint256).max);
@@ -168,7 +174,7 @@ contract ActivePool is Initializable, IActivePool {
 
         _accountForSendColl(_amount);
 
-        collToken.safeTransfer(_account, _amount);
+        collToken.safeTransferFrom(address(vault), _account, _amount);
     }
 
     function sendCollToDefaultPool(uint256 _amount) external override {
@@ -191,7 +197,7 @@ contract ActivePool is Initializable, IActivePool {
         _accountForReceivedColl(_amount);
 
         // Pull Coll tokens from sender
-        collToken.safeTransferFrom(msg.sender, address(this), _amount);
+        collToken.safeTransferFrom(msg.sender, address(vault), _amount);
     }
 
     function accountForReceivedColl(uint256 _amount) public {
