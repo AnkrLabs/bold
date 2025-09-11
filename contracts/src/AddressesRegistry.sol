@@ -25,6 +25,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     ICollateralRegistry public collateralRegistry;
     IBoldToken public boldToken;
     IWETH public WETH;
+    ICollateralVault public collateralVault;
 
     // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, some borrowing operation restrictions are applied
     uint256 public CCR;
@@ -67,6 +68,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
     event CollateralRegistryAddressChanged(address _collateralRegistryAddress);
     event BoldTokenAddressChanged(address _boldTokenAddress);
     event WETHAddressChanged(address _wethAddress);
+    event CollateralVaultChanged(address _collateralVault);
 
     function initialize(
         address _owner,
@@ -114,6 +116,7 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         collateralRegistry = _vars.collateralRegistry;
         boldToken = _vars.boldToken;
         WETH = _vars.WETH;
+        collateralVault = _vars.collateralVault;
 
         emit CollTokenAddressChanged(address(_vars.collToken));
         emit BorrowerOperationsAddressChanged(address(_vars.borrowerOperations));
@@ -133,5 +136,6 @@ contract AddressesRegistry is Ownable2StepUpgradeable, IAddressesRegistry {
         emit CollateralRegistryAddressChanged(address(_vars.collateralRegistry));
         emit BoldTokenAddressChanged(address(_vars.boldToken));
         emit WETHAddressChanged(address(_vars.WETH));
+        emit CollateralVaultChanged(address(_vars.collateralVault));
     }
 }

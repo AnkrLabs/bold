@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./IActivePool.sol";
 import "./IBoldToken.sol";
 import "./IBorrowerOperations.sol";
+import "./ICollateralVault.sol";
 import "./ICollSurplusPool.sol";
 import "./IDefaultPool.sol";
 import "./IHintHelpers.sol";
@@ -38,6 +39,7 @@ interface IAddressesRegistry {
         ICollateralRegistry collateralRegistry;
         IBoldToken boldToken;
         IWETH WETH;
+        ICollateralVault collateralVault;
     }
 
     function CCR() external returns (uint256);
@@ -65,6 +67,7 @@ interface IAddressesRegistry {
     function collateralRegistry() external view returns (ICollateralRegistry);
     function boldToken() external view returns (IBoldToken);
     function WETH() external returns (IWETH);
+    function collateralVault() external view returns(ICollateralVault);
 
     function setAddresses(AddressVars memory _vars) external;
 }
