@@ -63,7 +63,7 @@ contract ActivePool is Initializable, IActivePool {
     uint256 public lastAggBatchManagementFeesUpdateTime;
 
     // vault for collateral funds
-    ICollateralVault vault;
+    ICollateralVault public vault;
 
     // --- Events ---
 
