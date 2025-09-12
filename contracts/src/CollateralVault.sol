@@ -3,6 +3,8 @@
 pragma solidity 0.8.24;
 
 import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
+import "openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
+
 import "./Interfaces/IAddressesRegistry.sol";
 import "./Interfaces/ICollateralVault.sol";
 
@@ -30,14 +32,14 @@ contract CollateralVault is Ownable2StepUpgradeable, ICollateralVault {
     // only owner can withdraw
     function withdraw(uint256 amount) external onlyOwner {
         _requireBalanceIsEnough(amount);
-        ownerDebt += amount;
+        ownerDebt += int256(amount);
         collToken.approve(owner(), amount);
         collToken.safeTransfer(owner(),  amount);
     }
 
     // anyone can top up
     function topUp(uint256 amount) external {
-        ownerDebt -= amount;
+        ownerDebt -= int256(amount);
         collToken.safeTransferFrom(msg.sender, address(this), amount);
     }
 

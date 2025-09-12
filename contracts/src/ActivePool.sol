@@ -65,7 +65,7 @@ contract ActivePool is Initializable, IActivePool {
     uint256 public lastAggBatchManagementFeesUpdateTime;
 
     // vault for collateral funds
-    ICollateralVault public vault;
+    address public vault;
 
     // --- Events ---
 
@@ -87,7 +87,7 @@ contract ActivePool is Initializable, IActivePool {
         interestRouter = _addressesRegistry.interestRouter();
         boldToken = _addressesRegistry.boldToken();
         parameters = _addressesRegistry.parameters();
-        vault = _addressesRegistry.collateralVault();
+        vault = address(_addressesRegistry.collateralVault());
 
         emit CollTokenAddressChanged(address(collToken));
         emit BorrowerOperationsAddressChanged(borrowerOperationsAddress);
