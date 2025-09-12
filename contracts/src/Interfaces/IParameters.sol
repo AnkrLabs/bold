@@ -41,6 +41,7 @@ interface IParameters {
         uint256 BCR;
         uint256 LIQUIDATION_PENALTY_SP;
         uint256 LIQUIDATION_PENALTY_REDISTRIBUTION;
+        uint256 REDEMPTION_THRESHOLD;
     }
 
     // --- Functions ---
@@ -67,12 +68,13 @@ interface IParameters {
     function MAX_BATCH_SHARES_RATIO() external view returns (uint256);
     function SP_YIELD_SPLIT() external view returns (uint256);
 
-    function CCR(address) external view returns(uint256);
-    function MCR(address) external view returns(uint256);
-    function SCR(address) external view returns(uint256);
-    function BCR(address) external view returns(uint256);
-    function LIQUIDATION_PENALTY_SP(address) external view returns(uint256);
-    function LIQUIDATION_PENALTY_REDISTRIBUTION(address) external view returns(uint256);
+    function CCR(address) external view returns (uint256);
+    function MCR(address) external view returns (uint256);
+    function SCR(address) external view returns (uint256);
+    function BCR(address) external view returns (uint256);
+    function LIQUIDATION_PENALTY_SP(address) external view returns (uint256);
+    function LIQUIDATION_PENALTY_REDISTRIBUTION(address) external view returns (uint256);
+    function REDEMPTION_THRESHOLD(address) external view returns (uint256);
 
     function getBranchParams(address _collToken) external view returns (BranchParams memory _params);
 }

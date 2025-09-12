@@ -19,8 +19,8 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
 
     IERC20MetadataUpgradeable[] public tokens;
     ITroveManager[] public troveManagers;
-    mapping(IERC20MetadataUpgradeable _token => uint256 _index) public arrayIndex;
-
+    mapping(IERC20MetadataUpgradeable _token => IndexContainer _index) public arrayIndex;
+    
     IBoldToken public boldToken;
     IParameters public parameters;
 
@@ -29,10 +29,17 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
     // The timestamp of the latest fee operation (redemption or new Bold issuance)
     uint256 public lastFeeOperationTime = block.timestamp;
 
+    struct IndexContainer {
+        uint256 index;
+        bool set;
+    }
+
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
-    event ShutdownCollaterals(IERC20MetadataUpgradeable[] _tokens);
-    event ResumedCollaterals(IERC20MetadataUpgradeable[] _tokens);
+    event CollateralShutdown(IERC20MetadataUpgradeable indexed _tokens);
+    event CollateralResumed(IERC20MetadataUpgradeable indexed _tokens);
+    event CollateralAdded(IERC20MetadataUpgradeable indexed _token);
+    event CollateralRemoved(IERC20MetadataUpgradeable indexed _token);
 
     function initialize(address _owner, IBoldToken _boldToken, IParameters _parameters, IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external initializer {
         
@@ -43,16 +50,18 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
         
         uint256 numTokens = _tokens.length;
         require(numTokens > 0, "Collateral list cannot be empty");
+        require(_tokens.length == _troveManagers.length, "Length mistmatch");
         totalCollaterals = numTokens;
 
         boldToken = _boldToken;
         parameters = _parameters;
 
         for (uint256 i = 0; i < numTokens; i++) {
+            _requireNotAlreadyAdded(_tokens[i]);
             tokens.push(_tokens[i]);
             troveManagers.push(_troveManagers[i]);
-            arrayIndex[_tokens[i]] = i;
-
+            arrayIndex[_tokens[i]] = IndexContainer(tokens.length - 1, true);
+            emit CollateralAdded(_tokens[i]);
         }
 
         // Initialize the baseRate state variable
@@ -65,13 +74,17 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
     function addCollaterals(IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external onlyOwner {
         uint256 numTokens = _tokens.length;
         require(numTokens > 0, "Collateral list cannot be empty");
+        require(_tokens.length == _troveManagers.length, "Length mistmatch");
         totalCollaterals += _tokens.length;
 
         for (uint256 i = 0; i < numTokens; i++) {
+
+            _requireNotAlreadyAdded(_tokens[i]);
             tokens.push(_tokens[i]);
             troveManagers.push(_troveManagers[i]);
-            arrayIndex[_tokens[i]] = i;
+            arrayIndex[_tokens[i]] = IndexContainer(tokens.length - 1, true);
 
+            emit CollateralAdded(_tokens[i]);
         }
     }
 
@@ -81,7 +94,8 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
         totalCollaterals -= _tokens.length;
 
         for (uint256 i = 0; i < numTokens; i++) {
-            uint256 index = arrayIndex[_tokens[i]];
+            uint256 index = arrayIndex[_tokens[i]].index;
+            _requireAlreadyAdded(_tokens[i]);
 
             if (!_forced) {
                 require(troveManagers[index].getTroveIdsCount() == 0, "No troves must be present");
@@ -91,32 +105,40 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
             tokens[index] = tokens[tokens.length - 1];
             troveManagers[index] = troveManagers[troveManagers.length - 1];
             
-            arrayIndex[tokens[tokens.length - 1]] = arrayIndex[_tokens[i]];
+            arrayIndex[tokens[index]] = IndexContainer(index, true);
             delete arrayIndex[_tokens[i]];
 
             tokens.pop();
             troveManagers.pop();
+
+            emit CollateralRemoved(_tokens[i]);
         }
     }
 
     function shutdownCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external onlyOwner {
         
         for (uint256 i = 0; i < _tokens.length; i++) {
-            uint256 index = arrayIndex[_tokens[i]];
-            troveManagers[index].shutdownForcefully();
-        }
 
-        emit ShutdownCollaterals(_tokens);
+            _requireAlreadyAdded(_tokens[i]);
+
+            uint256 index = arrayIndex[_tokens[i]].index;
+            troveManagers[index].shutdownForcefully();
+
+            emit CollateralShutdown(_tokens[i]);
+        }
     }
 
     function resumeCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external onlyOwner {
         
         for (uint256 i = 0; i < _tokens.length; i++) {
-            uint256 index = arrayIndex[_tokens[i]];
-            troveManagers[index].resumeForcefully();
-        }
 
-        emit ResumedCollaterals(_tokens);
+            _requireAlreadyAdded(_tokens[i]);
+
+            uint256 index = arrayIndex[_tokens[i]].index;
+            troveManagers[index].resumeForcefully();
+
+            emit CollateralResumed(_tokens[i]);
+        }
     }
 
     struct RedemptionTotals {
@@ -144,7 +166,7 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
             (uint256 unbackedPortion, uint256 price, bool redeemable) =
                 troveManager.getUnbackedPortionPriceAndRedeemability();
             prices[index] = price;
-            if (redeemable) {
+            if (redeemable && _isBelowThreshold(index)) {
                 totals.unbacked += unbackedPortion;
                 unbackedPortions[index] = unbackedPortion;
             }
@@ -157,7 +179,7 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
             for (uint256 index = 0; index < totals.numCollaterals; index++) {
                 ITroveManager troveManager = getTroveManager(index);
                 (,, bool redeemable) = troveManager.getUnbackedPortionPriceAndRedeemability();
-                if (redeemable) {
+                if (redeemable && _isBelowThreshold(index)) {
                     uint256 unbackedPortion = troveManager.getEntireBranchDebt();
                     totals.unbacked += unbackedPortion;
                     unbackedPortions[index] = unbackedPortion;
@@ -331,5 +353,23 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
 
     function _requireAmountGreaterThanZero(uint256 _amount) internal pure {
         require(_amount > 0, "CollateralRegistry: Amount must be greater than zero");
+    }
+
+    function _requireNotAlreadyAdded(IERC20MetadataUpgradeable _token) internal view {
+        require(!arrayIndex[_token].set, "Already added");
+    }
+
+    function _requireAlreadyAdded(IERC20MetadataUpgradeable _token) internal view {
+        require(arrayIndex[_token].set, "Not added");
+    }
+
+    function _isBelowThreshold(uint256 _index) internal view returns (bool) {
+
+        ITroveManager tm = troveManagers[_index];
+        IERC20MetadataUpgradeable t = tokens[_index];
+
+        uint256 lowestTroveID = tm.sortedTroves().getLast();
+        uint256 lowestInterestRate = tm.getTroveAnnualInterestRate(lowestTroveID);
+        return parameters.REDEMPTION_THRESHOLD(address(t)) >= lowestInterestRate;
     }
 }

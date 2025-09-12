@@ -43,6 +43,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
     mapping(address => uint256) public BCR;
     mapping(address => uint256) public LIQUIDATION_PENALTY_SP;
     mapping(address => uint256) public LIQUIDATION_PENALTY_REDISTRIBUTION;
+    mapping(address => uint256) public REDEMPTION_THRESHOLD;
 
     // --- Events ---
     event DefaultGlobalsSet();
@@ -67,7 +68,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
     function initialize(address _owner) external initializer {
 
         __Ownable2Step_init();
-        setGlobalsToDefault();
+        _setGlobalsToDefault();
         if (msg.sender != _owner) {
             _transferOwnership(_owner);
         }
@@ -75,6 +76,9 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
 
     // --- Admin ---
     function setGlobalsToDefault() public onlyOwner {
+        _setGlobalsToDefault();
+    }
+    function _setGlobalsToDefault() internal {
 
         ETH_GAS_COMPENSATION = 0.0375 ether;
         COLL_GAS_COMPENSATION_DIVISOR = 200; // 0.5%
@@ -96,7 +100,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
         REDEMPTION_FEE_FLOOR = _1pct / 2;                     // 0.5%
         REDEMPTION_MINUTE_DECAY_FACTOR = 998076443575628800;
         REDEMPTION_BETA = 1;
-        URGENT_REDEMPTION_BONUS = 0;                          // 0%
+        URGENT_REDEMPTION_BONUS = 2e16;                       // 2%
         MAX_BATCH_SHARES_RATIO = 1e9;
         
         SP_YIELD_SPLIT = _100pct; // 100%
@@ -168,6 +172,7 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
         BCR[_params.collToken] = _params.BCR;
         LIQUIDATION_PENALTY_SP[_params.collToken] = _params.LIQUIDATION_PENALTY_SP;
         LIQUIDATION_PENALTY_REDISTRIBUTION[_params.collToken] = _params.LIQUIDATION_PENALTY_REDISTRIBUTION;
+        REDEMPTION_THRESHOLD[_params.collToken] = _params.REDEMPTION_THRESHOLD;
 
         emit BranchParamsSet(_params);
     }
@@ -180,5 +185,6 @@ contract Parameters is IParameters, Ownable2StepUpgradeable {
         _params.BCR = BCR[_collToken];
         _params.LIQUIDATION_PENALTY_SP = LIQUIDATION_PENALTY_SP[_collToken];
         _params.LIQUIDATION_PENALTY_REDISTRIBUTION = LIQUIDATION_PENALTY_REDISTRIBUTION[_collToken];
+        _params.REDEMPTION_THRESHOLD = REDEMPTION_THRESHOLD[_collToken];
     }
 }
