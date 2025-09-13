@@ -29,7 +29,7 @@ contract BorrowerOperationsTest is DevTestSetup {
         vm.prank(A);
         borrowerOperations.repayBold(troveId, 3_000 ether);
 
-        assertEq(troveManager.getTroveEntireDebt(troveId), MIN_DEBT, "Trove debt should be MIN_DEBT");
+        assertEq(troveManager.getTroveEntireDebt(troveId), parameters.MIN_DEBT(), "Trove debt should be MIN_DEBT");
     }
 
     function testWithdrawingTooMuchCollateralReverts() public {
@@ -130,7 +130,7 @@ contract BorrowerOperationsTest is DevTestSetup {
         uint56[4] memory interestRate = [0.01 ether, 0.02 ether, 0.03 ether, 0.04 ether];
 
         // Wait less than the cooldown period, thus the next adjustment will have a cost
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN / 2);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() / 2);
 
         uint256 upfrontFee = predictAdjustInterestRateUpfrontFee(troveId, interestRate[1]);
         assertGt(upfrontFee, 0);
@@ -148,7 +148,7 @@ contract BorrowerOperationsTest is DevTestSetup {
         assertEqDecimal(activePoolDebtAfter - activePoolDebtBefore, upfrontFee, 18, "Wrong AP debt increase 1");
 
         // Once again wait less than the cooldown period, thus the next adjustment will still have a cost
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN * 3 / 4);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() * 3 / 4);
 
         upfrontFee = predictAdjustInterestRateUpfrontFee(troveId, interestRate[2]);
         assertGt(upfrontFee, 0);
@@ -166,7 +166,7 @@ contract BorrowerOperationsTest is DevTestSetup {
         assertEqDecimal(activePoolDebtAfter - activePoolDebtBefore, upfrontFee, 18, "Wrong AP debt increase 2");
 
         // Wait for cooldown to finish, thus the next adjustment will be free again
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         troveDebtBefore = troveManager.getTroveEntireDebt(troveId);
         activePoolDebtBefore = activePool.getBoldDebt();
@@ -187,7 +187,7 @@ contract BorrowerOperationsTest is DevTestSetup {
         uint56 interestRate = 0.01 ether;
 
         // Wait less than the cooldown period, thus the next adjustment will have a cost
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN / 2);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() / 2);
 
         uint256 upfrontFee = predictAdjustInterestRateUpfrontFee(troveId, interestRate);
         assertGt(upfrontFee, 0);

@@ -367,9 +367,12 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
 
         ITroveManager tm = troveManagers[_index];
         IERC20MetadataUpgradeable t = tokens[_index];
+        
+        uint256 _threshold = parameters.REDEMPTION_THRESHOLD(address(t));
+        if (_threshold == 0) return true;
 
         uint256 lowestTroveID = tm.sortedTroves().getLast();
         uint256 lowestInterestRate = tm.getTroveAnnualInterestRate(lowestTroveID);
-        return parameters.REDEMPTION_THRESHOLD(address(t)) >= lowestInterestRate;
+        return _threshold >= lowestInterestRate;
     }
 }

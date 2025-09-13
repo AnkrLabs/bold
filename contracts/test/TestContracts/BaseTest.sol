@@ -9,6 +9,7 @@ import "src/Interfaces/IDefaultPool.sol";
 import "src/Interfaces/IPriceFeed.sol";
 import "src/Interfaces/ISortedTroves.sol";
 import "src/Interfaces/IStabilityPool.sol";
+import "src/Interfaces/IParameters.sol";
 import "./BorrowerOperationsTester.t.sol";
 import "./TroveManagerTester.t.sol";
 import "src/Interfaces/ICollateralRegistry.sol";
@@ -49,6 +50,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
     IMetadataNFT metadataNFT;
     IBoldToken boldToken;
     ICollateralRegistry collateralRegistry;
+    IParameters parameters;
     IPriceFeedTestnet priceFeed;
     GasPool gasPool;
     IInterestRouter mockInterestRouter;
@@ -96,8 +98,8 @@ contract BaseTest is TestAccounts, Logging, TroveId {
         return weightedRecordedDebt * period / 365 days / DECIMAL_PRECISION;
     }
 
-    function calcUpfrontFee(uint256 debt, uint256 avgInterestRate) internal pure returns (uint256) {
-        return calcInterest(debt * avgInterestRate, UPFRONT_INTEREST_PERIOD);
+    function calcUpfrontFee(uint256 debt, uint256 avgInterestRate) internal view returns (uint256) {
+        return calcInterest(debt * avgInterestRate, parameters.UPFRONT_INTEREST_PERIOD());
     }
 
     function predictOpenTroveUpfrontFee(uint256 borrowedAmount, uint256 interestRate) internal view returns (uint256) {
@@ -430,7 +432,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
 
     function registerBatchManager(address _account) internal {
         registerBatchManager(
-            _account, uint128(1e16), uint128(20e16), uint128(5e16), uint128(25e14), MIN_INTEREST_RATE_CHANGE_PERIOD
+            _account, uint128(1e16), uint128(20e16), uint128(5e16), uint128(25e14), parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()
         );
     }
 
@@ -478,7 +480,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
                 uint128(LiquityMath._max(20e16, _annualInterestRate)),
                 uint128(_annualInterestRate),
                 uint128(25e14),
-                MIN_INTEREST_RATE_CHANGE_PERIOD
+                parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()
             );
         }
 
@@ -522,7 +524,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
                 uint128(20e16),
                 uint128(_annualInterestRate),
                 uint128(25e14),
-                MIN_INTEREST_RATE_CHANGE_PERIOD
+                parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()
             );
         }
         setInterestBatchManager(_troveOwner, _troveId, _newBatchManager);

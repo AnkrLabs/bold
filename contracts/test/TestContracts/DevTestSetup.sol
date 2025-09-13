@@ -51,6 +51,7 @@ contract DevTestSetup is BaseTest {
         TestDeployer.LiquityContractsDev memory contracts;
         TestDeployer.Zappers memory zappers;
         (contracts, collateralRegistry, boldToken, hintHelpers,, WETH, zappers) = deployer.deployAndConnectContracts();
+        parameters = collateralRegistry.parameters();
         addressesRegistry = contracts.addressesRegistry;
         collToken = contracts.collToken;
         activePool = contracts.activePool;
@@ -291,7 +292,7 @@ contract DevTestSetup is BaseTest {
 
         // Redeem enough to leave A with 0 debt and B with debt < MIN_DEBT
         uint256 redeemFromA = troveManager.getTroveEntireDebt(_troveIDs.A);
-        uint256 redeemFromB = troveManager.getTroveEntireDebt(_troveIDs.B) - MIN_DEBT / 2;
+        uint256 redeemFromB = troveManager.getTroveEntireDebt(_troveIDs.B) - parameters.MIN_DEBT() / 2;
         uint256 redeemAmount = redeemFromA + redeemFromB;
 
         // Fully redeem A and leave B with debt < MIN_NET_DEBT
@@ -299,7 +300,7 @@ contract DevTestSetup is BaseTest {
 
         // Check A has debt == 0, and B has debt < min_debt
         assertEq(troveManager.getTroveEntireDebt(_troveIDs.A), 0);
-        assertLt(troveManager.getTroveEntireDebt(_troveIDs.B), MIN_DEBT);
+        assertLt(troveManager.getTroveEntireDebt(_troveIDs.B), parameters.MIN_DEBT());
 
         // Check A and B tagged as Zombie troves
         assertEq(uint8(troveManager.getTroveStatus(_troveIDs.A)), uint8(ITroveManager.Status.zombie));
@@ -327,7 +328,7 @@ contract DevTestSetup is BaseTest {
     function _redeemAndCreateZombieTroveAAndHitB(ABCDEF memory _troveIDs) internal {
         // Redeem enough to leave A with 0 debt but B with debt > MIN_NET_DEBT
         uint256 redeemFromA = troveManager.getTroveEntireDebt(_troveIDs.A);
-        uint256 redeemFromB = troveManager.getTroveEntireDebt(_troveIDs.B) - MIN_DEBT * 2;
+        uint256 redeemFromB = troveManager.getTroveEntireDebt(_troveIDs.B) - parameters.MIN_DEBT() * 2;
         uint256 redeemAmount = redeemFromA + redeemFromB;
 
         // Fully redeem A and leave B with debt > MIN_NET_DEBT
@@ -335,15 +336,15 @@ contract DevTestSetup is BaseTest {
 
         // Check A has debt == 0, and B has debt > min_debt;
         assertEq(troveManager.getTroveEntireDebt(_troveIDs.A), 0);
-        assertGt(troveManager.getTroveEntireDebt(_troveIDs.B), MIN_DEBT);
+        assertGt(troveManager.getTroveEntireDebt(_troveIDs.B), parameters.MIN_DEBT());
 
         // // Check A is zombie Trove but B is not
         assertEq(uint8(troveManager.getTroveStatus(_troveIDs.A)), uint8(ITroveManager.Status.zombie));
         assertEq(uint8(troveManager.getTroveStatus(_troveIDs.B)), uint8(ITroveManager.Status.active));
     }
 
-    function _getSPYield(uint256 _aggInterest) internal pure returns (uint256) {
-        uint256 spYield = SP_YIELD_SPLIT * _aggInterest / 1e18;
+    function _getSPYield(uint256 _aggInterest) internal view returns (uint256) {
+        uint256 spYield = parameters.SP_YIELD_SPLIT() * _aggInterest / 1e18;
         assertGt(spYield, 0);
         assertLe(spYield, _aggInterest);
         return spYield;

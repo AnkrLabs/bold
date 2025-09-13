@@ -19,6 +19,7 @@ import "./CollateralRegistryTester.sol";
 import "src/TroveNFT.sol";
 import "src/NFTMetadata/MetadataNFT.sol";
 import "src/CollateralRegistry.sol";
+import { Parameters } from "src/Parameters.sol";
 import "./MockInterestRouter.sol";
 import "./PriceFeedTestnet.sol";
 import "./MetadataDeployment.sol";
@@ -158,6 +159,7 @@ contract TestDeployer is MetadataDeployment {
         LiquityContracts[] contractsArray;
         ExternalAddresses externalAddresses;
         CollateralRegistryTester collateralRegistry;
+        IParameters parameters;
         IBoldToken boldToken;
         HintHelpers hintHelpers;
         MultiTroveGetter multiTroveGetter;
@@ -311,6 +313,9 @@ contract TestDeployer is MetadataDeployment {
         BoldToken(address(boldToken)).initialize(address(this));
         assert(address(boldToken) == vars.boldTokenAddress);
 
+        IParameters p = IParameters(address(new Parameters()));
+        Parameters(address(p)).initialize(address(this));
+
         contractsArray = new LiquityContractsDev[](vars.numCollaterals);
         zappersArray = new Zappers[](vars.numCollaterals);
         vars.collaterals = new IERC20MetadataUpgradeable[](vars.numCollaterals);
@@ -320,7 +325,7 @@ contract TestDeployer is MetadataDeployment {
         // Deploy the first branch with WETH collateral
         vars.collaterals[0] = _WETH;
         (IAddressesRegistry addressesRegistry, address troveManagerAddress) =
-            _deployAddressesRegistryDev(troveManagerParamsArray[0]);
+            _deployAddressesRegistryDev(troveManagerParamsArray[0], p, address(vars.collaterals[0]));
         vars.addressesRegistries[0] = addressesRegistry;
         vars.troveManagers[0] = ITroveManager(troveManagerAddress);
         for (vars.i = 1; vars.i < vars.numCollaterals; vars.i++) {
@@ -333,13 +338,13 @@ contract TestDeployer is MetadataDeployment {
             );
             vars.collaterals[vars.i] = collToken;
             // Addresses registry and TM address
-            (addressesRegistry, troveManagerAddress) = _deployAddressesRegistryDev(troveManagerParamsArray[vars.i]);
+            (addressesRegistry, troveManagerAddress) = _deployAddressesRegistryDev(troveManagerParamsArray[vars.i], p, address(vars.collaterals[vars.i]));
             vars.addressesRegistries[vars.i] = addressesRegistry;
             vars.troveManagers[vars.i] = ITroveManager(troveManagerAddress);
         }
 
         collateralRegistry = new CollateralRegistry();
-        CollateralRegistry(address(collateralRegistry)).initialize(boldToken, vars.collaterals, vars.troveManagers);
+        CollateralRegistry(address(collateralRegistry)).initialize(address(this), boldToken, p, vars.collaterals, vars.troveManagers);
         hintHelpers = new HintHelpers();
         HintHelpers(address(hintHelpers)).initialize(collateralRegistry);
         multiTroveGetter = new MultiTroveGetter();
@@ -373,20 +378,24 @@ contract TestDeployer is MetadataDeployment {
         boldToken.setCollateralRegistry(address(collateralRegistry));
     }
 
-    function _deployAddressesRegistryDev(TroveManagerParams memory _troveManagerParams)
+    function _deployAddressesRegistryDev(TroveManagerParams memory _troveManagerParams, IParameters _p, address _collateral)
         internal
         returns (IAddressesRegistry, address)
     {
         IAddressesRegistry addressesRegistry = new AddressesRegistry();
         AddressesRegistry(address(addressesRegistry)).initialize(
-            address(this),
+            address(this)
+        );
+        _p.setBranchParams(IParameters.BranchParams(
+            _collateral,
             _troveManagerParams.CCR,
             _troveManagerParams.MCR,
-            _troveManagerParams.BCR,
             _troveManagerParams.SCR,
+            _troveManagerParams.BCR,
             _troveManagerParams.LIQUIDATION_PENALTY_SP,
-            _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION
-        );
+            _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION,
+            0
+        ));
         bytes32 tmSALT = keccak256(abi.encode("CDP", tmITER));
         address troveManagerAddress = getAddress(
             address(this), getBytecode(type(TroveManagerTester).creationCode, address(addressesRegistry)), tmSALT
@@ -473,7 +482,8 @@ contract TestDeployer is MetadataDeployment {
             multiTroveGetter: _multiTroveGetter,
             collateralRegistry: _collateralRegistry,
             boldToken: _boldToken,
-            WETH: _weth
+            WETH: _weth,
+            parameters: _collateralRegistry.parameters()
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
@@ -582,9 +592,13 @@ contract TestDeployer is MetadataDeployment {
             _deployAddressesRegistryMainnet(_troveManagerParamsArray[2]);
         vars.troveManagers[2] = ITroveManager(troveManagerAddress);
 
+        // Deploy parameters
+        result.parameters = IParameters(address(new Parameters()));
+        Parameters(address(result.parameters)).initialize(address(this));
+
         // Deploy registry and register the TMs
         result.collateralRegistry = new CollateralRegistryTester();
-        CollateralRegistryTester(address(result.collateralRegistry)).initialize(result.boldToken, vars.collaterals, vars.troveManagers);
+        CollateralRegistryTester(address(result.collateralRegistry)).initialize(address(this), result.boldToken, result.parameters, vars.collaterals, vars.troveManagers);
 
         result.hintHelpers = new HintHelpers();
         HintHelpers(address(result.hintHelpers)).initialize(result.collateralRegistry);
@@ -619,13 +633,7 @@ contract TestDeployer is MetadataDeployment {
     {
         IAddressesRegistry addressesRegistry = new AddressesRegistry();
         AddressesRegistry(address(addressesRegistry)).initialize(
-            address(this),
-            _troveManagerParams.CCR,
-            _troveManagerParams.MCR,
-            _troveManagerParams.BCR,
-            _troveManagerParams.SCR,
-            _troveManagerParams.LIQUIDATION_PENALTY_SP,
-            _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION
+            address(this)
         );
         address troveManagerAddress =
             getAddress(address(this), abi.encodePacked(type(TroveManager).creationCode), SALT);
@@ -702,7 +710,9 @@ contract TestDeployer is MetadataDeployment {
             multiTroveGetter: _params.multiTroveGetter,
             collateralRegistry: _params.collateralRegistry,
             boldToken: _params.boldToken,
-            WETH: _params.weth
+            WETH: _params.weth,
+            parameters: _params.collateralRegistry.parameters()
+
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 

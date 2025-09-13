@@ -88,8 +88,9 @@ contract InterestIndividualDelegationTest is DevTestSetup {
         uint256 troveId = openTroveAndSetIndividualDelegate();
 
         vm.startPrank(B);
+        uint256 minAnnualInterest = parameters.MIN_ANNUAL_INTEREST_RATE();
         vm.expectRevert(BorrowerOperations.InterestNotInRange.selector);
-        borrowerOperations.adjustTroveInterestRate(troveId, MIN_ANNUAL_INTEREST_RATE, 0, 0, 1e24);
+        borrowerOperations.adjustTroveInterestRate(troveId, minAnnualInterest, 0, 0, 1e24);
         vm.stopPrank();
     }
 
@@ -106,7 +107,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
         uint256 troveId = openTroveAndSetIndividualDelegate();
 
         vm.startPrank(A);
-        borrowerOperations.adjustTroveInterestRate(troveId, MIN_ANNUAL_INTEREST_RATE, 0, 0, 1e24);
+        borrowerOperations.adjustTroveInterestRate(troveId, parameters.MIN_ANNUAL_INTEREST_RATE(), 0, 0, 1e24);
         vm.stopPrank();
     }
 
@@ -120,7 +121,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfTroveIsClosed() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -139,7 +140,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfTroveIsZombie() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -158,7 +159,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfMinTooLow() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -172,23 +173,24 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfMaxTooHigh() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
         // Set batch manager (B)
         vm.startPrank(A);
+        uint256 maxAnnualInterest = parameters.MAX_ANNUAL_INTEREST_RATE();
         vm.expectRevert(BorrowerOperations.InterestRateTooHigh.selector);
         borrowerOperations.setInterestIndividualDelegate(
-            troveId, C, 1e16, uint128(MAX_ANNUAL_INTEREST_RATE) + 1, 0, 0, 0, 10000e18, 0
+            troveId, C, 1e16, uint128(maxAnnualInterest) + 1, 0, 0, 0, 10000e18, 0
         );
         vm.stopPrank();
     }
 
     function testSetDelegateRevertsIfMinEqMax() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -202,7 +204,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfMinGtMax() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -216,7 +218,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfNewInterestRateNotInRangeBelow() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -238,7 +240,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRevertsIfNewInterestRateNotInRangeAbove() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -249,7 +251,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
         vm.stopPrank();
 
         // Try to switch to individual delegate (C) along with new interest
-        uint256 newAnnualInterestRate = MAX_ANNUAL_INTEREST_RATE + 1;
+        uint256 newAnnualInterestRate = parameters.MAX_ANNUAL_INTEREST_RATE() + 1;
         vm.startPrank(A);
         vm.expectRevert(BorrowerOperations.InterestRateTooHigh.selector);
         borrowerOperations.setInterestIndividualDelegate(
@@ -260,7 +262,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
 
     function testSetDelegateRemovesBatchManager() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -306,7 +308,7 @@ contract InterestIndividualDelegationTest is DevTestSetup {
     function testInterestUpdateByDelegateAfterCooldown() public {
         uint256 troveId = openTroveAndSetIndividualDelegate();
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         uint256 entireDebtBefore = troveManager.getTroveEntireDebt(troveId);
 

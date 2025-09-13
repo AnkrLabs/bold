@@ -13,11 +13,7 @@ for testing the parent's internal functions. */
 contract TroveManagerTester is ITroveManagerTester, TroveManager {
     uint256 constant STALE_TROVE_DURATION = 90 days;
 
-    // Extra buffer of collateral ratio to join a batch or adjust a trove inside a batch (on top of MCR)
-    uint256 public immutable BCR;
-
     constructor(IAddressesRegistry _addressesRegistry) {
-        BCR = _addressesRegistry.BCR();
     }
 
     // Single liquidation function. Closes the trove if its ICR is lower than the minimum collateral ratio.
@@ -28,27 +24,27 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
     }
 
     function get_CCR() external view returns (uint256) {
-        return CCR;
+        return parameters.CCR(address(collToken));
     }
 
     function get_MCR() external view returns (uint256) {
-        return MCR;
+        return parameters.MCR(address(collToken));
     }
 
     function get_BCR() external view returns (uint256) {
-        return BCR;
+        return parameters.BCR(address(collToken));
     }
 
     function get_SCR() external view returns (uint256) {
-        return SCR;
+        return parameters.SCR(address(collToken));
     }
 
     function get_LIQUIDATION_PENALTY_SP() external view returns (uint256) {
-        return LIQUIDATION_PENALTY_SP;
+        return parameters.LIQUIDATION_PENALTY_SP(address(collToken));
     }
 
     function get_LIQUIDATION_PENALTY_REDISTRIBUTION() external view returns (uint256) {
-        return LIQUIDATION_PENALTY_REDISTRIBUTION;
+        return parameters.LIQUIDATION_PENALTY_REDISTRIBUTION(address(collToken));
     }
 
     function getBoldToken() external view returns (IBoldToken) {
@@ -96,7 +92,7 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
     }
 
     function checkBelowCriticalThreshold(uint256 _price) external view override returns (bool) {
-        return _checkBelowCriticalThreshold(_price, CCR);
+        return _checkBelowCriticalThreshold(_price, parameters.CCR(address(collToken)));
     }
 
     function computeICR(uint256 _coll, uint256 _debt, uint256 _price) external pure returns (uint256) {
@@ -105,7 +101,7 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
 
     function getCollGasCompensation(uint256 _entireColl, uint256 _entireDebt, uint256 _boldInSPForOffsets)
         external
-        pure
+        view
         returns (uint256)
     {
         uint256 collSubjectToGasCompensation = _entireColl;
@@ -115,12 +111,12 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
         return _getCollGasCompensation(collSubjectToGasCompensation);
     }
 
-    function getCollGasCompensation(uint256 _coll) external pure returns (uint256) {
+    function getCollGasCompensation(uint256 _coll) external view returns (uint256) {
         return _getCollGasCompensation(_coll);
     }
 
-    function getETHGasCompensation() external pure returns (uint256) {
-        return ETH_GAS_COMPENSATION;
+    function getETHGasCompensation() external view returns (uint256) {
+        return parameters.ETH_GAS_COMPENSATION();
     }
 
     /*
@@ -158,8 +154,8 @@ contract TroveManagerTester is ITroveManagerTester, TroveManager {
         return _calcUpfrontFee(openTrove.debtIncrease, avgInterestRate);
     }
 
-    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal pure returns (uint256) {
-        return _calcInterest(_debt * _avgInterestRate, UPFRONT_INTEREST_PERIOD);
+    function _calcUpfrontFee(uint256 _debt, uint256 _avgInterestRate) internal view returns (uint256) {
+        return _calcInterest(_debt * _avgInterestRate, parameters.UPFRONT_INTEREST_PERIOD());
     }
 
     function getEffectiveRedemptionFeeInColl(uint256 _redeemAmount, uint256 _price) external view returns (uint256) {

@@ -626,7 +626,7 @@ contract BorrowerOperationsOnBehalfTroveManagamentTest is DevTestSetup {
         vm.stopPrank();
 
         assertEq(troveManager.getTroveColl(ATroveId), 0, "Wrong trove coll");
-        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + ETH_GAS_COMPENSATION, "Wrong owner balance");
+        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + parameters.ETH_GAS_COMPENSATION(), "Wrong owner balance");
     }
 
     function testCloseTroveByManagerWithRemoveManager() public {
@@ -649,7 +649,7 @@ contract BorrowerOperationsOnBehalfTroveManagamentTest is DevTestSetup {
         vm.stopPrank();
 
         assertEq(troveManager.getTroveColl(ATroveId), 0, "Wrong trove coll");
-        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + ETH_GAS_COMPENSATION, "Wrong owner balance");
+        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + parameters.ETH_GAS_COMPENSATION(), "Wrong owner balance");
         assertEq(collToken.balanceOf(B), BInitialCollBalance, "Wrong manager balance");
     }
 
@@ -705,7 +705,7 @@ contract BorrowerOperationsOnBehalfTroveManagamentTest is DevTestSetup {
         vm.stopPrank();
 
         assertEq(troveManager.getTroveColl(ATroveId), 0, "Wrong trove coll");
-        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + ETH_GAS_COMPENSATION, "Wrong owner balance");
+        assertEq(collToken.balanceOf(A), AInitialCollBalance + 100 ether + parameters.ETH_GAS_COMPENSATION(), "Wrong owner balance");
         assertEq(collToken.balanceOf(B), BInitialCollBalance, "Wrong manager balance");
     }
 

@@ -13,7 +13,7 @@ contract InterestRateAggregate is DevTestSetup {
         assertEq(activePool.lastAggUpdateTime(), 0);
         assertEq(activePool.calcPendingAggInterest(), 0);
 
-        openTroveNoHints100pct(A, 2 ether, 2000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(A, 2 ether, 2000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
         assertEq(activePool.lastAggUpdateTime(), block.timestamp);
         assertEq(activePool.calcPendingAggInterest(), 0);
 
@@ -725,7 +725,7 @@ contract InterestRateAggregate is DevTestSetup {
         uint256 ATroveId = openTroveNoHints100pct(A, 2 ether, troveDebtRequest, 25e16);
 
         // Wait for interest rate adjustment cooldown to pass, so we don't incur a fee
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         uint256 aggRecordedDebt_1 = activePool.aggRecordedDebt();
         assertGt(aggRecordedDebt_1, 0);

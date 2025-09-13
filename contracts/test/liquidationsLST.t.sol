@@ -27,6 +27,7 @@ contract LiquidationsLSTTest is DevTestSetup {
         (contracts, collateralRegistry, boldToken,,,,) = deployer.deployAndConnectContracts(
             TestDeployer.TroveManagerParams(160e16, 120e16, 10e16, 120e16, 5e16, 10e16)
         );
+        parameters = collateralRegistry.parameters();
         collToken = contracts.collToken;
         activePool = contracts.activePool;
         borrowerOperations = contracts.borrowerOperations;
@@ -71,7 +72,7 @@ contract LiquidationsLSTTest is DevTestSetup {
             liquidationAmount,
             0,
             0,
-            MIN_ANNUAL_INTEREST_RATE,
+            parameters.MIN_ANNUAL_INTEREST_RATE(),
             1000e18,
             address(0),
             address(0),
@@ -87,7 +88,7 @@ contract LiquidationsLSTTest is DevTestSetup {
             liquidationAmount,
             0,
             0,
-            MIN_ANNUAL_INTEREST_RATE,
+            parameters.MIN_ANNUAL_INTEREST_RATE(),
             1000e18,
             address(0),
             address(0),
@@ -192,7 +193,7 @@ contract LiquidationsLSTTest is DevTestSetup {
             liquidationAmount,
             0,
             0,
-            MIN_ANNUAL_INTEREST_RATE,
+            parameters.MIN_ANNUAL_INTEREST_RATE(),
             1000e18,
             address(0),
             address(0),
@@ -200,7 +201,7 @@ contract LiquidationsLSTTest is DevTestSetup {
         );
         vm.stopPrank();
         // A makes a deposit to ensure there's MIN_BOLD_IN_SP left after liquidation
-        makeSPDepositAndClaim(A, MIN_BOLD_IN_SP);
+        makeSPDepositAndClaim(A, parameters.MIN_BOLD_IN_SP());
 
         vm.startPrank(B);
         uint256 BTroveId = borrowerOperations.openTrove(
@@ -210,7 +211,7 @@ contract LiquidationsLSTTest is DevTestSetup {
             liquidationAmount,
             0,
             0,
-            MIN_ANNUAL_INTEREST_RATE,
+            parameters.MIN_ANNUAL_INTEREST_RATE(),
             1000e18,
             address(0),
             address(0),

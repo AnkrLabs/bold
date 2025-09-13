@@ -46,6 +46,7 @@ interface IParameters {
 
     // --- Functions ---
     function setGlobalsToDefault() external;
+    function setBranchParams(BranchParams calldata _params) external;
 
     // --- Views ---
     function ETH_GAS_COMPENSATION() external view returns (uint256);

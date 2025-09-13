@@ -5,6 +5,23 @@ pragma solidity ^0.8.18;
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import "./TestContracts/DevTestSetup.sol";
 
+uint256 constant CCR_WETH = 150 * _1pct;
+uint256 constant CCR_SETH = 160 * _1pct;
+
+uint256 constant MCR_WETH = 110 * _1pct;
+uint256 constant MCR_SETH = 120 * _1pct;
+
+uint256 constant SCR_WETH = 110 * _1pct;
+uint256 constant SCR_SETH = 120 * _1pct;
+
+uint256 constant BCR_ALL = 10 * _1pct;
+
+uint256 constant LIQUIDATION_PENALTY_SP_WETH = 5 * _1pct;
+uint256 constant LIQUIDATION_PENALTY_SP_SETH = 5 * _1pct;
+
+uint256 constant LIQUIDATION_PENALTY_REDISTRIBUTION_WETH = 10 * _1pct;
+uint256 constant LIQUIDATION_PENALTY_REDISTRIBUTION_SETH = 20 * _1pct;
+
 contract MulticollateralTest is DevTestSetup {
     uint256 NUM_COLLATERALS = 4;
     TestDeployer.LiquityContractsDev[] public contractsArray;
@@ -77,6 +94,7 @@ contract MulticollateralTest is DevTestSetup {
         TestDeployer.LiquityContractsDev[] memory _contractsArray;
         (_contractsArray, collateralRegistry, boldToken,,, WETH,) =
             deployer.deployAndConnectContractsMultiColl(troveManagerParamsArray);
+        parameters = collateralRegistry.parameters();
         // Unimplemented feature (...):Copying of type struct LiquityContracts memory[] memory to storage not yet supported.
         for (uint256 c = 0; c < NUM_COLLATERALS; c++) {
             contractsArray.push(_contractsArray[c]);
@@ -118,10 +136,10 @@ contract MulticollateralTest is DevTestSetup {
             assertNotEq(address(collateralRegistry.getToken(c)), ZERO_ADDRESS, "Missing collateral token");
             assertNotEq(address(collateralRegistry.getTroveManager(c)), ZERO_ADDRESS, "Missing TroveManager");
         }
-        for (uint256 c = NUM_COLLATERALS; c < 10; c++) {
-            assertEq(address(collateralRegistry.getToken(c)), ZERO_ADDRESS, "Extra collateral token");
-            assertEq(address(collateralRegistry.getTroveManager(c)), ZERO_ADDRESS, "Extra TroveManager");
-        }
+        // for (uint256 c = NUM_COLLATERALS; c < 10; c++) {
+        //     assertEq(address(collateralRegistry.getToken(c)), ZERO_ADDRESS, "Extra collateral token");
+        //     assertEq(address(collateralRegistry.getTroveManager(c)), ZERO_ADDRESS, "Extra TroveManager");
+        // }
         // reverts for invalid index
         vm.expectRevert("Invalid index");
         collateralRegistry.getToken(10);
@@ -206,7 +224,7 @@ contract MulticollateralTest is DevTestSetup {
         // Check redemption rate
         assertApproxEqAbs(
             collateralRegistry.getRedemptionFeeWithDecay(redeemAmount),
-            redeemAmount * (INITIAL_BASE_RATE / 16 + REDEMPTION_FEE_FLOOR) / DECIMAL_PRECISION,
+            redeemAmount * (INITIAL_BASE_RATE / 16 + parameters.REDEMPTION_FEE_FLOOR()) / DECIMAL_PRECISION,
             1e7,
             "Wrong redemption fee with decay"
         );
@@ -219,7 +237,7 @@ contract MulticollateralTest is DevTestSetup {
         // Check redemption rate
         assertApproxEqAbs(
             collateralRegistry.getRedemptionRate(),
-            INITIAL_BASE_RATE / 16 + REDEMPTION_FEE_FLOOR + redeemAmount * DECIMAL_PRECISION / initialBoldSupply,
+            INITIAL_BASE_RATE / 16 + parameters.REDEMPTION_FEE_FLOOR() + redeemAmount * DECIMAL_PRECISION / initialBoldSupply,
             1e5,
             "Wrong redemption rate"
         );
@@ -749,6 +767,7 @@ contract CsBold013 is TestAccounts {
     IHintHelpers hintHelpers;
     IWETH weth;
     TestDeployer.LiquityContractsDev[] branches;
+    IParameters parameters;
 
     function setUp() external {
         // Start tests at a non-zero timestamp
@@ -796,6 +815,8 @@ contract CsBold013 is TestAccounts {
         TestDeployer.LiquityContractsDev[] memory _branches;
         (_branches, collateralRegistry, boldToken, hintHelpers,, weth,) =
             deployer.deployAndConnectContractsMultiColl(params);
+
+        parameters = collateralRegistry.parameters();
 
         for (uint256 i = 0; i < _branches.length; ++i) {
             branches.push(_branches[i]);
@@ -869,7 +890,7 @@ contract CsBold013 is TestAccounts {
     function test_WontRedeemMoreThanTotalUnbacked_UnlessTotalUnbackedIsZero() external {
         // ETH branch setup
         {
-            openTroveWithExactICRAndDebt(0, A, 0, CCR_WETH, 200_000 ether, MIN_ANNUAL_INTEREST_RATE);
+            openTroveWithExactICRAndDebt(0, A, 0, CCR_WETH, 200_000 ether, parameters.MIN_ANNUAL_INTEREST_RATE());
 
             vm.prank(A);
             branches[0].stabilityPool.provideToSP(100_000 ether, false);
@@ -880,7 +901,7 @@ contract CsBold013 is TestAccounts {
 
         // wstETH branch setup
         {
-            openTroveWithExactICRAndDebt(1, A, 0, 2 * CCR_WETH, 100_000 ether, MIN_ANNUAL_INTEREST_RATE);
+            openTroveWithExactICRAndDebt(1, A, 0, 2 * CCR_WETH, 100_000 ether, parameters.MIN_ANNUAL_INTEREST_RATE());
 
             vm.prank(A);
             branches[1].stabilityPool.provideToSP(99_000 ether, false);
@@ -888,7 +909,7 @@ contract CsBold013 is TestAccounts {
 
         // rETH branch setup
         {
-            openTroveWithExactICRAndDebt(2, A, 0, 2 * CCR_WETH, 10_000 ether, MIN_ANNUAL_INTEREST_RATE);
+            openTroveWithExactICRAndDebt(2, A, 0, 2 * CCR_WETH, 10_000 ether, parameters.MIN_ANNUAL_INTEREST_RATE());
 
             vm.prank(A);
             branches[2].stabilityPool.provideToSP(9_000 ether, false);

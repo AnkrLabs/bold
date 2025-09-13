@@ -206,7 +206,7 @@ contract BatchManagementFeeTest is DevTestSetup {
         // Change batch interest rate
         setBatchInterestRate(B, 10e16);
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN - 37);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() - 37);
 
         // Get weighted batch management fee before
         LatestBatchData memory batchData = troveManager.getLatestBatchData(B);
@@ -246,7 +246,7 @@ contract BatchManagementFeeTest is DevTestSetup {
         // Change batch interest rate
         setBatchInterestRate(B, 10e16);
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN - 37);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() - 37);
 
         // Get agg weighted batch mgmt fee before
         uint256 aggWeightedMgmtFeeBefore = activePool.aggWeightedBatchManagementFeeSum();
@@ -527,7 +527,7 @@ contract BatchManagementFeeTest is DevTestSetup {
         vm.warp(block.timestamp + 10 days);
 
         // Second trove changes batch (with a different fee)
-        registerBatchManager(D, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 4e16, 50e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(D, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 4e16, 50e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // Switch trove batch
         switchBatchManager(C, CTroveId, D);
 

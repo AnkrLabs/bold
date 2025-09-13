@@ -36,7 +36,7 @@ contract InterestBatchManagementTest is DevTestSetup {
             borrowerOperations.getInterestBatchManager(batchManagerAddress);
         assertEq(batchManager.minInterestRate, 1e16, "Wrong min interest");
         assertEq(batchManager.maxInterestRate, 20e16, "Wrong max interest");
-        assertEq(batchManager.minInterestRateChangePeriod, MIN_INTEREST_RATE_CHANGE_PERIOD, "Wrong min change period");
+        assertEq(batchManager.minInterestRateChangePeriod, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD(), "Wrong min change period");
         LatestBatchData memory batch = troveManager.getLatestBatchData(batchManagerAddress);
         assertEq(batch.annualManagementFee, 25e14, "Wrong fee");
     }
@@ -59,7 +59,7 @@ contract InterestBatchManagementTest is DevTestSetup {
             borrowerOperations.getInterestBatchManager(batchManagerAddress);
         assertEq(batchManager.minInterestRate, 1e16, "Wrong min interest");
         assertEq(batchManager.maxInterestRate, 20e16, "Wrong max interest");
-        assertEq(batchManager.minInterestRateChangePeriod, MIN_INTEREST_RATE_CHANGE_PERIOD, "Wrong min change period");
+        assertEq(batchManager.minInterestRateChangePeriod, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD(), "Wrong min change period");
         LatestBatchData memory batch = troveManager.getLatestBatchData(batchManagerAddress);
         assertEq(batch.annualManagementFee, 25e14, "Wrong fee");
     }
@@ -192,7 +192,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         LatestTroveData memory trove = troveManager.getLatestTroveData(troveId);
         uint256 annualInterestRate = trove.annualInterestRate;
 
-        uint256 newAnnualInterestRate = MAX_ANNUAL_INTEREST_RATE + 1;
+        uint256 newAnnualInterestRate = parameters.MAX_ANNUAL_INTEREST_RATE() + 1;
         assertEq(tmBatchManagerAddress, B, "Wrong batch manager in TM");
         assertNotEq(newAnnualInterestRate, annualInterestRate, "New interest rate should be different");
 
@@ -243,7 +243,7 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSetBatchManagerRemovesIndividualDelegate() public {
         vm.startPrank(B);
-        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        borrowerOperations.registerBatchManager(1e16, 20e16, 5e16, 25e14, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.stopPrank();
 
         // Open trove
@@ -407,8 +407,9 @@ contract InterestBatchManagementTest is DevTestSetup {
         openTroveAndJoinBatchManager();
 
         vm.startPrank(B);
+        uint256 minInterest = parameters.MIN_ANNUAL_INTEREST_RATE();
         vm.expectRevert(BorrowerOperations.InterestNotInRange.selector);
-        borrowerOperations.setBatchManagerAnnualInterestRate(uint128(MIN_ANNUAL_INTEREST_RATE), 0, 0, 100000e18);
+        borrowerOperations.setBatchManagerAnnualInterestRate(uint128(minInterest), 0, 0, 100000e18);
         vm.expectRevert(BorrowerOperations.InterestNotInRange.selector);
         borrowerOperations.setBatchManagerAnnualInterestRate(21e16, 0, 0, 100000e18);
         vm.stopPrank();
@@ -434,7 +435,7 @@ contract InterestBatchManagementTest is DevTestSetup {
 
         uint256 troveRecordedDebtBefore = troveData.recordedDebt;
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1 days);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1 days);
         troveData = troveManager.getLatestTroveData(ATroveId);
 
         uint256 troveAccruedInterest = troveManager.calcTroveAccruedInterest(ATroveId);
@@ -776,9 +777,9 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinBatchBatchManagerChargesUpfrontFeeIfTroveShortChangeBatchNotSameInterestRate() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -802,13 +803,13 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinBatchBatchManagerChargesUpfrontFeeIfBatchShortChangeTroveNotSameInterestRate() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 6e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 6e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // B changes interest rate
         setBatchInterestRate(B, 5e16);
@@ -832,9 +833,9 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinBatchBatchManagerChargesUpfrontFeeIfTroveAndBatchShortChangeSameInterestRate() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 4e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 4e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -861,13 +862,13 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinBatchBatchManagerDoesNotChargeUpfrontFeeIfNotTroveNorBatchShortChangeSameInterestRate() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 6e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 6e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         uint256 ADebtBefore = troveManager.getTroveEntireDebt(troveId);
         uint256 upfrontFee = predictJoinBatchInterestRateUpfrontFee(troveId, B);
@@ -888,10 +889,10 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testCannotGameUpfrontFeeByJoiningABatchAndChangingInterest() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Interest rate change and cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + MIN_INTEREST_RATE_CHANGE_PERIOD + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + parameters.MIN_INTEREST_RATE_CHANGE_PERIOD() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -918,10 +919,10 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinABatchWithSameInterestAndLeaveToSameInterestChargesUpfrontFeeOnlyOnce() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -948,10 +949,10 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinABatchWithDifferentInterestAndLeaveToSameInterestChargesUpfrontFeeOnlyOnce() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 6e16);
@@ -978,10 +979,10 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinABatchWithSameInterestAndLeaveToDifferentInterestChargesUpfrontFeeTwice() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -1011,10 +1012,10 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinABatchWithDifferentInterestAndLeaveToDifferentInterestChargesUpfrontFeeTwice() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 6e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 6e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove
         uint256 troveId = openTroveNoHints100pct(A, 100e18, 5000e18, 5e16);
@@ -1044,12 +1045,12 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSwitchBatchManagerChargesUpfrontFeeIfJoinedOldLessThanCooldownAgo() public {
         // C registers as batch manager
-        registerBatchManager(C, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(C, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // A opens trove and joins batch manager B (which has the same interest)
         uint256 troveId = openTroveAndJoinBatchManager(A, 100 ether, 2000e18, B, 5e16);
 
         // Cool down period not gone by yet
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN - 60);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() - 60);
         uint256 ADebtBefore = troveManager.getTroveEntireDebt(troveId);
         uint256 upfrontFee = predictJoinBatchInterestRateUpfrontFee(troveId, C);
         assertGt(upfrontFee, 0, "Upfront fee should be > 0");
@@ -1069,12 +1070,12 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSwitchBatchManagerChargesUpfrontFeeIfJoinedOldMoreThanCooldownAgo() public {
         // C registers as batch manager
-        registerBatchManager(C, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(C, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // A opens trove and joins batch manager B (which has the same interest)
         uint256 troveId = openTroveAndJoinBatchManager(A, 100 ether, 2000e18, B, 5e16);
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
         uint256 ADebtBefore = troveManager.getTroveEntireDebt(troveId);
         uint256 upfrontFee = predictJoinBatchInterestRateUpfrontFee(troveId, C);
         assertGt(upfrontFee, 0, "Upfront fee should be > 0");
@@ -1094,12 +1095,12 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSwitchBatchManagerChargesUpfrontFeeIfOldBatchChangedFeeLessThanCooldownAgo() public {
         // C registers as batch manager
-        registerBatchManager(C, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(C, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         // A opens trove and joins batch manager B
         uint256 troveId = openTroveAndJoinBatchManager(A, 100 ether, 2000e18, B, 4e16);
 
         // Cool down period has gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 60);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 60);
         // B changes interest rate
         LatestBatchData memory batch = troveManager.getLatestBatchData(B);
         setBatchInterestRate(B, 5e16);
@@ -1122,13 +1123,13 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSwitchBatchManagerDoesNotChargeTroveUpfrontFeeIfBatchChangesRateWithoutUpfrontFee() public {
         // B registers as batch manager
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // C registers as batch manager
-        registerBatchManager(C, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(C, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A opens trove and joins batch manager B (which has the same interest)
         uint256 troveId = openTroveAndJoinBatchManager(A, 100 ether, 2000e18, B, 5e16);
@@ -1147,16 +1148,16 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testSwitchBatchManagerBackAndForthCannotBeUsedToDo2ConsecutiveChangesForFree() public {
         // B registers as batch manager, with interest rate 5%
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // C registers as batch manager, with interest rate 4%
-        registerBatchManager(C, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 4e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(C, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 4e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // A opens trove and joins batch manager B
         uint256 troveId = openTroveAndJoinBatchManager(A, 100 ether, 2000e18, B, 5e16);
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // Switch from B to C
         uint256 ADebtBefore = troveManager.getTroveEntireDebt(troveId);
@@ -1191,7 +1192,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         );
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // Switch from C to B
         ADebtBefore = troveManager.getTroveEntireDebt(troveId);
@@ -1230,13 +1231,13 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testJoinBatchManagerCannotBeUsedToDo2ConsecutiveChangesForFree() public {
         // B registers as batch manager, with min interest rate
-        registerBatchManager(B, uint128(MIN_ANNUAL_INTEREST_RATE), 1e18, 5e16, 0, MIN_INTEREST_RATE_CHANGE_PERIOD);
+        registerBatchManager(B, uint128(parameters.MIN_ANNUAL_INTEREST_RATE()), 1e18, 5e16, 0, parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
 
         // A opens trove at 5% interest rate
         uint256 troveId = openTroveNoHints100pct(A, 100 ether, 2000e18, 5e16);
 
         // Cool down period gone by
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN + 1);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() + 1);
 
         // A joins batch manager B
         uint256 ADebtBefore = troveManager.getTroveEntireDebt(troveId);
@@ -1298,7 +1299,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         uint256 ATroveId = openTroveAndJoinBatchManager(A, 100 ether, initialDebt, B, interestRate);
         uint256 ATroveEntireDebt = troveManager.getTroveEntireDebt(ATroveId);
         uint256 expectedUpfrontFeeA =
-            initialDebt * interestRate * UPFRONT_INTEREST_PERIOD / ONE_YEAR / DECIMAL_PRECISION;
+            initialDebt * interestRate * parameters.UPFRONT_INTEREST_PERIOD() / ONE_YEAR / DECIMAL_PRECISION;
         assertEq(ATroveEntireDebt - initialDebt, expectedUpfrontFeeA, "Wrong upfront fee for A");
 
         vm.warp(block.timestamp + 10 days);
@@ -1307,7 +1308,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         uint256 CTroveId = openTroveAndJoinBatchManager(C, 100 ether, 2000e18, B, interestRate);
         uint256 CTroveEntireDebt = troveManager.getTroveEntireDebt(CTroveId);
         uint256 expectedUpfrontFeeC =
-            initialDebt * interestRate * UPFRONT_INTEREST_PERIOD / ONE_YEAR / DECIMAL_PRECISION;
+            initialDebt * interestRate * parameters.UPFRONT_INTEREST_PERIOD() / ONE_YEAR / DECIMAL_PRECISION;
         assertApproxEqAbs(CTroveEntireDebt - initialDebt, expectedUpfrontFeeC, 100, "Wrong upfront fee for C");
     }
 
@@ -1324,7 +1325,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         uint256 ATroveEntireDebt = troveManager.getTroveEntireDebt(ATroveId);
         uint256 avgInterestRate = (DWeightedDebt + initialDebt * interestRate) / (DInitialDebt + initialDebt);
         uint256 expectedUpfrontFeeA =
-            initialDebt * avgInterestRate * UPFRONT_INTEREST_PERIOD / ONE_YEAR / DECIMAL_PRECISION;
+            initialDebt * avgInterestRate * parameters.UPFRONT_INTEREST_PERIOD() / ONE_YEAR / DECIMAL_PRECISION;
         assertEq(ATroveEntireDebt - initialDebt, expectedUpfrontFeeA, "Wrong upfront fee for A");
         LatestTroveData memory ATroveData = troveManager.getLatestTroveData(ATroveId);
         assertEq(ATroveData.lastInterestRateAdjTime, block.timestamp, "Wrong interest rate adj time for A");
@@ -1340,7 +1341,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         avgInterestRate = (DWeightedDebt + (ATroveEntireDebt + initialDebt) * interestRate)
             / (DTroveEntireDebt + ATroveEntireDebt + initialDebt);
         uint256 expectedUpfrontFeeC =
-            initialDebt * avgInterestRate * UPFRONT_INTEREST_PERIOD / ONE_YEAR / DECIMAL_PRECISION;
+            initialDebt * avgInterestRate * parameters.UPFRONT_INTEREST_PERIOD() / ONE_YEAR / DECIMAL_PRECISION;
         assertApproxEqAbs(CTroveEntireDebt - initialDebt, expectedUpfrontFeeC, 1, "Wrong upfront fee for C");
         LatestTroveData memory CTroveData = troveManager.getLatestTroveData(CTroveId);
         assertEq(CTroveData.lastInterestRateAdjTime, block.timestamp, "Wrong interest rate adj time for C");
@@ -1350,7 +1351,7 @@ contract InterestBatchManagementTest is DevTestSetup {
 
     function testCannotOpenAndJoinIfBelowMCRPlusBCR() public {
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         registerBatchManager(B);
 
@@ -1385,7 +1386,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         registerBatchManager(B);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 price = 2000e18;
         priceFeed.setPrice(price);
@@ -1393,7 +1394,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         uint256 boldAmount = 10000e18;
         uint256 collAmount = boldAmount * (MCR + BCR) / price; // upfront fee will put it slightly below
 
-        uint256 troveId = openTroveNoHints100pct(A, collAmount, boldAmount, MIN_ANNUAL_INTEREST_RATE);
+        uint256 troveId = openTroveNoHints100pct(A, collAmount, boldAmount, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 ICR = troveManager.getCurrentICR(troveId, price);
         assertLt(ICR, MCR + BCR, "ICR too high");
@@ -1410,7 +1411,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         priceFeed.setPrice(price);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 troveId = openTroveAndJoinBatchManager();
         uint256 debt = troveManager.getTroveEntireDebt(troveId);
@@ -1429,7 +1430,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         priceFeed.setPrice(price);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 troveId = openTroveAndJoinBatchManager();
         uint256 debt = troveManager.getTroveEntireDebt(troveId);
@@ -1448,7 +1449,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         priceFeed.setPrice(price);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 troveId = openTroveAndJoinBatchManager();
         uint256 debt = troveManager.getTroveEntireDebt(troveId);
@@ -1470,7 +1471,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         priceFeed.setPrice(price);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         uint256 troveId = openTroveAndJoinBatchManager();
         uint256 debt = troveManager.getTroveEntireDebt(troveId);
@@ -1492,7 +1493,7 @@ contract InterestBatchManagementTest is DevTestSetup {
         priceFeed.setPrice(price);
 
         // Make sure TCR is big
-        openTroveNoHints100pct(C, 100e18, 5000e18, MIN_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100e18, 5000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         // Open trove to adjust
         uint256 troveId = openTroveAndJoinBatchManager();

@@ -25,31 +25,28 @@ import {BaseHandler} from "./BaseHandler.sol";
 import {BaseMultiCollateralTest} from "./BaseMultiCollateralTest.sol";
 import {TestDeployer} from "./Deployment.t.sol";
 
-import {
-    _100pct,
-    _1pct,
-    COLL_GAS_COMPENSATION_CAP,
-    COLL_GAS_COMPENSATION_DIVISOR,
-    DECIMAL_PRECISION,
-    ETH_GAS_COMPENSATION,
-    INITIAL_BASE_RATE,
-    INTEREST_RATE_ADJ_COOLDOWN,
-    MAX_ANNUAL_BATCH_MANAGEMENT_FEE,
-    MAX_ANNUAL_INTEREST_RATE,
-    MIN_ANNUAL_INTEREST_RATE,
-    MIN_ANNUAL_INTEREST_RATE,
-    MIN_BOLD_IN_SP,
-    MIN_DEBT,
-    MIN_INTEREST_RATE_CHANGE_PERIOD,
-    ONE_MINUTE,
-    ONE_YEAR,
-    REDEMPTION_BETA,
-    REDEMPTION_FEE_FLOOR,
-    REDEMPTION_MINUTE_DECAY_FACTOR,
-    SP_YIELD_SPLIT,
-    UPFRONT_INTEREST_PERIOD,
-    URGENT_REDEMPTION_BONUS
-} from "src/Dependencies/Constants.sol";
+uint256 constant DECIMAL_PRECISION = 1e18;
+uint256 constant _100pct = DECIMAL_PRECISION;
+uint256 constant _1pct = DECIMAL_PRECISION / 100;
+uint256 constant ETH_GAS_COMPENSATION = 0.0375 ether;
+uint256 constant COLL_GAS_COMPENSATION_DIVISOR = 200; // dividing by 200 yields 0.5%
+uint256 constant COLL_GAS_COMPENSATION_CAP = 2 ether; // Max coll gas compensation capped at 2 ETH
+uint256 constant MIN_DEBT = 2000e18;
+uint256 constant MIN_ANNUAL_INTEREST_RATE = _1pct / 2; // 0.5%
+uint256 constant MAX_ANNUAL_INTEREST_RATE = 250 * _1pct;
+uint128 constant MAX_ANNUAL_BATCH_MANAGEMENT_FEE = uint128(_100pct / 10); // 10%
+uint128 constant MIN_INTEREST_RATE_CHANGE_PERIOD = 1 hours; // only applies to batch managers / batched Troves
+uint256 constant REDEMPTION_FEE_FLOOR = _1pct / 2; // 0.5%
+uint256 constant REDEMPTION_MINUTE_DECAY_FACTOR = 998076443575628800;
+uint256 constant REDEMPTION_BETA = 1;
+uint256 constant INITIAL_BASE_RATE = _100pct; // 100% initial redemption rate
+uint256 constant URGENT_REDEMPTION_BONUS = 2e16; // 2%
+uint256 constant ONE_MINUTE = 1 minutes;
+uint256 constant ONE_YEAR = 365 days;
+uint256 constant UPFRONT_INTEREST_PERIOD = 7 days;
+uint256 constant INTEREST_RATE_ADJ_COOLDOWN = 7 days;
+uint256 constant SP_YIELD_SPLIT = 75 * _1pct; // 75%
+uint256 constant MIN_BOLD_IN_SP = 1e18;
 
 uint256 constant TIME_DELTA_MIN = 0;
 uint256 constant TIME_DELTA_MAX = ONE_YEAR;
@@ -3006,13 +3003,13 @@ contract InvariantsTestHandler is Assertions, BaseHandler, BaseMultiCollateralTe
                 return (selector, "AddRemoveManagers.NotOwnerNorRemoveManager()");
             }
 
-            if (selector == AddressesRegistry.InvalidMCR.selector) {
-                return (selector, "BorrowerOperations.InvalidMCR()");
-            }
+            // if (selector == AddressesRegistry.InvalidMCR.selector) {
+            //     return (selector, "BorrowerOperations.InvalidMCR()");
+            // }
 
-            if (selector == AddressesRegistry.InvalidSCR.selector) {
-                return (selector, "BorrowerOperations.InvalidSCR()");
-            }
+            // if (selector == AddressesRegistry.InvalidSCR.selector) {
+            //     return (selector, "BorrowerOperations.InvalidSCR()");
+            // }
 
             if (selector == BorrowerOperations.IsShutDown.selector) {
                 return (selector, "BorrowerOperations.IsShutDown()");

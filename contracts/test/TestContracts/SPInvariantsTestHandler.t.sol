@@ -16,15 +16,13 @@ import {StringFormatting} from "../Utils/StringFormatting.sol";
 import {TroveId} from "../Utils/TroveId.sol";
 import {BaseHandler} from "./BaseHandler.sol";
 
-import {
-    DECIMAL_PRECISION,
-    _1pct,
-    _100pct,
-    ETH_GAS_COMPENSATION,
-    COLL_GAS_COMPENSATION_DIVISOR,
-    MIN_ANNUAL_INTEREST_RATE,
-    MIN_BOLD_IN_SP
-} from "src/Dependencies/Constants.sol";
+uint256 constant DECIMAL_PRECISION = 1e18;
+uint256 constant _100pct = DECIMAL_PRECISION;
+uint256 constant _1pct = DECIMAL_PRECISION / 100;
+uint256 constant ETH_GAS_COMPENSATION = 0.0375 ether;
+uint256 constant COLL_GAS_COMPENSATION_DIVISOR = 200; // dividing by 200 yields 0.5%
+uint256 constant MIN_ANNUAL_INTEREST_RATE = _1pct / 2; // 0.5%
+uint256 constant MIN_BOLD_IN_SP = 1e18;
 
 using {mulDivCeil} for uint256;
 

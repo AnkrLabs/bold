@@ -13,7 +13,7 @@ contract RebasingBatchShares is DevTestSetup {
         // Open Trove
         priceFeed.setPrice(2000e18);
         // Extra Debt (irrelevant / Used to not use deal)
-        openTroveNoHints100pct(C, 100 ether, 100e21, MAX_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100 ether, 100e21, parameters.MAX_ANNUAL_INTEREST_RATE());
         vm.startPrank(C);
         boldToken.transfer(A, boldToken.balanceOf(C));
         vm.stopPrank();
@@ -22,9 +22,9 @@ contract RebasingBatchShares is DevTestSetup {
 
         // Open 2 troves so we get enough interest
         // 1 will be redeemed down to 1 wei
-        uint256 ATroveId = openTroveAndJoinBatchManager(A, 100 ether, MIN_DEBT, B, MAX_ANNUAL_INTEREST_RATE);
+        uint256 ATroveId = openTroveAndJoinBatchManager(A, 100 ether, parameters.MIN_DEBT(), B, parameters.MAX_ANNUAL_INTEREST_RATE());
         // Sock Puppet Trove | Opened second so we can redeem this one | We need to redeem this one so we can inflate the precision loss
-        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, MIN_DEBT, B, MAX_ANNUAL_INTEREST_RATE);
+        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, parameters.MIN_DEBT(), B, parameters.MAX_ANNUAL_INTEREST_RATE());
 
         // MUST accrue to rebase shares
         // Limit to one block so this attack is basically unavoidable
@@ -97,17 +97,17 @@ contract RebasingBatchShares is DevTestSetup {
             }
         }
         // 2391 blocks
-        console2.log("We have more than 2X MIN_DEBT of rebase it took us blocks:", y);
+        console2.log("We have more than 2X parameters.MIN_DEBT() of rebase it took us blocks:", y);
 
         _logTrovesAndBatch(B, BTroveId);
 
         // === 4: Free Loans === //
         // uint256 debtB4 = borrowerOperations.getEntireBranchDebt();
         // We should be able to open a new Trove now
-        //uint256 anotherATroveId = openTroveExpectRevert(A, x + 1, 100 ether, MIN_DEBT, B);
+        //uint256 anotherATroveId = openTroveExpectRevert(A, x + 1, 100 ether, parameters.MIN_DEBT(), B);
         //assertEq(anotherATroveId, 0);
         uint256 anotherATroveId =
-            openTroveAndJoinBatchManagerWithIndex(A, x + 1, 100 ether, MIN_DEBT, B, MAX_ANNUAL_INTEREST_RATE);
+            openTroveAndJoinBatchManagerWithIndex(A, x + 1, 100 ether, parameters.MIN_DEBT(), B, parameters.MAX_ANNUAL_INTEREST_RATE());
         assertGt(anotherATroveId, 0);
 
         /*
@@ -134,7 +134,7 @@ contract RebasingBatchShares is DevTestSetup {
     // Trigger interest fee by changing the fee to it -1
     function _triggerInterestRateFee() internal {
         // Add Fee?
-        vm.warp(block.timestamp + MIN_INTEREST_RATE_CHANGE_PERIOD);
+        vm.warp(block.timestamp + parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
         vm.startPrank(B);
         borrowerOperations.setBatchManagerAnnualInterestRate(1e18 - subTractor++, 0, 0, type(uint256).max);
         vm.stopPrank();
@@ -152,7 +152,7 @@ contract RebasingBatchShares is DevTestSetup {
         // Log ratio
         uint256 batchSharesRatio = batchShares > 0 ? batchDebt / batchShares : 0;
         console2.log("debt / shares ratio:  ", batchSharesRatio);
-        console2.log("Ratio too high?       ", batchSharesRatio > MAX_BATCH_SHARES_RATIO);
+        console2.log("Ratio too high?       ", batchSharesRatio > parameters.MAX_BATCH_SHARES_RATIO());
 
         // Trove
         /*
@@ -162,7 +162,7 @@ contract RebasingBatchShares is DevTestSetup {
         console2.log("Trove Shares:         ", troveBatchShares);
         uint256 troveSharesRatio = troveBatchShares > 0 ? troveData.entireDebt / troveBatchShares : 0;
         console2.log("Trove ratio:          ", troveSharesRatio);
-        console2.log("Ratio too high?       ", troveSharesRatio > MAX_BATCH_SHARES_RATIO);
+        console2.log("Ratio too high?       ", troveSharesRatio > parameters.MAX_BATCH_SHARES_RATIO());
         */
     }
 
@@ -171,7 +171,7 @@ contract RebasingBatchShares is DevTestSetup {
 
         // Open
         uint256 ATroveId =
-            openTroveAndJoinBatchManagerWithIndex(A, iteration + 1, 100 ether, MIN_DEBT, B, MAX_ANNUAL_INTEREST_RATE);
+            openTroveAndJoinBatchManagerWithIndex(A, iteration + 1, 100 ether, parameters.MIN_DEBT(), B, parameters.MAX_ANNUAL_INTEREST_RATE());
 
         // Add debt
         _addDebtAndEnsureItMintsShares(ATroveId, A, amt);
@@ -262,13 +262,13 @@ contract RebasingBatchShares is DevTestSetup {
 
         // === Generate Bold Balance on A === //
         priceFeed.setPrice(2000e18);
-        openTroveNoHints100pct(C, 100 ether, 100e21, MAX_ANNUAL_INTEREST_RATE);
+        openTroveNoHints100pct(C, 100 ether, 100e21, parameters.MAX_ANNUAL_INTEREST_RATE());
         vm.startPrank(C);
         boldToken.transfer(A, boldToken.balanceOf(C));
         vm.stopPrank();
 
         // B opens trove
-        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, MIN_DEBT - 2.3 ether, B, MAX_ANNUAL_INTEREST_RATE);
+        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, parameters.MIN_DEBT() - 2.3 ether, B, parameters.MAX_ANNUAL_INTEREST_RATE());
 
         if (WITH_INTEREST) {
             vm.warp(block.timestamp + 12);
@@ -314,18 +314,18 @@ contract RebasingBatchShares is DevTestSetup {
     function test_WhenBatchSharesRatioIsTooHigh_CanKickTroveFromBatch() external {
         registerBatchManager({
             _account: B,
-            _minInterestRate: uint128(MIN_ANNUAL_INTEREST_RATE),
-            _maxInterestRate: uint128(MAX_ANNUAL_INTEREST_RATE),
-            _currentInterestRate: uint128(MAX_ANNUAL_INTEREST_RATE),
-            _fee: MAX_ANNUAL_BATCH_MANAGEMENT_FEE,
-            _minInterestRateChangePeriod: MIN_INTEREST_RATE_CHANGE_PERIOD
+            _minInterestRate: uint128(parameters.MIN_ANNUAL_INTEREST_RATE()),
+            _maxInterestRate: uint128(parameters.MAX_ANNUAL_INTEREST_RATE()),
+            _currentInterestRate: uint128(parameters.MAX_ANNUAL_INTEREST_RATE()),
+            _fee: parameters.MAX_ANNUAL_BATCH_MANAGEMENT_FEE(),
+            _minInterestRateChangePeriod: parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()
         });
 
         // Placeholder Trove so that the batch isn't wiped out fully when we redeem the target Trove later
         uint256 placeholderTrove = openTroveAndJoinBatchManager({
             _troveOwner: C,
             _coll: 1_000_000 ether,
-            _debt: MIN_DEBT,
+            _debt: parameters.MIN_DEBT(),
             _batchAddress: B,
             _annualInterestRate: 0 // ignored
         });
@@ -334,7 +334,7 @@ contract RebasingBatchShares is DevTestSetup {
         uint256 targetTrove = openTroveAndJoinBatchManager({
             _troveOwner: A,
             _coll: 1_000_000 ether,
-            _debt: MIN_DEBT,
+            _debt: parameters.MIN_DEBT(),
             _batchAddress: B,
             _annualInterestRate: 0 // ignored
         });
@@ -346,29 +346,29 @@ contract RebasingBatchShares is DevTestSetup {
             _index: 1,
             _coll: 1_000_000 ether,
             _boldAmount: 10_000_000 ether,
-            _annualInterestRate: MAX_ANNUAL_INTEREST_RATE
+            _annualInterestRate: parameters.MAX_ANNUAL_INTEREST_RATE()
         });
 
         // Increase the batch:shares ratio past the limit
         for (uint256 i = 1;; ++i) {
-            skip(MIN_INTEREST_RATE_CHANGE_PERIOD);
-            setBatchInterestRate(B, MAX_ANNUAL_INTEREST_RATE - i % 2);
+            skip(parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
+            setBatchInterestRate(B, parameters.MAX_ANNUAL_INTEREST_RATE() - i % 2);
 
             (uint256 debt,,,,,,, uint256 shares) = troveManager.getBatch(B);
-            if (shares * MAX_BATCH_SHARES_RATIO < debt) break;
+            if (shares * parameters.MAX_BATCH_SHARES_RATIO() < debt) break;
 
             // Shouldn't be able to kick the Trove yet
             vm.expectRevert(BorrowerOperations.BatchSharesRatioTooLow.selector);
             borrowerOperations.kickFromBatch(targetTrove, 0, 0);
 
             // Keep debt low to minimize interest and maintain healthy TCR
-            repayBold(A, targetTrove, troveManager.getTroveEntireDebt(targetTrove) - MIN_DEBT);
-            repayBold(A, placeholderTrove, troveManager.getTroveEntireDebt(placeholderTrove) - MIN_DEBT);
+            repayBold(A, targetTrove, troveManager.getTroveEntireDebt(targetTrove) - parameters.MIN_DEBT());
+            repayBold(A, placeholderTrove, troveManager.getTroveEntireDebt(placeholderTrove) - parameters.MIN_DEBT());
         }
 
         // Make a zombie out of the target Trove
-        skip(MIN_INTEREST_RATE_CHANGE_PERIOD);
-        setBatchInterestRate(B, MIN_ANNUAL_INTEREST_RATE);
+        skip(parameters.MIN_INTEREST_RATE_CHANGE_PERIOD());
+        setBatchInterestRate(B, parameters.MIN_ANNUAL_INTEREST_RATE());
         redeem(A, troveManager.getTroveEntireDebt(targetTrove));
         assertTrue(troveManager.checkTroveIsZombie(targetTrove), "not a zombie");
 
@@ -378,15 +378,15 @@ contract RebasingBatchShares is DevTestSetup {
             _index: 0,
             _ICR: MCR,
             _debt: 100_000 ether,
-            _interestRate: MIN_ANNUAL_INTEREST_RATE
+            _interestRate: parameters.MIN_ANNUAL_INTEREST_RATE()
         });
 
         // Liquidate by redistribution
         priceFeed.setPrice(priceFeed.getPrice() * 99 / 100);
         liquidate(A, liquidatedTrove);
 
-        // The target Trove has more than MIN_DEBT
-        assertGeDecimal(troveManager.getTroveEntireDebt(targetTrove), MIN_DEBT, 18, "debt < MIN_DEBT");
+        // The target Trove has more than parameters.MIN_DEBT()
+        assertGeDecimal(troveManager.getTroveEntireDebt(targetTrove), parameters.MIN_DEBT(), 18, "debt < parameters.MIN_DEBT()");
 
         // Yet can't be put back into SortedTroves due to the debt:shares ratio
         vm.expectRevert(TroveManager.BatchSharesRatioTooHigh.selector);

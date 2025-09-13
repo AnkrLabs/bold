@@ -35,6 +35,7 @@ contract ZapperGasCompTest is DevTestSetup {
         TestDeployer.Zappers[] memory zappersArray;
         (contractsArray, collateralRegistry, boldToken,,, zappersArray) =
             deployer.deployAndConnectContracts(troveManagerParams, WETH);
+        parameters = collateralRegistry.parameters();
 
         // Set price feeds
         contractsArray[1].priceFeed.setPrice(2000e18);
@@ -84,7 +85,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         assertEq(troveNFT.ownerOf(troveId), A, "Wrong owner");
@@ -92,7 +93,7 @@ contract ZapperGasCompTest is DevTestSetup {
         assertEq(troveManager.getTroveEntireColl(troveId), collAmount, "Coll mismatch");
         assertGt(troveManager.getTroveEntireDebt(troveId), boldAmount, "Debt mismatch");
         assertEq(boldToken.balanceOf(A), boldAmount, "BOLD bal mismatch");
-        assertEq(A.balance, ethBalanceBefore - ETH_GAS_COMPENSATION, "ETH bal mismatch");
+        assertEq(A.balance, ethBalanceBefore - parameters.ETH_GAS_COMPENSATION(), "ETH bal mismatch");
         assertEq(collToken.balanceOf(A), collBalanceBefore - collAmount, "Coll bal mismatch");
     }
 
@@ -120,7 +121,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         assertEq(troveNFT.ownerOf(troveId), A, "Wrong owner");
@@ -128,7 +129,7 @@ contract ZapperGasCompTest is DevTestSetup {
         assertEq(troveManager.getTroveEntireColl(troveId), collAmount, "Coll mismatch");
         assertGt(troveManager.getTroveEntireDebt(troveId), boldAmount, "Debt mismatch");
         assertEq(boldToken.balanceOf(A), boldAmount, "BOLD bal mismatch");
-        assertEq(A.balance, ethBalanceBefore - ETH_GAS_COMPENSATION, "ETH bal mismatch");
+        assertEq(A.balance, ethBalanceBefore - parameters.ETH_GAS_COMPENSATION(), "ETH bal mismatch");
         assertEq(collToken.balanceOf(A), collBalanceBefore - collAmount, "Coll bal mismatch");
         assertEq(borrowerOperations.interestBatchManagerOf(troveId), B, "Wrong batch manager");
         (,,,,,,,, address tmBatchManagerAddress,) = troveManager.Troves(troveId);
@@ -156,8 +157,9 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
+        uint256 gasComp = parameters.ETH_GAS_COMPENSATION();
         vm.expectRevert("GCZ: Cannot choose interest if joining a batch");
-        gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        gasCompZapper.openTroveWithRawETH{value: gasComp}(params);
         vm.stopPrank();
     }
 
@@ -181,7 +183,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 collBalanceBefore = collToken.balanceOf(A);
@@ -215,7 +217,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 collBalanceBefore = collToken.balanceOf(A);
@@ -249,7 +251,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         vm.startPrank(A);
@@ -271,7 +273,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -279,7 +281,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         // Try to add a receiver for the zapper without remove manager
@@ -301,7 +303,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -309,7 +311,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 boldBalanceBeforeA = boldToken.balanceOf(A);
@@ -351,7 +353,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -359,7 +361,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 boldBalanceBeforeA = boldToken.balanceOf(A);
@@ -399,7 +401,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -407,7 +409,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         vm.startPrank(A);
@@ -437,7 +439,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -445,7 +447,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 boldBalanceBeforeA = boldToken.balanceOf(A);
@@ -486,7 +488,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -494,7 +496,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         vm.startPrank(A);
@@ -524,7 +526,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -532,7 +534,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 boldBalanceBeforeA = boldToken.balanceOf(A);
@@ -573,7 +575,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -581,7 +583,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         vm.startPrank(A);
@@ -612,7 +614,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -620,7 +622,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         // Add a remove manager for the zapper
@@ -664,7 +666,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount1,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -672,7 +674,7 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         vm.startPrank(A);
@@ -708,7 +710,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -716,13 +718,13 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         // open a 2nd trove so we can close the 1st one, and send Bold to account for interest and fee
         vm.startPrank(B);
-        deal(address(WETH), B, ETH_GAS_COMPENSATION);
-        WETH.approve(address(borrowerOperations), ETH_GAS_COMPENSATION);
+        deal(address(WETH), B, parameters.ETH_GAS_COMPENSATION());
+        WETH.approve(address(borrowerOperations), parameters.ETH_GAS_COMPENSATION());
         deal(address(collToken), B, 100 ether);
         collToken.approve(address(borrowerOperations), 100 ether);
         borrowerOperations.openTrove(
@@ -732,7 +734,7 @@ contract ZapperGasCompTest is DevTestSetup {
             10000e18, //boldAmount,
             0, // _upperHint
             0, // _lowerHint
-            MIN_ANNUAL_INTEREST_RATE, // annualInterestRate,
+            parameters.MIN_ANNUAL_INTEREST_RATE(), // annualInterestRate,
             10000e18, // upfrontFee
             address(0),
             address(0),
@@ -764,7 +766,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -772,13 +774,13 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         // open a 2nd trove so we can close the 1st one, and send Bold to account for interest and fee
         vm.startPrank(B);
-        deal(address(WETH), B, ETH_GAS_COMPENSATION);
-        WETH.approve(address(borrowerOperations), ETH_GAS_COMPENSATION);
+        deal(address(WETH), B, parameters.ETH_GAS_COMPENSATION());
+        WETH.approve(address(borrowerOperations), parameters.ETH_GAS_COMPENSATION());
         deal(address(collToken), B, 100 ether);
         collToken.approve(address(borrowerOperations), 100 ether);
         borrowerOperations.openTrove(
@@ -788,7 +790,7 @@ contract ZapperGasCompTest is DevTestSetup {
             10000e18, //boldAmount,
             0, // _upperHint
             0, // _lowerHint
-            MIN_ANNUAL_INTEREST_RATE, // annualInterestRate,
+            parameters.MIN_ANNUAL_INTEREST_RATE(), // annualInterestRate,
             10000e18, // upfrontFee
             address(0),
             address(0),
@@ -817,7 +819,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -825,20 +827,20 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 ethBalanceBefore = A.balance;
         uint256 collBalanceBefore = collToken.balanceOf(A);
         uint256 boldDebtBefore = troveManager.getTroveEntireDebt(troveId);
 
-        // Adjust trove: remove 1 ETH and try to repay 9k (only will repay ~8k, up to MIN_DEBT)
+        // Adjust trove: remove 1 ETH and try to repay 9k (only will repay ~8k, up to parameters.MIN_DEBT())
         vm.startPrank(A);
         boldToken.approve(address(gasCompZapper), type(uint256).max);
         gasCompZapper.adjustTrove(troveId, 1 ether, false, 9000e18, false, 0);
         vm.stopPrank();
 
-        assertEq(boldToken.balanceOf(A), boldAmount + MIN_DEBT - boldDebtBefore, "BOLD bal mismatch");
+        assertEq(boldToken.balanceOf(A), boldAmount + parameters.MIN_DEBT() - boldDebtBefore, "BOLD bal mismatch");
         assertEq(boldToken.balanceOf(address(gasCompZapper)), 0, "Zapper BOLD bal should be zero");
         assertEq(A.balance, ethBalanceBefore, "ETH bal mismatch");
         assertEq(address(gasCompZapper).balance, 0, "Zapper ETH bal should be zero");
@@ -857,7 +859,7 @@ contract ZapperGasCompTest is DevTestSetup {
             boldAmount: boldAmount,
             upperHint: 0,
             lowerHint: 0,
-            annualInterestRate: MIN_ANNUAL_INTEREST_RATE,
+            annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE(),
             batchManager: address(0),
             maxUpfrontFee: 1000e18,
             addManager: address(0),
@@ -865,19 +867,19 @@ contract ZapperGasCompTest is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: ETH_GAS_COMPENSATION}(params);
+        uint256 troveId = gasCompZapper.openTroveWithRawETH{value: parameters.ETH_GAS_COMPENSATION()}(params);
         vm.stopPrank();
 
         uint256 boldDebtBefore = troveManager.getTroveEntireDebt(troveId);
         uint256 collBalanceBefore = collToken.balanceOf(A);
 
-        // Adjust trove: try to repay 9k (only will repay ~8k, up to MIN_DEBT)
+        // Adjust trove: try to repay 9k (only will repay ~8k, up to parameters.MIN_DEBT())
         vm.startPrank(A);
         boldToken.approve(address(gasCompZapper), type(uint256).max);
         gasCompZapper.repayBold(troveId, 9000e18);
         vm.stopPrank();
 
-        assertEq(boldToken.balanceOf(A), boldAmount + MIN_DEBT - boldDebtBefore, "BOLD bal mismatch");
+        assertEq(boldToken.balanceOf(A), boldAmount + parameters.MIN_DEBT() - boldDebtBefore, "BOLD bal mismatch");
         assertEq(boldToken.balanceOf(address(gasCompZapper)), 0, "Zapper BOLD bal should be zero");
         assertEq(address(gasCompZapper).balance, 0, "Zapper ETH bal should be zero");
         assertEq(collToken.balanceOf(A), collBalanceBefore, "Coll bal mismatch");

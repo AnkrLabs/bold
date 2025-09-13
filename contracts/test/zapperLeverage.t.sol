@@ -136,6 +136,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
         TestDeployer deployer = new TestDeployer();
         TestDeployer.DeploymentResultMainnet memory result =
             deployer.deployAndConnectContractsMainnet(troveManagerParamsArray);
+        parameters = collateralRegistry.parameters();
         collateralRegistry = result.collateralRegistry;
         boldToken = result.boldToken;
         // Record contracts
@@ -347,7 +348,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
             receiver: address(0)
         });
         vm.startPrank(A);
-        vars.value = _inputParams.branch > 0 ? ETH_GAS_COMPENSATION : _inputParams.collAmount + ETH_GAS_COMPENSATION;
+        vars.value = _inputParams.branch > 0 ? parameters.ETH_GAS_COMPENSATION() : _inputParams.collAmount + parameters.ETH_GAS_COMPENSATION();
         _inputParams.leverageZapper.openLeveragedTroveWithRawETH{value: vars.value}(params);
         vars.troveId = addressToTroveIdThroughZapper(address(_inputParams.leverageZapper), A, _inputParams.index);
         vm.stopPrank();
@@ -416,7 +417,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
     function _registerBatchManager(address _account, uint256 _branch) internal {
         vm.startPrank(_account);
         contractsArray[_branch].borrowerOperations.registerBatchManager(
-            uint128(1e16), uint128(20e16), uint128(5e16), uint128(25e14), MIN_INTEREST_RATE_CHANGE_PERIOD
+            uint128(1e16), uint128(20e16), uint128(5e16), uint128(25e14), parameters.MIN_INTEREST_RATE_CHANGE_PERIOD()
         );
         vm.stopPrank();
     }
@@ -493,14 +494,14 @@ contract ZapperLeverageMainnet is DevTestSetup {
         );
         if (_branch > 0) {
             // LST
-            assertEq(A.balance, vars.ethBalanceBeforeA - ETH_GAS_COMPENSATION, "ETH bal mismatch");
+            assertEq(A.balance, vars.ethBalanceBeforeA - parameters.ETH_GAS_COMPENSATION(), "ETH bal mismatch");
             assertGe(
                 contractsArray[_branch].collToken.balanceOf(A),
                 vars.collBalanceBeforeA - vars.collAmount,
                 "Coll bal mismatch"
             );
         } else {
-            assertEq(A.balance, vars.ethBalanceBeforeA - ETH_GAS_COMPENSATION - vars.collAmount, "ETH bal mismatch");
+            assertEq(A.balance, vars.ethBalanceBeforeA - parameters.ETH_GAS_COMPENSATION() - vars.collAmount, "ETH bal mismatch");
             assertGe(contractsArray[_branch].collToken.balanceOf(A), vars.collBalanceBeforeA, "Coll bal mismatch");
         }
     }
@@ -1517,7 +1518,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
         uint256 _boldAmount,
         bool _lst
     ) internal returns (uint256) {
-        return openTrove(_zapper, _account, _index, _collAmount, _boldAmount, _lst, MIN_ANNUAL_INTEREST_RATE);
+        return openTrove(_zapper, _account, _index, _collAmount, _boldAmount, _lst, parameters.MIN_ANNUAL_INTEREST_RATE());
     }
 
     function openTrove(
@@ -1545,7 +1546,7 @@ contract ZapperLeverageMainnet is DevTestSetup {
         });
 
         vm.startPrank(_account);
-        uint256 value = _lst ? ETH_GAS_COMPENSATION : _collAmount + ETH_GAS_COMPENSATION;
+        uint256 value = _lst ? parameters.ETH_GAS_COMPENSATION() : _collAmount + parameters.ETH_GAS_COMPENSATION();
         uint256 troveId = _zapper.openTroveWithRawETH{value: value}(openParams);
         vm.stopPrank();
 
@@ -1584,12 +1585,12 @@ contract ZapperLeverageMainnet is DevTestSetup {
                 3e17,
                 "Coll bal mismatch"
             );
-            assertEq(A.balance, ethBalanceBefore + ETH_GAS_COMPENSATION, "ETH bal mismatch");
+            assertEq(A.balance, ethBalanceBefore + parameters.ETH_GAS_COMPENSATION(), "ETH bal mismatch");
         } else {
             assertEq(contractsArray[_branch].collToken.balanceOf(A), collBalanceBefore, "Coll bal mismatch");
             assertGe(A.balance, ethBalanceBefore, "ETH bal should not decrease");
             assertApproxEqAbs(
-                A.balance, ethBalanceBefore + collAmount + ETH_GAS_COMPENSATION - debtInColl, 3e17, "ETH bal mismatch"
+                A.balance, ethBalanceBefore + collAmount + parameters.ETH_GAS_COMPENSATION() - debtInColl, 3e17, "ETH bal mismatch"
             );
         }
     }

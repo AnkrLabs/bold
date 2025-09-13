@@ -9,9 +9,10 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
 
         vm.startPrank(G);
+        uint256 minInterest = parameters.MIN_ANNUAL_INTEREST_RATE();
         vm.expectRevert("ERC20: insufficient allowance");
         borrowerOperations.openTrove(
-            G, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            G, 0, 2e18, 2000e18, 0, 0, minInterest, 1000e18, address(0), address(0), address(0)
         );
         vm.stopPrank();
     }
@@ -21,9 +22,10 @@ contract BasicOps is DevTestSetup {
 
         vm.startPrank(G);
         collToken.approve(address(borrowerOperations), 2e18);
+        uint256 minInterest = parameters.MIN_ANNUAL_INTEREST_RATE();
         vm.expectRevert("ERC20: transfer amount exceeds balance");
         borrowerOperations.openTrove(
-            G, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            G, 0, 2e18, 2000e18, 0, 0, minInterest, 1000e18, address(0), address(0), address(0)
         );
         vm.stopPrank();
     }
@@ -35,7 +37,7 @@ contract BasicOps is DevTestSetup {
 
         vm.startPrank(A);
         borrowerOperations.openTrove(
-            A, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         trovesCount = troveManager.getTroveIdsCount();
@@ -46,7 +48,7 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
         vm.startPrank(A);
         borrowerOperations.openTrove(
-            A, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
         // Transfer some Bold to B so that B can close Trove accounting for interest and upfront fee
         boldToken.transfer(B, 100e18);
@@ -54,7 +56,7 @@ contract BasicOps is DevTestSetup {
 
         vm.startPrank(B);
         uint256 B_Id = borrowerOperations.openTrove(
-            B, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            B, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         uint256 trovesCount = troveManager.getTroveIdsCount();
@@ -73,7 +75,7 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
         vm.startPrank(A);
         uint256 A_Id = borrowerOperations.openTrove(
-            A, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         // Check Trove coll and debt
@@ -97,13 +99,13 @@ contract BasicOps is DevTestSetup {
 
         vm.startPrank(A);
         borrowerOperations.openTrove(
-            A, 0, 5e18, 5_000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 5e18, 5_000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
         vm.stopPrank();
 
         vm.startPrank(B);
         uint256 B_Id = borrowerOperations.openTrove(
-            B, 0, 5e18, 4_000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            B, 0, 5e18, 4_000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
         uint256 debt_1 = troveManager.getTroveDebt(B_Id);
         assertGt(debt_1, 0, "Debt cannot be zero");
@@ -134,13 +136,13 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
         vm.startPrank(A);
         uint256 A_Id = borrowerOperations.openTrove(
-            A, 0, 2e18, 2200e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2200e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
         vm.stopPrank();
 
         vm.startPrank(B);
         borrowerOperations.openTrove(
-            B, 0, 10e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            B, 0, 10e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         // Price drops
@@ -165,7 +167,7 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
         vm.startPrank(A);
         borrowerOperations.openTrove(
-            A, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         // A makes an SP deposit
@@ -187,7 +189,7 @@ contract BasicOps is DevTestSetup {
         priceFeed.setPrice(2000e18);
         vm.startPrank(A);
         borrowerOperations.openTrove(
-            A, 0, 2e18, 2000e18, 0, 0, MIN_ANNUAL_INTEREST_RATE, 1000e18, address(0), address(0), address(0)
+            A, 0, 2e18, 2000e18, 0, 0, parameters.MIN_ANNUAL_INTEREST_RATE(), 1000e18, address(0), address(0), address(0)
         );
 
         // A makes an SP deposit

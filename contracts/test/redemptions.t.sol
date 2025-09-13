@@ -409,10 +409,10 @@ contract Redemptions is DevTestSetup {
         assertEq(troveManager.lastZombieTroveId(), troveIDs.B, "Wrong last zombie trove pointer before");
 
         // Restore trove
-        adjustZombieTrove(B, troveIDs.B, 0, false, MIN_DEBT, true);
+        adjustZombieTrove(B, troveIDs.B, 0, false, parameters.MIN_DEBT(), true);
 
         // Check B is above min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT, "B debt should be above min");
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT(), "B debt should be above min");
 
         // Check last Zombie trove pointer
         assertEq(troveManager.lastZombieTroveId(), 0, "Wrong last zombie trove pointer after");
@@ -427,7 +427,7 @@ contract Redemptions is DevTestSetup {
         assertEq(troveManager.lastZombieTroveId(), troveIDs.B, "Wrong last zombie trove pointer before");
 
         // Restore trove
-        adjustZombieTrove(B, troveIDs.B, 0, false, MIN_DEBT, true);
+        adjustZombieTrove(B, troveIDs.B, 0, false, parameters.MIN_DEBT(), true);
         // fast-forward time a lot
         vm.warp(block.timestamp + 3650 days);
 
@@ -435,7 +435,7 @@ contract Redemptions is DevTestSetup {
         applyPendingDebt(E, troveIDs.B);
 
         // Check B is above min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT, "B debt should be above min");
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT(), "B debt should be above min");
 
         // Check last Zombie trove pointer
         assertEq(troveManager.lastZombieTroveId(), 0, "Wrong last zombie trove pointer after");
@@ -607,14 +607,14 @@ contract Redemptions is DevTestSetup {
 
         _redeemAndCreateZombieTrovesAAndB(troveIDs);
 
-        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
-        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
+        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
 
         // 100 years passes
         vm.warp(block.timestamp + 36500 days);
 
         assertEq(troveManager.getTroveEntireDebt(troveIDs.A), 0, "A debt should be 0");
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT, "B debt should be more than min");
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT(), "B debt should be more than min");
     }
 
     function testZombieTrovesCanReceiveRedistGainsThatBringThemAboveMIN_DEBT() public {
@@ -640,8 +640,8 @@ contract Redemptions is DevTestSetup {
         // assertFalse(troveManager.checkBelowCriticalThreshold(price));
         assertLt(troveManager.getCurrentICR(troveID_E, price), MCR);
 
-        assertLt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT);
-        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertLt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT());
+        assertLt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
 
         // A liquidates E
         liquidate(A, troveID_E);
@@ -650,8 +650,8 @@ contract Redemptions is DevTestSetup {
         assertTrue(troveManager.hasRedistributionGains(troveIDs.A));
         assertTrue(troveManager.hasRedistributionGains(troveIDs.B));
 
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT);
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT());
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
     }
 
     // --- Borrower ops on zombie troves ---
@@ -683,8 +683,8 @@ contract Redemptions is DevTestSetup {
         vm.warp(block.timestamp + 1 days);
 
         // Calculate how far below min debt each zombie Trove is
-        uint256 debtDelta_A = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.A);
-        uint256 debtDelta_B = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.B);
+        uint256 debtDelta_A = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.A);
+        uint256 debtDelta_B = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.B);
 
         assertGt(debtDelta_A, 0);
         assertGt(debtDelta_B, 0);
@@ -696,8 +696,8 @@ contract Redemptions is DevTestSetup {
         adjustZombieTrove(B, troveIDs.B, 0, false, debtDelta_A + surplusDebt, true);
 
         // Check they are above the min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT);
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT());
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
     }
 
     function testZombieTroveDrawingFreshDebtToAboveMIN_DEBTChangesStatusToActive() public {
@@ -708,8 +708,8 @@ contract Redemptions is DevTestSetup {
         vm.warp(block.timestamp + 1 days);
 
         // Calculate how far below min debt each zombie Trove is
-        uint256 debtDelta_A = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.A);
-        uint256 debtDelta_B = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.B);
+        uint256 debtDelta_A = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.A);
+        uint256 debtDelta_B = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.B);
 
         assertGt(debtDelta_A, 0);
         assertGt(debtDelta_B, 0);
@@ -721,8 +721,8 @@ contract Redemptions is DevTestSetup {
         adjustZombieTrove(B, troveIDs.B, 0, false, debtDelta_A + surplusDebt, true);
 
         // Check they are above the min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT);
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT());
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
 
         // Check A and B now have active status
         assertEq(uint8(troveManager.getTroveStatus(troveIDs.A)), uint8(ITroveManager.Status.active));
@@ -737,8 +737,8 @@ contract Redemptions is DevTestSetup {
         vm.warp(block.timestamp + 1 days);
 
         // Calculate how far below min debt each zombie Trove is
-        uint256 debtDelta_A = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.A);
-        uint256 debtDelta_B = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.B);
+        uint256 debtDelta_A = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.A);
+        uint256 debtDelta_B = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.B);
 
         assertGt(debtDelta_A, 0);
         assertGt(debtDelta_B, 0);
@@ -754,8 +754,8 @@ contract Redemptions is DevTestSetup {
         adjustZombieTrove(B, troveIDs.B, 0, false, debtDelta_A + surplusDebt, true);
 
         // Check they are above the min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT);
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT);
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT());
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT());
 
         // Check A and B are now in SortedTroves
         assertTrue(sortedTroves.contains(troveIDs.A));
@@ -773,8 +773,8 @@ contract Redemptions is DevTestSetup {
         assertGt(troveManager.calcTroveAccruedInterest(troveIDs.B), 0);
 
         // Calculate how far below min debt each zombie Trove is
-        uint256 debtDelta_A = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.A);
-        uint256 debtDelta_B = MIN_DEBT - troveManager.getTroveEntireDebt(troveIDs.B);
+        uint256 debtDelta_A = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.A);
+        uint256 debtDelta_B = parameters.MIN_DEBT() - troveManager.getTroveEntireDebt(troveIDs.B);
 
         assertGt(debtDelta_A, 0, "A delta should be positive");
         assertGt(debtDelta_B, 0, "B delta should be positive");
@@ -786,8 +786,8 @@ contract Redemptions is DevTestSetup {
         adjustZombieTrove(B, troveIDs.B, 0, false, debtDelta_A + surplusDebt, true);
 
         // Check they are above the min debt
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), MIN_DEBT, "A debt should be above min");
-        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), MIN_DEBT, "B debt should be above min");
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.A), parameters.MIN_DEBT(), "A debt should be above min");
+        assertGt(troveManager.getTroveEntireDebt(troveIDs.B), parameters.MIN_DEBT(), "B debt should be above min");
 
         // Check accrued interest reduced to 0
         assertEq(troveManager.calcTroveAccruedInterest(troveIDs.A), 0);
@@ -802,8 +802,8 @@ contract Redemptions is DevTestSetup {
         uint256 debtDeficiency = 37;
 
         // Calculate how much to borrow to get to *just* below min debt
-        (uint256 borrow_A,) = findAmountToBorrowWithAdjustTrove(troveIDs.A, MIN_DEBT - debtDeficiency);
-        (uint256 borrow_B,) = findAmountToBorrowWithAdjustTrove(troveIDs.B, MIN_DEBT - debtDeficiency);
+        (uint256 borrow_A,) = findAmountToBorrowWithAdjustTrove(troveIDs.A, parameters.MIN_DEBT() - debtDeficiency);
+        (uint256 borrow_B,) = findAmountToBorrowWithAdjustTrove(troveIDs.B, parameters.MIN_DEBT() - debtDeficiency);
 
         // A and B attempt to withdraw Bold, but not enough
         vm.expectRevert(BorrowerOperations.DebtBelowMin.selector);
@@ -880,7 +880,7 @@ contract Redemptions is DevTestSetup {
         borrowerOperations.addColl(troveIDs.A, collTopUp);
         vm.stopPrank();
 
-        // B attempts to repay and can't (since would leave Trove at debt  < MIN_DEBT)
+        // B attempts to repay and can't (since would leave Trove at debt  < parameters.MIN_DEBT())
         vm.startPrank(B);
         vm.expectRevert(BorrowerOperations.TroveNotActive.selector);
         borrowerOperations.addColl(troveIDs.B, collTopUp);
@@ -1006,9 +1006,9 @@ contract Redemptions is DevTestSetup {
         priceFeed.setPrice(2000e18);
 
         // A and B open batched troves, C opens regular trove
-        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, 10e21, B, MIN_ANNUAL_INTEREST_RATE);
-        uint256 ATroveId = openTroveAndJoinBatchManager(A, 100 ether, 10e21, B, MIN_ANNUAL_INTEREST_RATE);
-        uint256 CTroveId = openTroveNoHints100pct(C, 100 ether, 100e21, MIN_ANNUAL_INTEREST_RATE);
+        uint256 BTroveId = openTroveAndJoinBatchManager(B, 100 ether, 10e21, B, parameters.MIN_ANNUAL_INTEREST_RATE());
+        uint256 ATroveId = openTroveAndJoinBatchManager(A, 100 ether, 10e21, B, parameters.MIN_ANNUAL_INTEREST_RATE());
+        uint256 CTroveId = openTroveNoHints100pct(C, 100 ether, 100e21, parameters.MIN_ANNUAL_INTEREST_RATE());
 
         priceFeed.setPrice(1099e18);
 
@@ -1046,7 +1046,7 @@ contract Redemptions is DevTestSetup {
         uint256 BRecordedDebt = troveManager.getTroveDebt(BTroveId);
         assertApproxEqAbs(
             activePool.calcPendingAggInterest(),
-            (ARecordedDebt + BRecordedDebt) * MIN_ANNUAL_INTEREST_RATE / DECIMAL_PRECISION,
+            (ARecordedDebt + BRecordedDebt) * parameters.MIN_ANNUAL_INTEREST_RATE() / DECIMAL_PRECISION,
             1,
             "Pending debt mismatch"
         );
@@ -1058,7 +1058,7 @@ contract Redemptions is DevTestSetup {
             _index: 0,
             _coll: 1e4 ether,
             _boldAmount: 1e6 ether,
-            _annualInterestRate: MIN_ANNUAL_INTEREST_RATE
+            _annualInterestRate: parameters.MIN_ANNUAL_INTEREST_RATE()
         });
 
         uint256 initialBaseRate = collateralRegistry.baseRate();
@@ -1071,10 +1071,10 @@ contract Redemptions is DevTestSetup {
         uint256 finalBaseRate = collateralRegistry.baseRate();
 
         // In total, 119 minutes have passed, so we expect base rate to have
-        // decayed to REDEMPTION_MINUTE_DECAY_FACTOR^119 of its original value
+        // decayed to parameters.REDEMPTION_MINUTE_DECAY_FACTOR()^119 of its original value
         assertApproxEqAbsDecimal(
             finalBaseRate,
-            initialBaseRate * LiquityMath._decPow(REDEMPTION_MINUTE_DECAY_FACTOR, 119) / DECIMAL_PRECISION,
+            initialBaseRate * LiquityMath._decPow(parameters.REDEMPTION_MINUTE_DECAY_FACTOR(), 119) / DECIMAL_PRECISION,
             100,
             18,
             "wrong final base rate"

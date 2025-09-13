@@ -20,11 +20,11 @@ contract InterestRateBasic is DevTestSetup {
         assertEq(troveManager.getTroveLastDebtUpdateTime(addressToTroveId(A)), 0);
         assertEq(troveManager.getTroveLastDebtUpdateTime(addressToTroveId(B)), 0);
 
-        uint256 ATroveId = openTroveNoHints100pct(A, 2 ether, 2000e18, MIN_ANNUAL_INTEREST_RATE);
+        uint256 ATroveId = openTroveNoHints100pct(A, 2 ether, 2000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
         assertEq(troveManager.getTroveLastDebtUpdateTime(ATroveId), block.timestamp);
 
         vm.warp(block.timestamp + 1000);
-        uint256 BTroveId = openTroveNoHints100pct(B, 2 ether, 2000e18, MIN_ANNUAL_INTEREST_RATE);
+        uint256 BTroveId = openTroveNoHints100pct(B, 2 ether, 2000e18, parameters.MIN_ANNUAL_INTEREST_RATE());
         assertEq(troveManager.getTroveLastDebtUpdateTime(BTroveId), block.timestamp);
     }
 
@@ -32,7 +32,7 @@ contract InterestRateBasic is DevTestSetup {
         priceFeed.setPrice(2000e18);
 
         // Users A, B, C, D, E will open Troves with interest rates ascending in the alphabetical order of their names
-        uint256 interestRate_A = MIN_ANNUAL_INTEREST_RATE;
+        uint256 interestRate_A = parameters.MIN_ANNUAL_INTEREST_RATE();
         uint256 interestRate_B = 1e17;
         uint256 interestRate_C = 2e17;
         uint256 interestRate_D = 3e17;
@@ -122,8 +122,8 @@ contract InterestRateBasic is DevTestSetup {
         assertEq(troveManager.getTroveAnnualInterestRate(BTroveId), 5e17);
         assertEq(troveManager.getTroveAnnualInterestRate(CTroveId), 5e17);
 
-        changeInterestRateNoHints(A, ATroveId, MIN_ANNUAL_INTEREST_RATE);
-        assertEq(troveManager.getTroveAnnualInterestRate(ATroveId), MIN_ANNUAL_INTEREST_RATE);
+        changeInterestRateNoHints(A, ATroveId, parameters.MIN_ANNUAL_INTEREST_RATE());
+        assertEq(troveManager.getTroveAnnualInterestRate(ATroveId), parameters.MIN_ANNUAL_INTEREST_RATE());
 
         changeInterestRateNoHints(B, BTroveId, 6e17);
         assertEq(troveManager.getTroveAnnualInterestRate(BTroveId), 6e17);
@@ -166,7 +166,7 @@ contract InterestRateBasic is DevTestSetup {
         uint256 ATroveId = openTroveNoHints100pct(A, 2 ether, 2000e18, 5e17);
 
         // Wait for the cooldown to pass, so the adjustment will be free
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         (uint256 entireTroveDebt_1,,,,) = troveManager.getEntireDebtAndColl(ATroveId);
         assertGt(entireTroveDebt_1, 0);
@@ -177,7 +177,7 @@ contract InterestRateBasic is DevTestSetup {
         assertEq(entireTroveDebt_1, entireTroveDebt_2);
 
         // Wait less than the cooldown, so the adjustment will cost
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN / 2);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() / 2);
 
         (uint256 entireTroveDebt_3,,,,) = troveManager.getEntireDebtAndColl(ATroveId);
         assertGt(entireTroveDebt_3, entireTroveDebt_2);
@@ -189,7 +189,7 @@ contract InterestRateBasic is DevTestSetup {
         uint256 ATroveId = openTroveNoHints100pct(A, 2 ether, 2000e18, 5e17);
 
         // Wait for the cooldown to pass, so the adjustment will be free
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         uint256 recordedTroveDebt_1 = troveManager.getTroveDebt(ATroveId);
         assertGt(recordedTroveDebt_1, 0);
@@ -202,7 +202,7 @@ contract InterestRateBasic is DevTestSetup {
         assertEq(recordedTroveDebt_2, recordedTroveDebt_1 + accruedTroveInterest, "Rec debt + interest mismatch");
 
         // Wait less than the cooldown, so the adjustment will cost
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN / 2);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN() / 2);
 
         accruedTroveInterest = troveManager.calcTroveAccruedInterest(ATroveId);
         uint256 upfrontFee = changeInterestRateNoHints(A, ATroveId, 80e16);
@@ -242,7 +242,7 @@ contract InterestRateBasic is DevTestSetup {
         assertEq(sortedTroves.getPrev(ETroveId), 0); // head
 
         // C sets rate to 0.5%, moves to tail - expect [C:0.5%, A:10%, B:20%, D:40%, E:50%]
-        changeInterestRateNoHints(C, CTroveId, MIN_ANNUAL_INTEREST_RATE);
+        changeInterestRateNoHints(C, CTroveId, parameters.MIN_ANNUAL_INTEREST_RATE());
         assertEq(sortedTroves.getNext(CTroveId), 0);
         assertEq(sortedTroves.getPrev(CTroveId), ATroveId);
 

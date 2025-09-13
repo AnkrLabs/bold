@@ -1342,7 +1342,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest, 0);
-        uint256 expectedSpYield = SP_YIELD_SPLIT * pendingAggInterest / 1e18;
+        uint256 expectedSpYield = parameters.SP_YIELD_SPLIT() * pendingAggInterest / 1e18;
 
         // A trove gets poked, interest minted and yield paid to SP
         applyPendingDebt(B, troveIDs.A);
@@ -1357,7 +1357,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest, 0);
-        uint256 expectedSpYield = SP_YIELD_SPLIT * pendingAggInterest / 1e18;
+        uint256 expectedSpYield = parameters.SP_YIELD_SPLIT() * pendingAggInterest / 1e18;
 
         uint256 expectedShareOfReward_A = getShareofSPReward(A, expectedSpYield);
         uint256 expectedShareOfReward_B = getShareofSPReward(B, expectedSpYield);
@@ -1387,7 +1387,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_1, 0);
-        uint256 expectedSpYield_1 = SP_YIELD_SPLIT * pendingAggInterest_1 / 1e18;
+        uint256 expectedSpYield_1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_1 / 1e18;
 
         // A trove gets poked, interst minted and yield paid to SP
         applyPendingDebt(B, troveIDs.A);
@@ -1398,7 +1398,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_2 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_2, 0);
-        uint256 expectedSpYield_2 = SP_YIELD_SPLIT * pendingAggInterest_2 / 1e18;
+        uint256 expectedSpYield_2 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_2 / 1e18;
 
         // A trove gets poked, interest minted and yield paid to SP again
         applyPendingDebt(B, troveIDs.A);
@@ -1415,7 +1415,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_1, 0);
-        uint256 expectedSpYield_1 = SP_YIELD_SPLIT * pendingAggInterest_1 / 1e18;
+        uint256 expectedSpYield_1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_1 / 1e18;
 
         uint256 expectedShareOfReward1_A = getShareofSPReward(A, expectedSpYield_1);
         uint256 expectedShareOfReward1_B = getShareofSPReward(B, expectedSpYield_1);
@@ -1433,7 +1433,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_2 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_2, 0);
-        uint256 expectedSpYield_2 = SP_YIELD_SPLIT * pendingAggInterest_2 / 1e18;
+        uint256 expectedSpYield_2 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_2 / 1e18;
 
         uint256 expectedShareOfReward2_A = getShareofSPReward(A, expectedSpYield_2);
         uint256 expectedShareOfReward2_B = getShareofSPReward(B, expectedSpYield_2);
@@ -1462,7 +1462,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_1, 0);
-        uint256 expectedSpYield_1 = SP_YIELD_SPLIT * pendingAggInterest_1 / 1e18;
+        uint256 expectedSpYield_1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_1 / 1e18;
 
         uint256 expectedShareOfReward1_A = getShareofSPReward(A, expectedSpYield_1);
         uint256 expectedShareOfReward1_B = getShareofSPReward(B, expectedSpYield_1);
@@ -1494,7 +1494,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_2 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_2, 0);
-        uint256 expectedSpYield_2 = SP_YIELD_SPLIT * pendingAggInterest_2 / 1e18;
+        uint256 expectedSpYield_2 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_2 / 1e18;
 
         // Expected reward round 2 calculated with a different totalSPDeposits denominator
         uint256 expectedShareOfReward2_A = getShareofSPReward(A, expectedSpYield_2);
@@ -1529,7 +1529,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_0 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_0, 0);
-        uint256 expectedSpYield_0 = SP_YIELD_SPLIT * pendingAggInterest_0 / 1e18;
+        uint256 expectedSpYield_0 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_0 / 1e18;
 
         expectedShareOfReward[0].A = getShareofSPReward(A, expectedSpYield_0);
         expectedShareOfReward[0].B = getShareofSPReward(B, expectedSpYield_0);
@@ -1576,7 +1576,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_1, 0);
-        uint256 expectedSpYield_1 = SP_YIELD_SPLIT * pendingAggInterest_1 / 1e18;
+        uint256 expectedSpYield_1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_1 / 1e18;
 
         // Expected reward round 2 calculated with a different totalSPDeposits denominator. Expect A and B to earn a small share of
         // this reward.
@@ -1635,7 +1635,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_0 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_0, 0);
-        uint256 expectedSpYield_0 = SP_YIELD_SPLIT * pendingAggInterest_0 / 1e18;
+        uint256 expectedSpYield_0 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_0 / 1e18;
 
         expectedShareOfReward[0].A = getShareofSPReward(A, expectedSpYield_0);
         expectedShareOfReward[0].B = getShareofSPReward(B, expectedSpYield_0);
@@ -1673,7 +1673,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest_1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest_1, 0);
-        uint256 expectedSpYield_1 = SP_YIELD_SPLIT * pendingAggInterest_1 / 1e18;
+        uint256 expectedSpYield_1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest_1 / 1e18;
 
         // Expected reward round 2 calculated with a different totalSPDeposits denominator.
         expectedShareOfReward[1].A = getShareofSPReward(A, expectedSpYield_1);
@@ -1717,7 +1717,7 @@ contract SPTest is DevTestSetup {
 
         pendingAggInterest[0] = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest[0], 0);
-        expectedSpYield[0] = SP_YIELD_SPLIT * pendingAggInterest[0] / 1e18;
+        expectedSpYield[0] = parameters.SP_YIELD_SPLIT() * pendingAggInterest[0] / 1e18;
 
         expectedShareOfReward[0].A = getShareofSPReward(A, expectedSpYield[0]);
         expectedShareOfReward[0].B = getShareofSPReward(B, expectedSpYield[0]);
@@ -1761,7 +1761,7 @@ contract SPTest is DevTestSetup {
         troveIDs.E = openTroveNoHints100pct(E, coll_E, debtRequest_E, interestRate_E);
 
         // SP depositors benefit from the upfront fee paid by E, in addition to interest
-        expectedSpYield[1] = SP_YIELD_SPLIT * (pendingAggInterest[1] + upfrontFee_E) / 1e18;
+        expectedSpYield[1] = parameters.SP_YIELD_SPLIT() * (pendingAggInterest[1] + upfrontFee_E) / 1e18;
 
         // Expected reward round 2 calculated with a different totalSPDeposits denominator.
         expectedShareOfReward[1].A = getShareofSPReward(A, expectedSpYield[1]);
@@ -1793,7 +1793,7 @@ contract SPTest is DevTestSetup {
 
         pendingAggInterest[2] = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest[2], 0);
-        expectedSpYield[2] = SP_YIELD_SPLIT * pendingAggInterest[2] / 1e18;
+        expectedSpYield[2] = parameters.SP_YIELD_SPLIT() * pendingAggInterest[2] / 1e18;
 
         expectedShareOfReward[2].A = getShareofSPReward(A, expectedSpYield[2]);
         expectedShareOfReward[2].B = getShareofSPReward(B, expectedSpYield[2]);
@@ -1846,12 +1846,12 @@ contract SPTest is DevTestSetup {
         // Cheat 1: manipulate contract state to make value of P low
         vm.store(
             address(stabilityPool),
-            bytes32(uint256(13)), // 10th storage slot where P is stored
+            bytes32(uint256(14)), // 10th storage slot where P is stored
             bytes32(uint256(_cheatP))
         );
 
         // Confirm that storage slot 10 is set
-        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(13))));
+        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(14))));
         assertEq(storedVal, _cheatP, "value of slot 10 is not set");
         // Confirm that P specfically is set
         assertEq(stabilityPool.P(), _cheatP, "P is not set");
@@ -1891,12 +1891,12 @@ contract SPTest is DevTestSetup {
         // Cheat 1: manipulate contract state to make value of P low
         vm.store(
             address(stabilityPool),
-            bytes32(uint256(13)), // 10th storage slot where P is stored
+            bytes32(uint256(14)), // 10th storage slot where P is stored
             bytes32(uint256(_cheatP))
         );
 
         // Confirm that storage slot 10 is set
-        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(13))));
+        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(14))));
         assertEq(storedVal, _cheatP, "value of slot 10 is not set");
         // Confirm that P specfically is set
         assertEq(stabilityPool.P(), _cheatP, "P is not set");
@@ -1948,7 +1948,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest, 0);
-        testVars.expectedSpYield1 = SP_YIELD_SPLIT * pendingAggInterest / 1e18;
+        testVars.expectedSpYield1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest / 1e18;
 
         testVars.expectedShareOfYield1_C = getShareofSPReward(C, testVars.expectedSpYield1);
         testVars.expectedShareOfYield1_D = getShareofSPReward(D, testVars.expectedSpYield1);
@@ -1988,7 +1988,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest2 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest2, 0);
-        uint256 expectedSpYield2 = SP_YIELD_SPLIT * pendingAggInterest2 / 1e18;
+        uint256 expectedSpYield2 = parameters.SP_YIELD_SPLIT() * pendingAggInterest2 / 1e18;
 
         uint256 expectedShareOfYield2_E = getShareofSPReward(E, expectedSpYield2);
         assertGt(expectedShareOfYield2_E, 0);
@@ -2023,12 +2023,12 @@ contract SPTest is DevTestSetup {
         // Cheat 1: manipulate contract state to make value of P low
         vm.store(
             address(stabilityPool),
-            bytes32(uint256(13)), // 10th storage slot where P is stored
+            bytes32(uint256(14)), // 10th storage slot where P is stored
             bytes32(uint256(_cheatP))
         );
 
         // Confirm that storage slot 10 is set
-        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(13))));
+        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(14))));
         assertEq(storedVal, _cheatP, "value of slot 10 is not set");
         // Confirm that P specfically is set
         assertEq(stabilityPool.P(), _cheatP, "P is not set");
@@ -2085,7 +2085,7 @@ contract SPTest is DevTestSetup {
 
         uint256 pendingAggInterest1 = activePool.calcPendingAggInterest();
         assertGt(pendingAggInterest1, 0);
-        uint256 expectedSpYield1 = SP_YIELD_SPLIT * pendingAggInterest1 / 1e18;
+        uint256 expectedSpYield1 = parameters.SP_YIELD_SPLIT() * pendingAggInterest1 / 1e18;
 
         testVars.expectedShareOfYield1_A = getShareofSPReward(A, expectedSpYield1);
         testVars.expectedShareOfYield1_B = getShareofSPReward(B, expectedSpYield1);
@@ -2158,12 +2158,12 @@ contract SPTest is DevTestSetup {
         // Cheat 1: manipulate contract state to make value of P low
         vm.store(
             address(stabilityPool),
-            bytes32(uint256(13)), // 10th storage slot where P is stored
+            bytes32(uint256(14)), // 10th storage slot where P is stored
             bytes32(uint256(_cheatP))
         );
 
         // Confirm that storage slot 10 is set
-        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(13))));
+        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(14))));
         assertEq(storedVal, _cheatP, "value of slot 10 is not set");
         // Confirm that P specfically is set
         console2.log(stabilityPool.P(), "stabilityPool.P()");
@@ -2201,12 +2201,12 @@ contract SPTest is DevTestSetup {
         // Cheat 1: manipulate contract state to make value of P low
         vm.store(
             address(stabilityPool),
-            bytes32(uint256(13)), // 10th storage slot where P is stored
+            bytes32(uint256(14)), // 10th storage slot where P is stored
             bytes32(uint256(_cheatP))
         );
 
         // Confirm that storage slot 10 is set
-        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(13))));
+        uint256 storedVal = uint256(vm.load(address(stabilityPool), bytes32(uint256(14))));
         assertEq(storedVal, _cheatP, "value of slot 10 is not set");
         // Confirm that P specfically is set
         assertEq(stabilityPool.P(), _cheatP, "P is not set");

@@ -181,7 +181,7 @@ contract TroveEventsTest is EventsTest, ITroveEvents {
     function test_AdjustTroveInterestRateEmitsTroveUpdated() external {
         (uint256 troveId,) = openTroveHelper(A, 0, 100 ether, 10_000 ether, 0.01 ether);
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         uint256 coll = troveManager.getTroveEntireColl(troveId);
         uint256 debt = troveManager.getTroveEntireDebt(troveId);
@@ -207,7 +207,7 @@ contract TroveEventsTest is EventsTest, ITroveEvents {
     function test_AdjustTroveInterestRateEmitsTroveOperation() external {
         (uint256 troveId,) = openTroveHelper(A, 0, 100 ether, 10_000 ether, 0.01 ether);
 
-        vm.warp(block.timestamp + INTEREST_RATE_ADJ_COOLDOWN);
+        vm.warp(block.timestamp + parameters.INTEREST_RATE_ADJ_COOLDOWN());
 
         uint256 newInterestRate = 0.02 ether;
 
@@ -400,7 +400,7 @@ contract TroveEventsTest is EventsTest, ITroveEvents {
         LiquidationParams memory l;
         l.collRedistributed = liquidatedColl;
         l.debtRedistributed = liquidatedDebt;
-        l.ethGasCompensation = ETH_GAS_COMPENSATION;
+        l.ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
 
         vm.expectEmit();
         emit Liquidation(
@@ -520,9 +520,9 @@ contract TroveEventsTest is EventsTest, ITroveEvents {
             l.debtOffsetBySP = Math.min(liquidatedDebt[i], boldInSP - t.debtOffsetBySP - 1e18);
             l.debtRedistributed = liquidatedDebt[i] - l.debtOffsetBySP;
 
-            l.ethGasCompensation = ETH_GAS_COMPENSATION;
+            l.ethGasCompensation = parameters.ETH_GAS_COMPENSATION();
             uint256 collToOffset = liquidatedColl[i] * l.debtOffsetBySP / liquidatedDebt[i];
-            collRemaining -= l.collGasCompensation = collToOffset / COLL_GAS_COMPENSATION_DIVISOR;
+            collRemaining -= l.collGasCompensation = collToOffset / parameters.COLL_GAS_COMPENSATION_DIVISOR();
 
             collRemaining -= l.collSentToSP = Math.min(
                 collToOffset - l.collGasCompensation,

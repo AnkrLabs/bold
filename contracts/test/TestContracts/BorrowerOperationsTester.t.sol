@@ -11,7 +11,7 @@ for testing the parent's internal functions. */
 contract BorrowerOperationsTester is BorrowerOperations, IBorrowerOperationsTester {
 
     function get_CCR() external view returns (uint256) {
-        return CCR;
+        return parameters.CCR(address(collToken));
     }
 
     function getCollToken() external view returns (IERC20Upgradeable) {

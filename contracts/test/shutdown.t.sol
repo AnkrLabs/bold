@@ -36,6 +36,7 @@ contract ShutdownTest is DevTestSetup {
         TestDeployer.LiquityContractsDev[] memory _contractsArray;
         (_contractsArray, collateralRegistry, boldToken,,, WETH,) =
             deployer.deployAndConnectContractsMultiColl(troveManagerParamsArray);
+        parameters = collateralRegistry.parameters();
         // Unimplemented feature (...):Copying of type struct LiquityContracts memory[] memory to storage not yet supported.
         for (uint256 c = 0; c < NUM_COLLATERALS; c++) {
             contractsArray.push(_contractsArray[c]);
@@ -455,7 +456,7 @@ contract ShutdownTest is DevTestSetup {
         assertEq(
             contractsArray[0].collToken.balanceOf(A),
             collBalanceBefore
-                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS)
+                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS())
                     / DECIMAL_PRECISION,
             "Coll balance mismatch"
         );
@@ -484,7 +485,7 @@ contract ShutdownTest is DevTestSetup {
         assertEq(
             boldToken.balanceOf(A),
             boldBalanceBefore
-                - 11e18 * price / DECIMAL_PRECISION * DECIMAL_PRECISION / (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS),
+                - 11e18 * price / DECIMAL_PRECISION * DECIMAL_PRECISION / (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS()),
             "Bold balance mismatch"
         );
         assertEq(contractsArray[0].collToken.balanceOf(A), collBalanceBefore + 11e18, "Coll balance mismatch");
@@ -515,7 +516,7 @@ contract ShutdownTest is DevTestSetup {
         assertEq(
             contractsArray[0].collToken.balanceOf(A),
             collBalanceBefore
-                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS)
+                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS())
                     / DECIMAL_PRECISION,
             "Coll balance mismatch"
         );
@@ -547,7 +548,7 @@ contract ShutdownTest is DevTestSetup {
         assertApproximatelyEqual(
             contractsArray[0].collToken.balanceOf(A),
             collBalanceBefore
-                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS)
+                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS())
                     / DECIMAL_PRECISION,
             1, // 1 wei tolerance
             "Coll balance mismatch"
@@ -578,7 +579,7 @@ contract ShutdownTest is DevTestSetup {
         assertEq(
             contractsArray[0].collToken.balanceOf(A),
             collBalanceBefore
-                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS)
+                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS())
                     / DECIMAL_PRECISION,
             "Coll balance mismatch"
         );
@@ -609,7 +610,7 @@ contract ShutdownTest is DevTestSetup {
         assertApproximatelyEqual(
             contractsArray[0].collToken.balanceOf(A),
             collBalanceBefore
-                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + URGENT_REDEMPTION_BONUS)
+                + redemptionAmount * DECIMAL_PRECISION / price * (DECIMAL_PRECISION + parameters.URGENT_REDEMPTION_BONUS())
                     / DECIMAL_PRECISION,
             1, // 1 wei tolerance
             "Coll balance mismatch"
