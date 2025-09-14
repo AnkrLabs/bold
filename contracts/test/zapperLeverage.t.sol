@@ -136,8 +136,8 @@ contract ZapperLeverageMainnet is DevTestSetup {
         TestDeployer deployer = new TestDeployer();
         TestDeployer.DeploymentResultMainnet memory result =
             deployer.deployAndConnectContractsMainnet(troveManagerParamsArray);
-        parameters = collateralRegistry.parameters();
         collateralRegistry = result.collateralRegistry;
+        parameters = collateralRegistry.parameters();
         boldToken = result.boldToken;
         // Record contracts
         baseZapperArray.push(result.zappersArray[0].wethZapper);

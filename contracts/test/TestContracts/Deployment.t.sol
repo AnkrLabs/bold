@@ -396,7 +396,9 @@ contract TestDeployer is MetadataDeployment {
             _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION,
             0
         ));
-        bytes32 tmSALT = keccak256(abi.encode("CDP", tmITER));
+        // creationCode is same for multiple branches since no unique constructor params, thus tmITER
+        bytes32 tmSALT = keccak256(abi.encode(SALT, tmITER));
+        // The reason we add addressRegistry address is because TroveManagerTester has constructor with 1 param
         address troveManagerAddress = getAddress(
             address(this), getBytecode(type(TroveManagerTester).creationCode, address(addressesRegistry)), tmSALT
         );
@@ -425,13 +427,12 @@ contract TestDeployer is MetadataDeployment {
         contracts.interestRouter = new MockInterestRouter();
 
         // Deploy Metadata
-        bytes32 bSALT = keccak256(abi.encode("bCDP", bITER));
+        bytes32 bSALT = keccak256(abi.encode(SALT, bITER));
         MetadataNFT metadataNFT = deployMetadata(bSALT);
         addresses.metadataNFT = getAddress(
             address(this), abi.encodePacked(type(MetadataNFT).creationCode), bSALT
         );
         iterators[addresses.metadataNFT] = bSALT;
-        bITER++;
         assert(address(metadataNFT) == addresses.metadataNFT);
 
         // Pre-calc addresses
@@ -516,6 +517,8 @@ contract TestDeployer is MetadataDeployment {
         assert(address(contracts.pools.collSurplusPool) == addresses.collSurplusPool);
         assert(address(contracts.sortedTroves) == addresses.sortedTroves);
 
+        bITER++;
+
         // Connect contracts
         _boldToken.setBranchAddresses(
             address(contracts.troveManager),
@@ -567,34 +570,34 @@ contract TestDeployer is MetadataDeployment {
         address troveManagerAddress;
 
         // Deploy Bold
-        vars.bytecode = abi.encodePacked(type(BoldToken).creationCode, abi.encode(address(this)));
+        vars.bytecode = abi.encodePacked(type(BoldToken).creationCode);
         vars.boldTokenAddress = getAddress(address(this), vars.bytecode, SALT);
         result.boldToken = new BoldToken{salt: SALT}();
         BoldToken(address(result.boldToken)).initialize(address(this));
         assert(address(result.boldToken) == vars.boldTokenAddress);
 
+        // Deploy parameters
+        result.parameters = IParameters(address(new Parameters()));
+        Parameters(address(result.parameters)).initialize(address(this));
+
         // WETH
         IWETH WETH = IWETH(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
         vars.collaterals[0] = WETH;
         (vars.addressesRegistries[0], troveManagerAddress) =
-            _deployAddressesRegistryMainnet(_troveManagerParamsArray[0]);
+            _deployAddressesRegistryMainnet(_troveManagerParamsArray[0], result.parameters, address(WETH));
         vars.troveManagers[0] = ITroveManager(troveManagerAddress);
 
         // RETH
         vars.collaterals[1] = IERC20MetadataUpgradeable(0xae78736Cd615f374D3085123A210448E74Fc6393);
         (vars.addressesRegistries[1], troveManagerAddress) =
-            _deployAddressesRegistryMainnet(_troveManagerParamsArray[1]);
+            _deployAddressesRegistryMainnet(_troveManagerParamsArray[1], result.parameters, address(vars.collaterals[1]));
         vars.troveManagers[1] = ITroveManager(troveManagerAddress);
 
         // WSTETH
         vars.collaterals[2] = IERC20MetadataUpgradeable(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
         (vars.addressesRegistries[2], troveManagerAddress) =
-            _deployAddressesRegistryMainnet(_troveManagerParamsArray[2]);
+            _deployAddressesRegistryMainnet(_troveManagerParamsArray[2], result.parameters, address(vars.collaterals[2]));
         vars.troveManagers[2] = ITroveManager(troveManagerAddress);
-
-        // Deploy parameters
-        result.parameters = IParameters(address(new Parameters()));
-        Parameters(address(result.parameters)).initialize(address(this));
 
         // Deploy registry and register the TMs
         result.collateralRegistry = new CollateralRegistryTester();
@@ -627,7 +630,7 @@ contract TestDeployer is MetadataDeployment {
         result.boldToken.setCollateralRegistry(address(result.collateralRegistry));
     }
 
-    function _deployAddressesRegistryMainnet(TroveManagerParams memory _troveManagerParams)
+    function _deployAddressesRegistryMainnet(TroveManagerParams memory _troveManagerParams, IParameters _p, address _collateral)
         internal
         returns (IAddressesRegistry, address)
     {
@@ -635,8 +638,22 @@ contract TestDeployer is MetadataDeployment {
         AddressesRegistry(address(addressesRegistry)).initialize(
             address(this)
         );
+        _p.setBranchParams(IParameters.BranchParams(
+            _collateral,
+            _troveManagerParams.CCR,
+            _troveManagerParams.MCR,
+            _troveManagerParams.SCR,
+            _troveManagerParams.BCR,
+            _troveManagerParams.LIQUIDATION_PENALTY_SP,
+            _troveManagerParams.LIQUIDATION_PENALTY_REDISTRIBUTION,
+            0
+        ));
+        // creationCode is same for multiple branches since no unique constructor params, thus tmITER
+        bytes32 tmSALT = keccak256(abi.encode(SALT, tmITER));
         address troveManagerAddress =
-            getAddress(address(this), abi.encodePacked(type(TroveManager).creationCode), SALT);
+            getAddress(address(this), abi.encodePacked(type(TroveManager).creationCode), tmSALT);
+        iterators[troveManagerAddress] = tmSALT;
+        tmITER++;
 
         return (addressesRegistry, troveManagerAddress);
     }
@@ -653,39 +670,41 @@ contract TestDeployer is MetadataDeployment {
         contracts.addressesRegistry = _params.addressesRegistry;
 
         // Deploy Metadata
-        MetadataNFT metadataNFT = deployMetadata(SALT);
+        bytes32 bSALT = keccak256(abi.encode(SALT, bITER));
+        MetadataNFT metadataNFT = deployMetadata(bSALT);
         addresses.metadataNFT = getAddress(
-            address(this), abi.encodePacked(type(MetadataNFT).creationCode), SALT
+            address(this), abi.encodePacked(type(MetadataNFT).creationCode), bSALT
         );
+        iterators[addresses.metadataNFT] = bSALT;
         assert(address(metadataNFT) == addresses.metadataNFT);
 
         // Pre-calc addresses
         addresses.borrowerOperations = getAddress(
             address(this),
             abi.encodePacked(type(BorrowerOperationsTester).creationCode),
-            SALT
+            bSALT
         );
         addresses.troveManager = _params.troveManagerAddress;
         addresses.troveNFT = getAddress(
-            address(this), abi.encodePacked(type(TroveNFT).creationCode), SALT
+            address(this), abi.encodePacked(type(TroveNFT).creationCode), bSALT
         );
         addresses.stabilityPool = getAddress(
-            address(this), abi.encodePacked(type(StabilityPool).creationCode), SALT
+            address(this), abi.encodePacked(type(StabilityPool).creationCode), bSALT
         );
         addresses.activePool = getAddress(
-            address(this), abi.encodePacked(type(ActivePool).creationCode), SALT
+            address(this), abi.encodePacked(type(ActivePool).creationCode), bSALT
         );
         addresses.defaultPool = getAddress(
-            address(this), abi.encodePacked(type(DefaultPool).creationCode), SALT
+            address(this), abi.encodePacked(type(DefaultPool).creationCode), bSALT
         );
         addresses.gasPool = getAddress(
-            address(this), abi.encodePacked(type(GasPool).creationCode), SALT
+            address(this), abi.encodePacked(type(GasPool).creationCode), bSALT
         );
         addresses.collSurplusPool = getAddress(
-            address(this), abi.encodePacked(type(CollSurplusPool).creationCode), SALT
+            address(this), abi.encodePacked(type(CollSurplusPool).creationCode), bSALT
         );
         addresses.sortedTroves = getAddress(
-            address(this), abi.encodePacked(type(SortedTroves).creationCode), SALT
+            address(this), abi.encodePacked(type(SortedTroves).creationCode), bSALT
         );
 
         contracts.priceFeed =
@@ -716,23 +735,23 @@ contract TestDeployer is MetadataDeployment {
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
-        contracts.borrowerOperations = new BorrowerOperationsTester{salt: SALT}();
+        contracts.borrowerOperations = new BorrowerOperationsTester{salt: bSALT}();
         BorrowerOperationsTester(address(contracts.borrowerOperations)).initialize(contracts.addressesRegistry);
-        contracts.troveManager = new TroveManager{salt: SALT}();
+        contracts.troveManager = new TroveManager{salt: bSALT}();
         TroveManager(address(contracts.troveManager)).initialize(contracts.addressesRegistry);
-        contracts.troveNFT = new TroveNFT{salt: SALT}();
+        contracts.troveNFT = new TroveNFT{salt: bSALT}();
         TroveNFT(address(contracts.troveNFT)).initialize(contracts.addressesRegistry);
-        contracts.stabilityPool = new StabilityPool{salt: SALT}();
+        contracts.stabilityPool = new StabilityPool{salt: bSALT}();
         StabilityPool(address(contracts.stabilityPool)).initialize(contracts.addressesRegistry);
-        contracts.activePool = new ActivePool{salt: SALT}();
+        contracts.activePool = new ActivePool{salt: bSALT}();
         ActivePool(address(contracts.activePool)).initialize(contracts.addressesRegistry);
-        contracts.defaultPool = new DefaultPool{salt: SALT}();
+        contracts.defaultPool = new DefaultPool{salt: bSALT}();
         DefaultPool(address(contracts.defaultPool)).initialize(contracts.addressesRegistry);
-        contracts.gasPool = new GasPool{salt: SALT}();
+        contracts.gasPool = new GasPool{salt: bSALT}();
         GasPool(address(contracts.gasPool)).initialize(contracts.addressesRegistry);
-        contracts.collSurplusPool = new CollSurplusPool{salt: SALT}();
+        contracts.collSurplusPool = new CollSurplusPool{salt: bSALT}();
         CollSurplusPool(address(contracts.collSurplusPool)).initialize(contracts.addressesRegistry);
-        contracts.sortedTroves = new SortedTroves{salt: SALT}();
+        contracts.sortedTroves = new SortedTroves{salt: bSALT}();
         SortedTroves(address(contracts.sortedTroves)).initialize(contracts.addressesRegistry);
 
         assert(address(contracts.borrowerOperations) == addresses.borrowerOperations);
@@ -744,6 +763,8 @@ contract TestDeployer is MetadataDeployment {
         assert(address(contracts.gasPool) == addresses.gasPool);
         assert(address(contracts.collSurplusPool) == addresses.collSurplusPool);
         assert(address(contracts.sortedTroves) == addresses.sortedTroves);
+
+        bITER++;
 
         // Connect contracts
         _params.boldToken.setBranchAddresses(
