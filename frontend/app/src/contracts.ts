@@ -5,15 +5,8 @@ import { ActivePool } from "@/src/abi/ActivePool";
 import { BorrowerOperations } from "@/src/abi/BorrowerOperations";
 import { CollateralRegistry } from "@/src/abi/CollateralRegistry";
 import { CollSurplusPool } from "@/src/abi/CollSurplusPool";
-import { DebtInFrontHelper } from "@/src/abi/DebtInFrontHelper";
 import { DefaultPool } from "@/src/abi/DefaultPool";
-import { ExchangeHelpers } from "@/src/abi/ExchangeHelpers";
-import { Governance } from "@/src/abi/Governance";
 import { HintHelpers } from "@/src/abi/HintHelpers";
-import { LeverageLSTZapper } from "@/src/abi/LeverageLSTZapper";
-import { LeverageWETHZapper } from "@/src/abi/LeverageWETHZapper";
-import { LqtyStaking } from "@/src/abi/LqtyStaking";
-import { LqtyToken } from "@/src/abi/LqtyToken";
 import { MultiTroveGetter } from "@/src/abi/MultiTroveGetter";
 import { PriceFeed } from "@/src/abi/PriceFeed";
 import { SortedTroves } from "@/src/abi/SortedTroves";
@@ -23,36 +16,20 @@ import { TroveNFT } from "@/src/abi/TroveNFT";
 import {
   CONTRACT_BOLD_TOKEN,
   CONTRACT_COLLATERAL_REGISTRY,
-  CONTRACT_DEBT_IN_FRONT_HELPER,
-  CONTRACT_EXCHANGE_HELPERS,
-  CONTRACT_GOVERNANCE,
   CONTRACT_HINT_HELPERS,
-  CONTRACT_LQTY_STAKING,
-  CONTRACT_LQTY_TOKEN,
-  CONTRACT_LUSD_TOKEN,
   CONTRACT_MULTI_TROVE_GETTER,
   CONTRACT_WETH,
   ENV_BRANCHES,
 } from "@/src/env";
-import { erc20Abi, zeroAddress } from "viem";
+import { erc20Abi } from "viem";
 
 const protocolAbis = {
   BoldToken: erc20Abi,
   CollateralRegistry,
-  DebtInFrontHelper,
-  ExchangeHelpers,
-  Governance,
   HintHelpers,
-  LqtyStaking,
-  LqtyToken,
-  LusdToken: erc20Abi,
   MultiTroveGetter,
   WETH: erc20Abi,
 } as const;
-
-const BorrowerOperationsErrorsAbi = BorrowerOperations.filter(
-  (f) => f.type === "error",
-);
 
 const collateralAbis = {
   ActivePool,
@@ -60,14 +37,6 @@ const collateralAbis = {
   CollSurplusPool,
   CollToken: erc20Abi,
   DefaultPool,
-  LeverageLSTZapper: [
-    ...LeverageLSTZapper,
-    ...BorrowerOperationsErrorsAbi,
-  ],
-  LeverageWETHZapper: [
-    ...LeverageWETHZapper,
-    ...BorrowerOperationsErrorsAbi,
-  ],
   PriceFeed: PriceFeed.map((f) => (
     f.name !== "fetchPrice" ? f : {
       ...f,
@@ -120,16 +89,7 @@ export const CONTRACTS: Contracts = {
     abi: abis.CollateralRegistry,
     address: CONTRACT_COLLATERAL_REGISTRY,
   },
-  DebtInFrontHelper: { abi: abis.DebtInFrontHelper, address: CONTRACT_DEBT_IN_FRONT_HELPER },
-  Governance: { abi: abis.Governance, address: CONTRACT_GOVERNANCE },
-  ExchangeHelpers: {
-    abi: abis.ExchangeHelpers,
-    address: CONTRACT_EXCHANGE_HELPERS,
-  },
   HintHelpers: { abi: abis.HintHelpers, address: CONTRACT_HINT_HELPERS },
-  LqtyStaking: { abi: abis.LqtyStaking, address: CONTRACT_LQTY_STAKING },
-  LqtyToken: { abi: abis.LqtyToken, address: CONTRACT_LQTY_TOKEN },
-  LusdToken: { abi: abis.LusdToken, address: CONTRACT_LUSD_TOKEN },
   MultiTroveGetter: {
     abi: abis.MultiTroveGetter,
     address: CONTRACT_MULTI_TROVE_GETTER,
@@ -151,14 +111,6 @@ export const CONTRACTS: Contracts = {
       },
       CollToken: { address: contracts.COLL_TOKEN, abi: abis.CollToken },
       DefaultPool: { address: contracts.DEFAULT_POOL, abi: abis.DefaultPool },
-      LeverageLSTZapper: {
-        address: symbol === "ETH" ? zeroAddress : contracts.LEVERAGE_ZAPPER,
-        abi: abis.LeverageLSTZapper,
-      },
-      LeverageWETHZapper: {
-        address: symbol === "ETH" ? contracts.LEVERAGE_ZAPPER : zeroAddress,
-        abi: abis.LeverageWETHZapper,
-      },
       PriceFeed: { address: contracts.PRICE_FEED, abi: abis.PriceFeed },
       SortedTroves: { address: contracts.SORTED_TROVES, abi: abis.SortedTroves },
       StabilityPool: {

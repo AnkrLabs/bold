@@ -229,7 +229,8 @@ export function Dropdown({
         )}
         style={customButton_ ? {} : {
           height: size === "small" ? 32 : 40,
-          fontSize: size === "small" ? 16 : 24,
+          fontSize: size === "small" ? 16 : 20,
+          fontWeight: 400,
         }}
       >
         {customButton_ ?? (
@@ -242,15 +243,16 @@ export function Dropdown({
                 padding: "0 10px 0 16px",
                 height: "100%",
                 whiteSpace: "nowrap",
-                borderWidth: "1px 1px 0 1px",
+                borderWidth: "2px",
                 borderStyle: "solid",
-                borderColor: "#F5F6F8",
+                borderColor: "token(colors.accent)",
                 boxShadow: `
                   0 2px 2px rgba(0, 0, 0, 0.1),
                   0 4px 10px rgba(18, 27, 68, 0.05),
                   inset 0 -1px 4px rgba(0, 0, 0, 0.05)
                 `,
-                borderRadius: 90,
+                background: 'transparent',
+                borderRadius: 20,
                 cursor: "pointer",
 
                 "--color-normal": "token(colors.content)",
@@ -263,13 +265,13 @@ export function Dropdown({
                   boxShadow: `0 1px 1px rgba(0, 0, 0, 0.1)`,
                 },
                 _groupFocusVisible: {
-                  outline: "2px solid token(colors.focused)",
+                  outline: "1px solid token(colors.focused)",
                 },
               })}
               style={{
                 gap: size === "small" ? 6 : 8,
                 color: `var(--color-${buttonItem === placeholder ? "placeholder" : "normal"})`,
-                background: `var(--background-${buttonItem === placeholder ? "placeholder" : "normal"})`,
+                background: `transparent`,
               } as CSSProperties}
             >
               {buttonItem.icon && buttonDisplay !== "label-only" && (
@@ -329,7 +331,7 @@ export function Dropdown({
                   display: "flex",
                   flexDirection: "column",
                   gap: 12,
-                  background: "controlSurface",
+                  background: "#011837",
                   borderRadius: 20,
                   border: "1px solid token(colors.border)",
                   boxShadow: `

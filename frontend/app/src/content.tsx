@@ -6,13 +6,13 @@ import { css } from "@/styled-system/css";
 
 export default {
   // Used in the top bar and other places
-  appName: "Liquity V2",
+  appName: "AlignMint",
   appDescription: `
-    Liquity V2 is a new borrowing protocol that lets users
-    deposit ETH or LSTs as collateral and mint the stablecoin BOLD.
+    AlignMint is a new borrowing protocol that lets users
+    deposit LSTs as collateral and mint the stablecoin MINT.
   `,
   appUrl: typeof window === "undefined"
-    ? "https://www.liquity.org/"
+    ? "https://alignmint.io/"
     : window.location.origin,
   appIcon: (
     typeof window === "undefined" ? "" : window.location.origin
@@ -24,7 +24,6 @@ export default {
     borrow: "Borrow",
     multiply: "Multiply",
     earn: "Earn",
-    stake: "Stake",
   },
 
   accountButton: {
@@ -44,20 +43,20 @@ export default {
     loanRedemptionRisk: [
       "Redemption risk",
       <>
-        Users paying the lowest interest rate can get redeemed, if the price of BOLD falls below $1. By raising your
+        Users paying the lowest interest rate can get redeemed, if the price of $MINT falls below $1. By raising your
         interest rate, you reduce this risk.
       </>,
     ],
     loanLtv: [
       "Loan-to-value ratio",
       <>
-        The ratio between the amount of BOLD borrowed and the deposited collateral (in USD).
+        The ratio between the amount of $MINT borrowed and the deposited collateral (in USD).
       </>,
     ],
     loanMaxLtv: [
       "Maximum Loan-To-Value (LTV) Ratio",
       <>
-        The maximum ratio between the USD value of a loan (in BOLD) and the collateral backing it. The LTV will
+        The maximum ratio between the USD value of a loan (in $MINT) and the collateral backing it. The LTV will
         fluctuate as the price of the collateral changes. To decrease the LTV add more colateral or reduce debt.
       </>,
     ],
@@ -66,16 +65,16 @@ export default {
       <>The collateral price at which a loan can be liquidated.</>,
     ],
     ethPrice: [
-      "ETH Price",
+      "ANKR Price",
       <>
-        The current price of ETH, as reported by the oracle. The ETH price is used to calculate the Loan-To-Value (LTV)
-        ratio of a loan.
+        The current price of $ANKR, as reported by the oracle. The $ANKR price is used to calculate the Loan-To-Value
+        (LTV) ratio of a loan.
       </>,
     ],
     interestRateBoldPerYear: [
       "Interest rate",
       <>
-        The annualized interest amount in BOLD for the selected interest rate. The accumulated interest is added to the
+        The annualized interest amount in $MINT for the selected interest rate. The accumulated interest is added to the
         loan.
       </>,
     ],
@@ -90,14 +89,10 @@ export default {
       heading: "Your collateral and debt are reduced by the same value.",
       body: (
         <>
-          When BOLD trades for under $1, anyone can redeem positions to get BOLD back at $1. Positions with the lowest
+          When $MINT trades for under $1, anyone can redeem positions to get $MINT back at $1. Positions with the lowest
           interest rate get redeemed first.
         </>
       ),
-      footerLink: {
-        href: "https://docs.liquity.org/v2-faq/redemptions-and-delegation",
-        label: "Learn more",
-      },
     },
   },
 
@@ -106,14 +101,14 @@ export default {
     title: "Redemptions in a nutshell",
     subtitle: (
       <>
-        Redemptions help maintain BOLD’s peg in a decentralized way. If a user is redeemed, their collateral and debt
+        Redemptions help maintain $MINT’s peg in a decentralized way. If a user is redeemed, their collateral and debt
         are reduced equally, resulting in no net loss.
       </>
     ),
     infoItems: [
       {
         icon: "bold",
-        text: "Redemptions occur when BOLD drops below $1.",
+        text: "Redemptions occur when $MINT drops below $1.",
       },
       {
         icon: "redemption",
@@ -126,7 +121,7 @@ export default {
     ],
     learnMore: {
       text: "Learn more about redemptions",
-      href: "https://docs.liquity.org/v2-faq/redemptions-and-delegation",
+      href: "",
     },
   },
 
@@ -202,24 +197,20 @@ export default {
     actions: {
       borrow: {
         title: "Borrow",
-        description: "Mint BOLD against your collateral at whatever interest rate you want",
+        description: "Mint $MINT against your collateral at whatever interest rate you want",
       },
       multiply: {
         title: "Multiply",
-        description: "Increase your exposure to ETH and its staking yield with a single click",
+        description: "Increase your exposure to ANKR and its staking yield with a single click",
       },
       earn: {
-        title: "Earn with BOLD",
-        description: "Deposit BOLD to earn protocol revenues and liquidation proceeds",
-      },
-      stake: {
-        title: "Stake LQTY",
-        description: "Direct protocol incentives with LQTY while earning from Liquity V1",
+        title: "Earn with MINT",
+        description: "Deposit $MINT to earn protocol revenues and liquidation proceeds",
       },
     },
     earnTable: {
-      title: "Earn rewards with BOLD",
-      subtitle: "Earn BOLD & (staked) ETH rewards by depositing your BOLD in a stability pool",
+      title: "Earn rewards with MINT",
+      subtitle: "Earn $MINT & (staked) $ANKR rewards by depositing your $MINT in a stability pool",
       forksInfo: {
         text: (
           <>
@@ -228,9 +219,9 @@ export default {
         ),
         titleAttr: "Stability Pool depositors earn additional rewards from forks.",
         learnMore: {
-          url: "https://docs.liquity.org/v2-documentation/friendly-fork-program",
+          url: "",
           label: "Learn more",
-          title: "Learn more about the Liquity V2 Friendly Fork Program",
+          title: "Learn more about the AlignMint Friendly Fork Program",
         },
       },
     },
@@ -238,7 +229,7 @@ export default {
       title: "Top 3 external yield opportunities",
       hint: {
         title: "All yield sources on Dune",
-        url: "https://dune.com/liquity/liquity-v2-yields",
+        url: "",
         label: "Learn more",
       },
     },
@@ -247,7 +238,7 @@ export default {
     },
     infoTooltips: {
       avgInterestRate: [
-        "The current average interest rate being paid by ETH-backed positions.",
+        "The current average interest rate being paid by ANKR-backed positions.",
       ],
       spApr: [
         "Annual Percentage Rate",
@@ -255,7 +246,7 @@ export default {
       ],
       spTvl: [
         "Total Value Locked",
-        "The total amount of BOLD deposited in each stability pool.",
+        "The total amount of $MINT deposited in each stability pool.",
       ],
       borrowTvl: [
         "Total Value Locked",
@@ -278,7 +269,7 @@ export default {
       label: "Loan",
     },
     liquidationPriceField: {
-      label: "ETH liquidation price",
+      label: "ANKR liquidation price",
     },
     interestRateField: {
       label: "Interest rate",
@@ -286,7 +277,7 @@ export default {
     action: "Next: Summary",
     infoTooltips: {
       interestRateSuggestions: [
-        "Positions with lower interest rates are the first to be redeemed by BOLD holders.",
+        "Positions with lower interest rates are the first to be redeemed by $MINT holders.",
       ],
     },
   },
@@ -302,7 +293,7 @@ export default {
       label: "You deposit",
     },
     liquidationPriceField: {
-      label: "ETH liquidation price",
+      label: "ANKR liquidation price",
     },
     interestRateField: {
       label: "Interest rate",
@@ -318,7 +309,7 @@ export default {
       ],
       interestRateSuggestions: [
         <>
-          Positions with lower interest rates are the first to be redeemed by BOLD holders.
+          Positions with lower interest rates are the first to be redeemed by $MINT holders.
         </>,
       ],
       exposure: [
@@ -335,17 +326,17 @@ export default {
     headline: (rewards: N, bold: N) => (
       <>
         Deposit
-        <NoWrap>{bold} BOLD</NoWrap>
+        <NoWrap>{bold} MINT</NoWrap>
         to earn <NoWrap>rewards {rewards}</NoWrap>
       </>
     ),
     subheading: (
       <>
-        A BOLD deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the BOLD may
+        A $MINT deposit in a stability pool earns rewards from the fees that users pay on their loans. Also, the $MINT may
         be swapped to collateral in case the system needs to liquidate positions.
       </>
     ),
-    learnMore: ["https://docs.liquity.org/v2-faq/bold-and-earn", "Learn more"],
+    learnMore: ["", "Learn more"],
     poolsColumns: {
       pool: "Pool",
       apr: "APR",
@@ -353,7 +344,7 @@ export default {
     },
     infoTooltips: {
       tvl: (collateral: N) => [
-        <>Total BOLD covering {collateral}-backed position liquidations</>,
+        <>Total $MINT covering {collateral}-backed position liquidations</>,
       ],
     },
   },
@@ -401,10 +392,10 @@ export default {
     },
     infoTooltips: {
       tvl: (collateral: N) => [
-        <>Total BOLD covering {collateral}-backed position liquidations.</>,
+        <>Total $MINT covering {collateral}-backed position liquidations.</>,
       ],
       depositPoolShare: [
-        "Percentage of your BOLD deposit compared to the total deposited in this stability pool.",
+        "Percentage of your $MINT deposit compared to the total deposited in this stability pool.",
       ],
       alsoClaimRewardsDeposit: [
         <>
@@ -419,114 +410,19 @@ export default {
         </>,
       ],
       currentApr: [
-        "Average annualized return for BOLD deposits over the past 7 days.",
+        "Average annualized return for $MINT deposits over the past 7 days.",
       ],
       rewardsEth: [
-        "ETH rewards",
+        "ANKR rewards",
         "Your proceeds from liquidations conducted by this stability pool.",
       ],
       rewardsBold: [
-        "BOLD rewards",
+        "MINT rewards",
         "Your earnings from protocol revenue distributions to this stability pool.",
       ],
     },
   },
-
-  // Stake screen
-  stakeScreen: {
-    headline: (lqtyIcon: N) => (
-      <>
-        <span>Stake</span>
-        {lqtyIcon} <span>LQTY & get</span>
-        <span>voting power</span>
-      </>
-    ),
-    subheading: (
-      <>
-        By staking LQTY you can vote on incentives for Liquity V2, while still earning Liquity V1 fees.
-      </>
-    ),
-    learnMore: [
-      "https://docs.liquity.org/v2-faq/lqty-staking",
-      "Learn more",
-    ],
-    accountDetails: {
-      myDeposit: "My deposit",
-      votingPower: "Voting power",
-      votingPowerHelp: (
-        <>
-          Voting power is the percentage of the total staked LQTY that you own.
-        </>
-      ),
-      unclaimed: "Unclaimed rewards",
-    },
-    tabs: {
-      deposit: "Staking",
-      rewards: "Rewards",
-      voting: "Voting",
-    },
-    depositPanel: {
-      label: "Deposit",
-      shareLabel: "Pool share",
-      rewardsLabel: "Available rewards",
-      action: "Next: Summary",
-    },
-    rewardsPanel: {
-      label: "You claim",
-      details: (usdAmount: N, fee: N) => (
-        <>
-          ~${usdAmount} • Expected gas fee ~${fee}
-        </>
-      ),
-      action: "Next: Summary",
-    },
-    votingPanel: {
-      title: "Allocate your voting power",
-      intro: (
-        <>
-          Direct incentives from Liquity V2 protocol revenues towards liquidity providers for BOLD. Upvote from Thursday
-          to Tuesday. Downvote all week. <Link href="https://docs.liquity.org/v2-faq/lqty-staking">Learn more</Link>
-        </>
-      ),
-    },
-    infoTooltips: {
-      alsoClaimRewardsDeposit: [
-        <>
-          Rewards will be paid out as part of the update transaction.
-        </>,
-      ],
-      votingShare: (
-        <>
-          Your voting share is the amount of LQTY you have staked and that is available to vote, divided by the total
-          amount of LQTY staked via the governance contract.
-        </>
-      ),
-      votingPower: (
-        <>
-          Your relative voting power changes over time, depending on your and others allocations of LQTY.
-        </>
-      ),
-    },
-  },
 } as const;
-
-function Link({
-  href,
-  children,
-}: {
-  href: string;
-  children: N;
-}) {
-  const props = !href.startsWith("http") ? {} : {
-    target: "_blank",
-    rel: "noopener noreferrer",
-  };
-  return (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  );
-}
 
 function NoWrap({
   children,

@@ -6,7 +6,6 @@ import type {
   Dnum,
   PositionEarn,
   PositionLoanCommitted,
-  PositionStake,
   PrefixedTroveId,
   RiskLevel,
   Token,
@@ -17,9 +16,6 @@ import type { Address, CollateralSymbol, CollateralToken } from "@liquity2/uikit
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { Config as WagmiConfig } from "wagmi";
 
-import { Governance } from "@/src/abi/Governance";
-import { StabilityPool } from "@/src/abi/StabilityPool";
-import { TroveManager } from "@/src/abi/TroveManager";
 import {
   INTEREST_RATE_ADJ_COOLDOWN,
   INTEREST_RATE_END,
@@ -31,7 +27,7 @@ import {
 } from "@/src/constants";
 import { CONTRACTS, getBranchContract, getProtocolContract } from "@/src/contracts";
 import { dnum18, DNUM_0, dnumOrNull, jsonStringifyWithDnum } from "@/src/dnum-utils";
-import { CHAIN_BLOCK_EXPLORER, ENV_BRANCHES, LEGACY_CHECK, LIQUITY_STATS_URL } from "@/src/env";
+import { CHAIN_BLOCK_EXPLORER, ENV_BRANCHES, LIQUITY_STATS_URL } from "@/src/env";
 import { getRedemptionRisk } from "@/src/liquity-math";
 import { usePrice } from "@/src/services/Prices";
 import {
@@ -43,15 +39,14 @@ import {
   type IndexedTrove,
 } from "@/src/subgraph";
 import { isBranchId, isPrefixedtroveId, isTroveId } from "@/src/types";
-import { bigIntAbs, jsonStringifyWithBigInt } from "@/src/utils";
-import { vAddress, vPrefixedTroveId } from "@/src/valibot-utils";
+import { bigIntAbs } from "@/src/utils";
 import { addressesEqual, COLLATERALS, isAddress, shortenAddress, TOKENS_BY_SYMBOL } from "@liquity2/uikit";
 import { useQuery } from "@tanstack/react-query";
 import * as dn from "dnum";
 import { useMemo } from "react";
 import * as v from "valibot";
-import { encodeAbiParameters, erc20Abi, isAddressEqual, keccak256, parseAbiParameters, zeroAddress } from "viem";
-import { useBalance, useConfig as useWagmiConfig, useReadContract, useReadContracts } from "wagmi";
+import { encodeAbiParameters, isAddressEqual, keccak256, parseAbiParameters, zeroAddress } from "viem";
+import { useConfig as useWagmiConfig, useReadContract, useReadContracts } from "wagmi";
 import { readContract, readContracts } from "wagmi/actions";
 
 export function shortenTroveId(troveId: TroveId, chars = 8) {
@@ -314,76 +309,6 @@ export function useEarnPositionsByAccount(account: null | Address) {
       );
 
       return depositsPerBranch.filter((position) => position !== null);
-    },
-  });
-}
-
-export function useStakePosition(address: null | Address) {
-  const LqtyStaking = getProtocolContract("LqtyStaking");
-  const LusdToken = getProtocolContract("LusdToken");
-  const Governance = getProtocolContract("Governance");
-
-  const userProxyAddress = useReadContract({
-    ...Governance,
-    functionName: "deriveUserProxyAddress",
-    args: [address ?? "0x"],
-    query: {
-      enabled: Boolean(address),
-    },
-  });
-
-  const userProxyBalance = useBalance({
-    address: userProxyAddress.data ?? "0x",
-    query: {
-      enabled: Boolean(address) && userProxyAddress.isSuccess,
-    },
-  });
-
-  return useReadContracts({
-    contracts: [{
-      ...LqtyStaking,
-      functionName: "stakes",
-      args: [userProxyAddress.data ?? "0x"],
-    }, {
-      ...LqtyStaking,
-      functionName: "getPendingETHGain",
-      args: [userProxyAddress.data ?? "0x"],
-    }, {
-      ...LqtyStaking,
-      functionName: "getPendingLUSDGain",
-      args: [userProxyAddress.data ?? "0x"],
-    }, {
-      ...LusdToken,
-      functionName: "balanceOf",
-      args: [userProxyAddress.data ?? "0x"],
-    }],
-    query: {
-      enabled: Boolean(address) && userProxyAddress.isSuccess && userProxyBalance.isSuccess,
-      select: ([
-        depositResult,
-        pendingEthGainResult,
-        pendingLusdGainResult,
-        lusdBalanceResult,
-      ]): PositionStake | undefined => {
-        if (
-          depositResult.status === "failure"
-          || pendingEthGainResult.status === "failure"
-          || pendingLusdGainResult.status === "failure"
-          || lusdBalanceResult.status === "failure"
-        ) {
-          return undefined;
-        }
-        const deposit = dnum18(depositResult.result);
-        return {
-          type: "stake",
-          deposit,
-          owner: address ?? "0x",
-          rewards: {
-            eth: dnum18(pendingEthGainResult.result + (userProxyBalance.data?.value ?? 0n)),
-            lusd: dnum18(pendingLusdGainResult.result + lusdBalanceResult.result),
-          },
-        };
-      },
     },
   });
 }
@@ -727,7 +652,7 @@ export const StatsSchema = v.pipe(
     branch: Object.fromEntries(
       Object.entries(value.branch).map(([symbol, branch]) => {
         symbol = symbol.toUpperCase();
-        if (symbol === "WETH") symbol = "ETH";
+
         return [symbol, {
           collActive: dnumOrNull(branch.coll_active, 18),
           collDefault: dnumOrNull(branch.coll_default, 18),
@@ -1028,217 +953,6 @@ export function useLoansByAccount(account?: Address | null) {
   return useQuery<PositionLoanCommitted[] | null>({
     queryKey: ["TrovesByAccount", account],
     queryFn: () => fetchLoansByAccount(wagmiConfig, account),
-  });
-}
-
-const TrovesSnapshotSchema = v.record(
-  vAddress(),
-  v.array(vPrefixedTroveId()),
-);
-
-export function useLegacyPositions(account: Address | null): UseQueryResult<{
-  boldBalance: bigint;
-  hasAnyEarnPosition: boolean;
-  hasAnyLoan: boolean;
-  hasAnyPosition: boolean;
-  hasStakeDeposit: boolean;
-  spDeposits: Array<{
-    branchId: BranchId;
-    collGain: bigint;
-    deposit: bigint;
-    yieldGain: bigint;
-  }>;
-  stakeDeposit: bigint;
-  troves: Array<{
-    accruedBatchManagementFee: bigint;
-    accruedInterest: bigint;
-    annualInterestRate: bigint;
-    branchId: BranchId;
-    collToken: { name: string; symbol: TokenSymbol };
-    entireColl: bigint;
-    entireDebt: bigint;
-    lastInterestRateAdjTime: bigint;
-    recordedDebt: bigint;
-    redistBoldDebtGain: bigint;
-    redistCollGain: bigint;
-    troveId: TroveId;
-    weightedRecordedDebt: bigint;
-  }>;
-}> {
-  const checkLegacyPositions = Boolean(account && LEGACY_CHECK);
-
-  const legacyTrovesFromSnapshot = useQuery<PrefixedTroveId[]>({
-    queryKey: ["legacyTrovesFromSnapshot", account],
-    queryFn: async () => {
-      if (!LEGACY_CHECK || !account) {
-        throw new Error("LEGACY_CHECK or account not defined");
-      }
-      const result = await fetch(LEGACY_CHECK.TROVES_SNAPSHOT_URL);
-      const trovesByAccount = v.parse(TrovesSnapshotSchema, await result.json());
-      return trovesByAccount[account.toLowerCase() as `0x${string}`] ?? [];
-    },
-    enabled: checkLegacyPositions,
-    staleTime: Infinity,
-  });
-
-  const legacyTroves = useReadContracts({
-    contracts: legacyTrovesFromSnapshot.data?.map((prefixedTroveId) => {
-      const { branchId, troveId } = parsePrefixedTroveId(prefixedTroveId);
-      const branch = LEGACY_CHECK?.BRANCHES[branchId as number];
-      const address: Address = branch?.TROVE_MANAGER ?? "0x";
-      return {
-        abi: TroveManager,
-        address,
-        functionName: "getLatestTroveData",
-        args: [BigInt(troveId)],
-      } as const;
-    }),
-    allowFailure: false,
-    query: {
-      enabled: checkLegacyPositions,
-      select: (results) => {
-        return (
-          results
-            .map((data, index) => {
-              const prefixedTroveId = legacyTrovesFromSnapshot.data?.[index];
-              if (!prefixedTroveId) {
-                throw new Error("Trove ID not found");
-              }
-              const { branchId, troveId } = parsePrefixedTroveId(prefixedTroveId);
-              const branch = LEGACY_CHECK?.BRANCHES[branchId as number];
-              if (!branch) {
-                throw new Error(`Invalid branch ID: ${branchId}`);
-              }
-              return {
-                ...data,
-                branchId,
-                collToken: {
-                  name: branch.name,
-                  symbol: branch.symbol,
-                },
-                troveId,
-              };
-            })
-            .filter((trove) => trove.entireDebt > 0n)
-        );
-      },
-    },
-  });
-
-  const hasAnyLegacyTrove = (legacyTrovesFromSnapshot.data?.length ?? 0) > 0;
-
-  const spDeposits = useReadContracts({
-    contracts: LEGACY_CHECK
-      ? [
-        ...LEGACY_CHECK.BRANCHES.map(({ STABILITY_POOL }) => ({
-          abi: StabilityPool,
-          address: STABILITY_POOL,
-          functionName: "getCompoundedBoldDeposit" as const,
-          args: [account],
-        })),
-        ...LEGACY_CHECK.BRANCHES.map(({ STABILITY_POOL }) => ({
-          abi: StabilityPool,
-          address: STABILITY_POOL,
-          functionName: "getDepositorYieldGainWithPending" as const,
-          args: [account],
-        })),
-        ...LEGACY_CHECK.BRANCHES.map(({ STABILITY_POOL }) => ({
-          abi: StabilityPool,
-          address: STABILITY_POOL,
-          functionName: "getDepositorCollGain" as const,
-          args: [account],
-        })),
-      ]
-      : undefined,
-    allowFailure: false,
-    query: {
-      enabled: checkLegacyPositions,
-      select: (results) => {
-        if (!LEGACY_CHECK) {
-          throw new Error("LEGACY_CHECK not defined");
-        }
-        const branchCount = LEGACY_CHECK.BRANCHES.length;
-        const getBranchSlice = (index: number) => (
-          results.slice(branchCount * index, branchCount * (index + 1))
-        );
-
-        const deposits = getBranchSlice(0);
-        const yieldGains = getBranchSlice(1);
-        const collGains = getBranchSlice(2);
-
-        return {
-          hasAnySpDeposit: deposits.some((deposit) => deposit > 0n),
-          branches: LEGACY_CHECK.BRANCHES.map((_, index) => ({
-            branchId: index as BranchId,
-            collGain: collGains[index] ?? 0n,
-            deposit: deposits[index] ?? 0n,
-            yieldGain: yieldGains[index] ?? 0n,
-          })),
-        };
-      },
-    },
-  });
-
-  const legacyBoldBalance = useReadContract({
-    abi: erc20Abi,
-    address: LEGACY_CHECK?.BOLD_TOKEN,
-    functionName: "balanceOf",
-    args: [account ?? "0x"],
-    query: {
-      enabled: checkLegacyPositions,
-    },
-  });
-
-  const stakedLqty = useReadContract({
-    abi: Governance,
-    address: LEGACY_CHECK?.GOVERNANCE,
-    functionName: "userStates" as const,
-    args: [account ?? "0x"],
-    query: {
-      enabled: checkLegacyPositions,
-      select: ([
-        unallocatedLQTY,
-        _unallocatedOffset,
-        allocatedLQTY,
-        _allocatedOffset,
-      ]) => unallocatedLQTY + allocatedLQTY,
-    },
-  });
-
-  return useQuery({
-    queryKey: [
-      "hasAnyLegacyPosition",
-      account,
-      jsonStringifyWithBigInt(legacyTroves.data),
-      String(legacyBoldBalance.data),
-      jsonStringifyWithBigInt(spDeposits.data),
-      String(stakedLqty.data),
-    ],
-    queryFn: () => {
-      const stakeDeposit = stakedLqty.data ?? 0n;
-      const hasAnyEarnPosition = spDeposits.data?.hasAnySpDeposit ?? false;
-      const hasStakeDeposit = stakeDeposit > 0n;
-      return {
-        boldBalance: legacyBoldBalance.data ?? 0n,
-        hasAnyEarnPosition,
-        hasAnyLoan: hasAnyLegacyTrove,
-        hasAnyPosition: hasAnyEarnPosition || hasAnyLegacyTrove || hasStakeDeposit,
-        hasStakeDeposit,
-        spDeposits: (spDeposits.data?.branches ?? []).filter(
-          (branch) => branch.deposit > 0n,
-        ),
-        stakeDeposit: stakedLqty.data ?? 0n,
-        troves: legacyTroves.data ?? [],
-      };
-    },
-    placeholderData: (data) => data,
-    enabled: (
-      checkLegacyPositions
-      && legacyBoldBalance.isSuccess
-      && (legacyTroves.isSuccess || !hasAnyLegacyTrove)
-      && spDeposits.isSuccess
-      && stakedLqty.isSuccess
-    ),
   });
 }
 

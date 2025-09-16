@@ -30,7 +30,7 @@ export const Hint: FC = () => {
     >
       {content.home.yieldTable.hint.title}
     </span>
-    <LinkTextButton
+    {content.home.yieldTable.hint.url && (<LinkTextButton
       external
       href={content.home.yieldTable.hint.url}
       label={content.home.yieldTable.hint.label}
@@ -40,6 +40,6 @@ export const Hint: FC = () => {
       })}
     >
       Learn more
-    </LinkTextButton>
+    </LinkTextButton>)}
   </div>
 }

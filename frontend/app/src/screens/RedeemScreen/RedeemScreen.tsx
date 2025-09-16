@@ -62,7 +62,7 @@ export function RedeemScreen() {
       heading={{
         title: (
           <HFlex>
-            Redeem <TokenIcon symbol="BOLD" /> BOLD for
+            Redeem <TokenIcon symbol="BOLD" /> MINT for
             <TokenIcon.Group>
               {branches.map((b) => getCollToken(b.branchId)).map(({ symbol }) => (
                 <TokenIcon
@@ -91,7 +91,7 @@ export function RedeemScreen() {
               contextual={
                 <InputField.Badge
                   icon={<TokenIcon symbol="BOLD" />}
-                  label="BOLD"
+                  label="MINT"
                 />
               }
               drawer={amount.isFocused
@@ -101,7 +101,7 @@ export function RedeemScreen() {
                     && dn.gt(amount.parsed, boldBalance.data)
                 ? {
                   mode: "error",
-                  message: `Insufficient BOLD balance. You have ${fmtnum(boldBalance.data)} BOLD.`,
+                  message: `Insufficient MINT balance. You have ${fmtnum(boldBalance.data)} MINT.`,
                 }
                 : null}
               label="Redeeming"
@@ -115,7 +115,7 @@ export function RedeemScreen() {
                 end: (
                   boldBalance.data && dn.gt(boldBalance.data, 0) && (
                     <TextButton
-                      label={`Max ${fmtnum(boldBalance.data)} BOLD`}
+                      label={`Max ${fmtnum(boldBalance.data)} MINT`}
                       onClick={() => {
                         if (boldBalance.data) {
                           amount.setValue(dn.toString(boldBalance.data));

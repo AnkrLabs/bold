@@ -10,7 +10,7 @@ import { ActionIcon } from "./ActionIcon";
 export function ActionCard({
   type,
 }: {
-  type: "borrow" | "multiply" | "earn" | "stake";
+  type: "borrow" | "multiply" | "earn";
 }) {
   const [hint, setHint] = useState(false);
   const [active, setActive] = useState(false);
@@ -36,7 +36,8 @@ export function ActionCard({
   const { description, path, title, colors } = match(type)
     .with("borrow", () => ({
       colors: {
-        background: token("colors.brandDarkBlue"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandDarkBlueContent"),
         foregroundAlt: token("colors.brandDarkBlueContentAlt"),
       },
@@ -46,7 +47,8 @@ export function ActionCard({
     }))
     .with("multiply", () => ({
       colors: {
-        background: token("colors.brandGreen"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandGreenContent"),
         foregroundAlt: token("colors.brandGreenContentAlt"),
       },
@@ -56,23 +58,14 @@ export function ActionCard({
     }))
     .with("earn", () => ({
       colors: {
-        background: token("colors.brandBlue"),
+        title: token("colors.brandPrimary"),
+        background: 'linear-gradient(93deg, rgba(255, 255, 255, 0.06) 1.81%, rgba(255, 255, 255, 0.14) 97.23%)',
         foreground: token("colors.brandBlueContent"),
         foregroundAlt: token("colors.brandBlueContentAlt"),
       },
       description: ac.earn.description,
       path: "/earn",
       title: ac.earn.title,
-    }))
-    .with("stake", () => ({
-      colors: {
-        background: token("colors.brandGolden"),
-        foreground: token("colors.brandGoldenContent"),
-        foregroundAlt: token("colors.brandGoldenContentAlt"),
-      },
-      description: ac.stake.description,
-      path: "/stake",
-      title: ac.stake.title,
     }))
     .exhaustive();
 
@@ -103,11 +96,14 @@ export function ActionCard({
           gap: 16,
           width: "100%",
           padding: "20px 24px",
-          borderRadius: 8,
+          borderRadius: 28,
+          border: '2px solid var(--colors-table-border)',
+
           _groupFocusVisible: {
             outline: "2px solid token(colors.focused)",
             outlineOffset: 2,
           },
+
           _groupHover: {
             transform: "scale(1.05)",
           },
@@ -118,15 +114,16 @@ export function ActionCard({
           ...hintSpring,
         }}
       >
-        <h1>{title}</h1>
+        <h1 style={{ color: colors.title, fontSize: 24, fontWeight: 600, }}>{title}</h1>
         <p
           className={css({
             height: 64,
             fontSize: 14,
+            fontWeight: 400,
+            maxWidth: 400,
+            marginRight: 48,
+            opacity: 0.7,
           })}
-          style={{
-            color: colors.foregroundAlt,
-          }}
         >
           {description}
         </p>
@@ -139,7 +136,7 @@ export function ActionCard({
           <ActionIcon
             colors={colors}
             iconType={type}
-            state={hint ? "active" : "idle"}
+            state={"active"}
           />
         </div>
       </a.section>

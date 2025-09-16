@@ -2,7 +2,7 @@ import type { Dnum, Token } from "@/src/types";
 import type { Address } from "@liquity2/uikit";
 
 import { dnum18 } from "@/src/dnum-utils";
-import { CONTRACT_BOLD_TOKEN, CONTRACT_LQTY_TOKEN, CONTRACT_LUSD_TOKEN } from "@/src/env";
+import { CONTRACT_BOLD_TOKEN } from "@/src/env";
 import { getBranch } from "@/src/liquity-utils";
 import { getSafeStatus } from "@/src/safe-utils";
 import { isCollateralSymbol } from "@liquity2/uikit";
@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useModal as useConnectKitModal } from "connectkit";
 import { match } from "ts-pattern";
 import { erc20Abi } from "viem";
-import { useAccount as useWagmiAccount, useBalance as useWagmiBalance, useEnsName, useReadContracts } from "wagmi";
+import { useAccount as useWagmiAccount, useEnsName, useReadContracts } from "wagmi";
 
 export function useBalance(
   address: Address | undefined,
@@ -30,27 +30,24 @@ export function useBalances(
   const tokenConfigs = tokens.map((token) => {
     const tokenAddress = match(token)
       .when(
-        (symbol) => Boolean(symbol && isCollateralSymbol(symbol) && symbol !== "ETH"),
+        (symbol) => Boolean(symbol && isCollateralSymbol(symbol)),
         (symbol) => {
-          if (!symbol || !isCollateralSymbol(symbol) || symbol === "ETH") {
+          if (!symbol || !isCollateralSymbol(symbol)) {
             return null;
           }
           return getBranch(symbol).contracts.CollToken.address;
         },
       )
-      .with("LUSD", () => CONTRACT_LUSD_TOKEN)
       .with("BOLD", () => CONTRACT_BOLD_TOKEN)
-      .with("LQTY", () => CONTRACT_LQTY_TOKEN)
       .otherwise(() => null);
 
     return {
       token,
       tokenAddress,
-      isEth: token === "ETH",
+      isEth: false,
     };
   });
 
-  const ethTokens = tokenConfigs.filter((config) => config.isEth);
   const erc20Tokens = tokenConfigs.filter((config) => !config.isEth && config.tokenAddress);
 
   const erc20Balances = useReadContracts({
@@ -65,29 +62,15 @@ export function useBalances(
     },
   });
 
-  const ethBalance = useWagmiBalance({
-    address,
-    query: {
-      enabled: Boolean(address && ethTokens.length > 0),
-    },
-  });
-
   // combine results
   return tokens.reduce((result, token) => {
-    if (token === "ETH") {
+    const erc20Index = erc20Tokens.findIndex((config) => config.token === token);
+    if (erc20Index !== -1) {
+      const balance = erc20Balances.data?.[erc20Index];
       result[token] = {
-        data: ethBalance.data ? dnum18(ethBalance.data.value) : undefined,
-        isLoading: ethBalance.isLoading,
+        data: balance?.result !== undefined ? dnum18(balance.result) : undefined,
+        isLoading: erc20Balances.isLoading,
       };
-    } else {
-      const erc20Index = erc20Tokens.findIndex((config) => config.token === token);
-      if (erc20Index !== -1) {
-        const balance = erc20Balances.data?.[erc20Index];
-        result[token] = {
-          data: balance?.result !== undefined ? dnum18(balance.result) : undefined,
-          isLoading: erc20Balances.isLoading,
-        };
-      }
     }
     return result;
   }, {} as Record<

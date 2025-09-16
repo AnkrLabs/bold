@@ -11,7 +11,7 @@ import { InterestRateField } from "@/src/comps/InterestRateField/InterestRateFie
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { RedemptionInfo } from "@/src/comps/RedemptionInfo/RedemptionInfo";
 import { Screen } from "@/src/comps/Screen/Screen";
-import { DEBT_SUGGESTIONS, ETH_MAX_RESERVE, MAX_COLLATERAL_DEPOSITS, MIN_DEBT } from "@/src/constants";
+import { DEBT_SUGGESTIONS, MAX_COLLATERAL_DEPOSITS, MIN_DEBT } from "@/src/constants";
 import content from "@/src/content";
 import { dnum18, dnumMax, dnumMin } from "@/src/dnum-utils";
 import { useInputFieldValue } from "@/src/form-utils";
@@ -43,9 +43,11 @@ import {
   TokenIcon,
 } from "@liquity2/uikit";
 import * as dn from "dnum";
+import Image from 'next/image';
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { maxUint256 } from "viem";
+import tokensIcon from "./assets/tokens.svg";
 
 const KNOWN_COLLATERAL_SYMBOLS = KNOWN_COLLATERALS.map(({ symbol }) => symbol);
 
@@ -142,8 +144,7 @@ export function BorrowScreen() {
   const maxAmount = collBalance.data && dnumMin(
     maxCollDeposit,
     dnumMax(
-      // Only keep a reserve for ETH, not LSTs
-      dn.sub(collBalance.data, collSymbol === "ETH" ? ETH_MAX_RESERVE : 0),
+      dn.sub(collBalance.data, 0),
       dnum18(0),
     ),
   );
@@ -180,23 +181,18 @@ export function BorrowScreen() {
                 })}
               >
                 <TokenIcon.Group>
-                  {collaterals.map(({ symbol }) => (
-                    <TokenIcon
-                      key={symbol}
-                      symbol={symbol}
-                    />
-                  ))}
+                  <Image src={tokensIcon} alt="Tokens" />
                 </TokenIcon.Group>
-                {NBSP}ETH
               </div>,
+
               <div
                 className={css({
                   display: "flex",
                   alignItems: "center",
                 })}
               >
-                <TokenIcon symbol="BOLD" />
-                {NBSP}BOLD
+                <TokenIcon symbol="BOLD" size={32} />
+                {NBSP}MINT
               </div>,
             )}
           </div>
@@ -277,12 +273,12 @@ export function BorrowScreen() {
             contextual={
               <InputField.Badge
                 icon={<TokenIcon symbol="BOLD" />}
-                label="BOLD"
+                label="MINT"
               />
             }
             drawer={debt.isFocused || !isBelowMinDebt ? null : {
               mode: "error",
-              message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} BOLD.`,
+              message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} MINT.`,
             }}
             label={content.borrowScreen.borrowField.label}
             placeholder="0.00"
@@ -421,7 +417,7 @@ export function BorrowScreen() {
             fontSize: 16,
             color: "content",
             background: "infoSurface",
-            border: "1px solid token(colors.infoSurfaceBorder)",
+            border: "2px solid token(colors.infoSurfaceBorder)",
             borderRadius: 8,
           })}
         >

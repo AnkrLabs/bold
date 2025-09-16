@@ -25,7 +25,7 @@ export const LoadingCard: FC<LoadingCardProps> = ({
   onRetry,
   children,
 }) => {
-  const title = leverage ? "Multiply" : "BOLD loan";
+  const title = leverage ? "Multiply" : "MINT loan";
 
   const spring = useSpring({
     to: match(loadingState)

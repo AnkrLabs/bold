@@ -269,7 +269,7 @@ function InputField({
             display: "none",
             position: "absolute",
             inset: -1,
-            border: "2px solid token(colors.fieldBorderFocused)",
+            border: "1px solid token(colors.fieldBorderFocused)",
             borderRadius: 8,
             pointerEvents: "none",
           })}
@@ -296,7 +296,7 @@ function Drawer({
     },
     enter: {
       contentOpacity: 1,
-      marginTop: 0,
+      marginTop: 20,
     },
     leave: {
       contentOpacity: 0,
@@ -333,12 +333,12 @@ function Drawer({
           className={css({
             display: "flex",
             alignItems: "center",
-            padding: "8px 16px 0",
+            padding: "0 16px",
             height: 48,
             fontSize: 14,
             borderWidth: 1,
             borderStyle: "solid",
-            borderRadius: "0 0 8px 8px",
+            borderRadius: 28,
           })}
           style={{
             marginTop,
@@ -369,23 +369,23 @@ export function InputFieldBadge({
 }) {
   return (
     <div
-      style={{
+      className={css({
         display: "flex",
         alignItems: "center",
         gap: 8,
-        height: 40,
-        padding: "0 16px",
-        paddingLeft: icon ? 8 : 16,
-        background: "#FFF",
+        minHeight: 40,
+        padding: "0 20px",
+        background: "transparent",
+        border: '2px solid token(colors.accent)',
         borderRadius: 20,
         userSelect: "none",
-      }}
+      })}
     >
       {icon}
       <div
         style={{
-          fontSize: 24,
-          fontWeight: 500,
+          fontSize: 20,
+          fontWeight: 400,
         }}
       >
         {label}

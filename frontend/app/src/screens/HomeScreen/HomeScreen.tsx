@@ -7,7 +7,6 @@ import { useBreakpoint } from "@/src/breakpoints";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { Positions } from "@/src/comps/Positions/Positions";
-import { FORKS_INFO } from "@/src/constants";
 import content from "@/src/content";
 import { DNUM_1 } from "@/src/dnum-utils";
 import {
@@ -19,17 +18,12 @@ import {
   useBranchDebt,
   useEarnPool,
 } from "@/src/liquity-utils";
-import { useSboldStats } from "@/src/sbold";
 import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
 import { IconBorrow, IconEarn, TokenIcon } from "@liquity2/uikit";
 import * as dn from "dnum";
-import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { HomeTable } from "./HomeTable";
-import { YieldSourceTable } from "./YieldSourceTable";
-
-type ForkInfo = (typeof FORKS_INFO)[number];
 
 export function HomeScreen() {
   const account = useAccount();
@@ -77,7 +71,6 @@ export function HomeScreen() {
       >
         <BorrowTable compact={compact} />
         <EarnTable compact={compact} />
-        <YieldSourceTable compact={compact} />
       </div>
     </div>
   );
@@ -117,13 +110,11 @@ function BorrowTable({
   return (
     <div className={css({ gridArea: "borrow" })}>
       <HomeTable
-        title="Borrow BOLD against ETH and staked ETH"
+        title="Borrow MINT against ANKR and staked ANKR"
         subtitle="You can adjust your loans, including your interest rate, at any time"
         icon={<IconBorrow />}
         columns={columns}
-        rows={getBranches().map(({ symbol }) => (
-          <BorrowingRow key={symbol} compact={compact} symbol={symbol} />
-        ))}
+        rows={getBranches().map(({ symbol }) => <BorrowingRow key={symbol} compact={compact} symbol={symbol} />)}
       />
     </div>
   );
@@ -174,7 +165,6 @@ function EarnTable({
           columns={columns}
           rows={[
             ...getBranches(),
-            { symbol: "SBOLD" as const },
           ].map(({ symbol }) => (
             <EarnRewardsRow
               key={symbol}
@@ -183,114 +173,6 @@ function EarnTable({
             />
           ))}
         />
-      </div>
-      <div
-        className={css({
-          position: "relative",
-          zIndex: 1,
-        })}
-      >
-        <ForksInfoDrawer />
-      </div>
-    </div>
-  );
-}
-
-function ForksInfoDrawer() {
-  const pickedForkIcons = useMemo(() => pickRandomForks(2), []);
-  return (
-    <div
-      className={css({
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 16,
-        marginTop: -20,
-        height: 44 + 20,
-        padding: "20px 16px 0",
-        whiteSpace: "nowrap",
-        background: "#F7F7FF",
-        borderRadius: 8,
-        userSelect: "none",
-      })}
-    >
-      <div
-        className={css({
-          display: "flex",
-          gap: 12,
-        })}
-      >
-        <div
-          className={css({
-            flexShrink: 0,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 0,
-          })}
-        >
-          {pickedForkIcons.map(([name, icon], index) => (
-            <div
-              key={name}
-              className={css({
-                display: "grid",
-                placeItems: "center",
-                background: "white",
-                borderRadius: "50%",
-                width: 18,
-                height: 18,
-              })}
-              style={{
-                marginLeft: index > 0 ? -4 : 0,
-              }}
-            >
-              <Image
-                loading="eager"
-                unoptimized
-                alt={name}
-                title={name}
-                height={18}
-                src={icon}
-                width={18}
-              />
-            </div>
-          ))}
-        </div>
-        <div
-          className={css({
-            display: "grid",
-            fontSize: 14,
-          })}
-        >
-          <span
-            title={content.home.earnTable.forksInfo.titleAttr}
-            className={css({
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            })}
-          >
-            {content.home.earnTable.forksInfo.text}
-          </span>
-        </div>
-      </div>
-      <div
-        className={css({
-          display: "flex",
-          alignItems: "center",
-        })}
-      >
-        <LinkTextButton
-          external
-          href={content.home.earnTable.forksInfo.learnMore.url}
-          label={content.home.earnTable.forksInfo.learnMore.label}
-          title={content.home.earnTable.forksInfo.learnMore.title}
-          className={css({
-            fontSize: 14,
-          })}
-        >
-          Learn more
-        </LinkTextButton>
       </div>
     </div>
   );
@@ -385,12 +267,11 @@ function EarnRewardsRow({
   symbol,
 }: {
   compact: boolean;
-  symbol: CollateralSymbol | "SBOLD";
+  symbol: CollateralSymbol;
 }) {
-  const branch = symbol === "SBOLD" ? null : getBranch(symbol);
+  const branch = getBranch(symbol);
   const token = getToken(symbol);
   const earnPool = useEarnPool(branch?.id ?? null);
-  const sboldStats = useSboldStats();
   return (
     <tr>
       <td>
@@ -402,25 +283,21 @@ function EarnRewardsRow({
           })}
         >
           <TokenIcon symbol={symbol} size="mini" />
-          <span>{symbol === "SBOLD" ? "sBOLD by K3 Capital" : token?.name}</span>
+          <span>{token?.name}</span>
         </div>
       </td>
       <td>
         <Amount
           fallback="…"
           percentage
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.apr
-            : earnPool.data?.apr}
+          value={earnPool.data?.apr}
         />
       </td>
       <td>
         <Amount
           fallback="…"
           percentage
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.apr7d
-            : earnPool.data?.apr7d}
+          value={earnPool.data?.apr7d}
         />
       </td>
       <td>
@@ -428,9 +305,7 @@ function EarnRewardsRow({
           fallback="…"
           format="compact"
           prefix="$"
-          value={symbol === "SBOLD"
-            ? sboldStats.data?.totalBold
-            : earnPool.data?.totalDeposited}
+          value={earnPool.data?.totalDeposited}
         />
       </td>
       {!compact && (
@@ -449,38 +324,14 @@ function EarnRewardsRow({
                 Earn
                 <TokenIcon.Group size="mini">
                   <TokenIcon symbol="BOLD" />
-                  {symbol === "SBOLD"
-                    ? (
-                      <div
-                        className={css({
-                          width: 16,
-                        })}
-                      />
-                    )
-                    : <TokenIcon symbol={symbol} />}
+                  <TokenIcon symbol={symbol} />
                 </TokenIcon.Group>
               </div>
             }
-            title={`Earn BOLD with ${token?.name}`}
+            title={`Earn MINT with ${token?.name}`}
           />
         </td>
       )}
     </tr>
   );
-}
-
-function pickRandomForks(count: number): ForkInfo[] {
-  const forks = [...FORKS_INFO];
-  if (forks.length < count) {
-    return forks;
-  }
-  const picked: ForkInfo[] = [];
-  for (let i = 0; i < count; i++) {
-    const [info] = forks.splice(
-      Math.floor(Math.random() * forks.length),
-      1,
-    );
-    if (info) picked.push(info);
-  }
-  return picked;
 }

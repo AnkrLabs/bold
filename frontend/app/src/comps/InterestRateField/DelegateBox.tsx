@@ -87,7 +87,7 @@ export function DelegateBox({
               <Amount
                 value={delegate.boldAmount}
                 format="compact"
-                suffix=" BOLD"
+                suffix=" MINT"
               />
             </div>
             <div

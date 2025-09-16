@@ -2,7 +2,7 @@ import type { ComponentPropsWithRef } from "react";
 
 import content from "@/src/content";
 import { css } from "@/styled-system/css";
-import { Button, IconAccount, shortenAddress, ShowAfter } from "@liquity2/uikit";
+import { Button, shortenAddress, ShowAfter } from "@liquity2/uikit";
 import { a, useTransition } from "@react-spring/web";
 import { ConnectKitButton } from "connectkit";
 import { match, P } from "ts-pattern";
@@ -149,8 +149,11 @@ function ButtonConnected({
       className={css({
         display: "grid",
         width: "100%",
-        height: "100%",
-        padding: 0,
+        minWidth: 136,
+        padding: "0 24px",
+        height: "32px",
+        border: "2px solid token(colors.interactive)",
+        borderRadius: 12,
         whiteSpace: "nowrap",
         textAlign: "center",
         _active: {
@@ -178,16 +181,6 @@ function ButtonConnected({
       >
         <div
           className={css({
-            display: "grid",
-            placeItems: "center",
-            width: 24,
-            height: 24,
-          })}
-        >
-          <IconAccount />
-        </div>
-        <div
-          className={css({
             flexShrink: 1,
             flexGrow: 1,
             overflow: "hidden",
@@ -201,6 +194,9 @@ function ButtonConnected({
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
+              fontSize: 16,
+              fontWeight: 400,
+              color: 'token(colors.content)'
             })}
           >
             {label}

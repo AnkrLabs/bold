@@ -94,7 +94,7 @@ export function EarnPositionSummary({
                   + "deposits earned over the last 24 hours.",
                 footerLink: {
                   label: "Check Dune for more details",
-                  href: "https://dune.com/liquity/liquity-v2",
+                  href: "",
                 },
               }}
             />
@@ -127,7 +127,7 @@ export function EarnPositionSummary({
                   + "deposits earned over the past 7 days.",
                 footerLink: {
                   label: "Check Dune for more details",
-                  href: "https://dune.com/liquity/liquity-v2",
+                  href: "",
                 },
               }}
             />
@@ -146,7 +146,7 @@ export function EarnPositionSummary({
             />
           </div>
           <InfoTooltip heading="Total Value Locked (TVL)">
-            Total amount of BOLD deposited in this stability pool.
+            Total amount of $MINT deposited in this stability pool.
           </InfoTooltip>
         </>
       }
@@ -157,7 +157,7 @@ export function EarnPositionSummary({
             <>
               <div
                 title={active
-                  ? `${fmtnum(earnPosition?.deposit, "full")} BOLD`
+                  ? `${fmtnum(earnPosition?.deposit, "full")} MINT`
                   : undefined}
                 className={css({
                   display: "flex",
@@ -172,7 +172,7 @@ export function EarnPositionSummary({
               </div>
               {prevEarnPosition && (
                 <div
-                  title={`${fmtnum(prevEarnPosition.deposit, "full")} BOLD`}
+                  title={`${fmtnum(prevEarnPosition.deposit, "full")} MINT`}
                   className={css({
                     display: "flex",
                     justifyContent: "flex-start",
@@ -198,7 +198,7 @@ export function EarnPositionSummary({
                 <>
                   <HFlex
                     gap={4}
-                    title={`${fmtnum(earnPosition?.rewards.bold, "full")} BOLD`}
+                    title={`${fmtnum(earnPosition?.rewards.bold, "full")} MINT`}
                     className={css({
                       fontVariantNumeric: "tabular-nums",
                     })}

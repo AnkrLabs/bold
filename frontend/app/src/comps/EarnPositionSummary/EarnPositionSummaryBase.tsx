@@ -49,16 +49,16 @@ export function EarnPositionSummaryBase({
         "--fg-secondary-active": "token(colors.positionContentAlt)",
         "--fg-secondary-inactive": "token(colors.contentAlt)",
 
-        "--border-active": "color-mix(in srgb, token(colors.secondary) 15%, transparent)",
+        "--border-active": "token(colors.border)",
         "--border-inactive": "token(colors.infoSurfaceBorder)",
 
-        "--bg-active": "token(colors.position)",
+        "--bg-active": "token(colors.brandBlueContentAlt)",
         "--bg-inactive": "token(colors.infoSurface)",
       })}
       style={{
         color: `var(--fg-primary-${active ? "active" : "inactive"})`,
         background: `var(--bg-${active ? "active" : "inactive"})`,
-        borderColor: active ? "transparent" : "var(--border-inactive)",
+        borderColor: active ? "var(--border-active)" : "var(--border-inactive)",
       }}
     >
       <div

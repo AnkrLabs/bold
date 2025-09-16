@@ -84,8 +84,7 @@ export function ScreenCard({
                 overflow: "hidden",
                 position: "absolute",
                 inset: 0,
-                color: "loadingGradientContent",
-                background: "loadingGradient1",
+                color: "content",
                 borderRadius: 8,
               })}
               style={{

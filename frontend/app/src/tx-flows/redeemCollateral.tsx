@@ -49,13 +49,13 @@ export const redeemCollateral: FlowDeclaration<RedeemCollateralRequest> = {
           ]}
         />
         <TransactionDetailsRow
-          label="Reedeming BOLD"
+          label="Reedeming MINT"
           value={[
             <Amount
               key="start"
               value={boldChange}
               fallback="fetching…"
-              suffix=" BOLD"
+              suffix=" MINT"
             />,
             <Fragment key="end">
               Estimated BOLD that will be redeemed.
@@ -64,20 +64,19 @@ export const redeemCollateral: FlowDeclaration<RedeemCollateralRequest> = {
         />
         {branches.map(({ symbol }) => {
           const collChange = collChanges?.find((change) => symbol === change.symbol)?.change;
-          const symbol_ = symbol === "ETH" ? "WETH" : symbol;
           return (
             <TransactionDetailsRow
               key={symbol}
-              label={`Receiving ${symbol_}`}
+              label={`Receiving ${symbol}`}
               value={[
                 <Amount
                   key="start"
                   value={collChange}
                   fallback="fetching…"
-                  suffix={` ${symbol_}`}
+                  suffix={` ${symbol}`}
                 />,
                 <Fragment key="end">
-                  Estimated {symbol_} you will receive.
+                  Estimated {symbol} you will receive.
                 </Fragment>,
               ]}
             />
@@ -88,7 +87,7 @@ export const redeemCollateral: FlowDeclaration<RedeemCollateralRequest> = {
   },
   steps: {
     approve: {
-      name: () => "Approve BOLD",
+      name: () => "Approve MINT",
       Status: TransactionStatus,
       async commit({ request, writeContract }) {
         const CollateralRegistry = getProtocolContract("CollateralRegistry");
@@ -105,7 +104,7 @@ export const redeemCollateral: FlowDeclaration<RedeemCollateralRequest> = {
       },
     },
     redeemCollateral: {
-      name: () => "Redeem BOLD",
+      name: () => "Redeem MINT",
       Status: TransactionStatus,
       async commit({ request, writeContract }) {
         const CollateralRegistry = getProtocolContract("CollateralRegistry");

@@ -8,7 +8,7 @@ import { Field } from "@/src/comps/Field/Field";
 import { FlowButton } from "@/src/comps/FlowButton/FlowButton";
 import { InputTokenBadge } from "@/src/comps/InputTokenBadge/InputTokenBadge";
 import { UpdateBox } from "@/src/comps/UpdateBox/UpdateBox";
-import { ETH_MAX_RESERVE, MIN_DEBT } from "@/src/constants";
+import { MIN_DEBT } from "@/src/constants";
 import { dnum18, dnumMax, dnumMin } from "@/src/dnum-utils";
 import { useInputFieldValue } from "@/src/form-utils";
 import { fmtnum, formatRisk } from "@/src/formatting";
@@ -81,7 +81,7 @@ export function PanelUpdateBorrowPosition({
     collBalance.data && dnumMax(
       dn.sub(
         collBalance.data,
-        collToken.symbol === "ETH" ? ETH_MAX_RESERVE : 0, // Only keep a reserve for ETH, not LSTs
+        0,
       ),
       dnum18(0),
     )
@@ -280,13 +280,13 @@ export function PanelUpdateBorrowPosition({
                 <InputTokenBadge
                   background={false}
                   icon={<TokenIcon symbol="BOLD" />}
-                  label="BOLD"
+                  label="MINT"
                 />
               }
               drawer={!debtChange.isFocused && isBelowMinDebt
-                ? { mode: "error", message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} BOLD.` }
+                ? { mode: "error", message: `You must borrow at least ${fmtnum(MIN_DEBT, 2)} MINT.` }
                 : insufficientBold
-                ? { mode: "error", message: "Insufficient BOLD balance." }
+                ? { mode: "error", message: "Insufficient MINT balance." }
                 : null}
               label={{
                 start: debtMode === "remove"
@@ -318,7 +318,7 @@ export function PanelUpdateBorrowPosition({
                 end: (
                   boldMax && (
                     <TextButton
-                      label={`Max ${fmtnum(boldMax)} BOLD`}
+                      label={`Max ${fmtnum(boldMax)} MINT`}
                       onClick={() => {
                         debtChange.setValue(dn.toString(boldMax));
                       }}
@@ -349,15 +349,15 @@ export function PanelUpdateBorrowPosition({
                     >
                       <Amount
                         value={newLoanDetails.debt}
-                        suffix=" BOLD"
+                        suffix=" MINT"
                       />
                     </div>
                     <InfoTooltip heading="Debt update">
                       <div>
-                        Before: <Amount value={loanDetails.debt} suffix=" BOLD" />
+                        Before: <Amount value={loanDetails.debt} suffix=" MINT" />
                       </div>
                       <div>
-                        After: <Amount value={newLoanDetails.debt} suffix=" BOLD" />
+                        After: <Amount value={newLoanDetails.debt} suffix=" MINT" />
                       </div>
                     </InfoTooltip>
                   </HFlex>

@@ -3,8 +3,6 @@
 import type { ReactNode } from "react";
 
 import { Banner } from "@/Banner";
-import { LegacyPositionsBanner } from "@/src/comps/LegacyPositionsBanner/LegacyPositionsBanner";
-import { LEGACY_CHECK } from "@/src/env";
 import { css } from "@/styled-system/css";
 import { BottomBar } from "./BottomBar";
 import { TopBar } from "./TopBar";
@@ -26,7 +24,7 @@ export function AppLayout({
         minHeight: "100vh",
         minWidth: "fit-content",
         height: "100%",
-        background: "background",
+        background: 'linear-gradient(180deg, #011837 0%, #03459D 134.73%)',
       })}
     >
       <div
@@ -34,9 +32,9 @@ export function AppLayout({
           display: "flex",
           flexDirection: "column",
           width: "100%",
+          position: "relative",
         })}
       >
-        {LEGACY_CHECK && <LegacyPositionsBanner />}
         <div
           className={css({
             display: "flex",

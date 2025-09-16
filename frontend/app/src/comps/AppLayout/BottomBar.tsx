@@ -3,18 +3,18 @@ import type { Address, TokenSymbol } from "@/src/types";
 import { Amount } from "@/src/comps/Amount/Amount";
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { Logo } from "@/src/comps/Logo/Logo";
-import { ACCOUNT_SCREEN, CHAIN_BLOCK_EXPLORER, CONTRACT_BOLD_TOKEN, CONTRACT_LQTY_TOKEN } from "@/src/env";
+import { ACCOUNT_SCREEN, CHAIN_BLOCK_EXPLORER, CONTRACT_BOLD_TOKEN } from "@/src/env";
 import { fmtnum } from "@/src/formatting";
 import { useLiquityStats } from "@/src/liquity-utils";
 import { usePrice } from "@/src/services/Prices";
 import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
-import { shortenAddress, TokenIcon } from "@liquity2/uikit";
+import { shortenAddress, TokenIcon, TOKENS_BY_SYMBOL } from "@liquity2/uikit";
 import { blo } from "blo";
 import Image from "next/image";
 import { AboutButton } from "./AboutButton";
 
-const DISPLAYED_PRICES = ["LQTY", "BOLD", "ETH"] as const;
+const DISPLAYED_PRICES = ["BOLD", "WANKR"] as const;
 const ENABLE_REDEEM = false;
 
 export function BottomBar() {
@@ -84,10 +84,10 @@ export function BottomBar() {
               className={css({
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 12,
               })}
             >
-              <Logo size={16} />
+              <Logo size={80} />
               <span>TVL</span>{" "}
               <span>
                 {tvl && (
@@ -103,7 +103,7 @@ export function BottomBar() {
             <div
               title={`Total supply: ${
                 fmtnum(boldSupply, {
-                  suffix: " BOLD",
+                  suffix: " MINT",
                   preset: "2z",
                 })
               }`}
@@ -132,7 +132,7 @@ export function BottomBar() {
                     fallback="…"
                     format="compact"
                     value={boldSupply}
-                    suffix=" BOLD"
+                    suffix=" MINT"
                   />
                 )}
               </span>
@@ -150,7 +150,7 @@ export function BottomBar() {
                       whiteSpace: "nowrap",
                     })}
                   >
-                    Redeem BOLD
+                    Redeem MINT
                   </div>
                 }
                 className={css({
@@ -214,9 +214,6 @@ export function BottomBar() {
 }
 
 function getTokenAddress(symbol: TokenSymbol) {
-  if (symbol === "LQTY") {
-    return CONTRACT_LQTY_TOKEN;
-  }
   if (symbol === "BOLD") {
     return CONTRACT_BOLD_TOKEN;
   }
@@ -230,10 +227,11 @@ function getTokenLink(address: Address) {
   return address && `${CHAIN_BLOCK_EXPLORER.url}token/${address}`;
 }
 
-function Price({ symbol }: { symbol: Exclude<TokenSymbol, "SBOLD"> }) {
+function Price({ symbol }: { symbol: TokenSymbol }) {
   const price = usePrice(symbol);
   const tokenAddress = getTokenAddress(symbol);
   const tokenUrl = tokenAddress && getTokenLink(tokenAddress);
+  const tokenName = TOKENS_BY_SYMBOL[symbol].name;
   const token = (
     <div
       className={css({
@@ -247,7 +245,7 @@ function Price({ symbol }: { symbol: Exclude<TokenSymbol, "SBOLD"> }) {
         symbol={symbol}
         title={null}
       />
-      <span>{symbol}</span>
+      <span>{tokenName}</span>
     </div>
   );
   return (

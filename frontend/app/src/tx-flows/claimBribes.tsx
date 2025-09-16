@@ -63,11 +63,11 @@ export const claimBribes: FlowDeclaration<ClaimBribesRequest> = {
           epoch{totalEpochs > 1 ? "s" : ""}.
         </div>
         <TransactionDetailsRow
-          label="BOLD rewards"
+          label="MINT rewards"
           value={[
             <div
               key="bold"
-              title={`${fmtnum(boldAmount)} BOLD`}
+              title={`${fmtnum(boldAmount)} MINT`}
               className={css({
                 display: "flex",
                 alignItems: "center",

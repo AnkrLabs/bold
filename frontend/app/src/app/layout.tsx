@@ -20,7 +20,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { GeistSans } from "geist/font/sans";
 
 export const metadata: Metadata = {
-  title: content.appName,
+  title: `${content.appName} | CDP`,
   icons: "/favicon.svg",
 };
 

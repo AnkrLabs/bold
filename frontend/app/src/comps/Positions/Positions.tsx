@@ -4,19 +4,14 @@ import type { ReactNode } from "react";
 import { useBreakpointName } from "@/src/breakpoints";
 import { ActionCard } from "@/src/comps/ActionCard/ActionCard";
 import content from "@/src/content";
-import { useEarnPositionsByAccount, useLoansByAccount, useStakePosition } from "@/src/liquity-utils";
-import { useSboldPosition } from "@/src/sbold";
+import { useEarnPositionsByAccount, useLoansByAccount } from "@/src/liquity-utils";
 import { css } from "@/styled-system/css";
 import { a, useSpring, useTransition } from "@react-spring/web";
-import * as dn from "dnum";
 import { useEffect, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
-import { NewPositionCard } from "./NewPositionCard";
 import { PositionCard } from "./PositionCard";
 import { PositionCardEarn } from "./PositionCardEarn";
 import { PositionCardLoan } from "./PositionCardLoan";
-import { PositionCardSbold } from "./PositionCardSbold";
-import { PositionCardStake } from "./PositionCardStake";
 
 type Mode = "positions" | "loading" | "actions";
 
@@ -24,7 +19,6 @@ const actionCards = [
   "borrow",
   // "multiply",
   "earn",
-  "stake",
 ] as const;
 
 export function Positions({
@@ -46,26 +40,17 @@ export function Positions({
 }) {
   const loans = useLoansByAccount(address);
   const earnPositions = useEarnPositionsByAccount(address);
-  const sboldPosition = useSboldPosition(address);
-  const stakePosition = useStakePosition(address);
 
   const isPositionsPending = Boolean(
     address && (
       loans.isPending
       || earnPositions.isPending
-      || sboldPosition.isPending
-      || stakePosition.isPending
     ),
   );
-
-  const hasStakePosition = stakePosition.data && dn.gt(stakePosition.data.deposit, 0);
-  const hasSboldPosition = sboldPosition.data && dn.gt(sboldPosition.data.sbold, 0);
 
   const positions = isPositionsPending ? [] : [
     ...(loans.data ?? []),
     ...(earnPositions.data ?? []),
-    ...(stakePosition.data && hasStakePosition ? [stakePosition.data] : []),
-    ...(sboldPosition.data && hasSboldPosition ? [sboldPosition.data] : []),
   ];
 
   let mode: Mode = address && positions && positions.length > 0
@@ -118,7 +103,7 @@ function PositionsGroup({
   title: (mode: Mode) => ReactNode;
   showNewPositionCard: boolean;
 }) {
-  columns ??= mode === "actions" ? actionCards.length : 3;
+  columns ??= mode === "actions" ? actionCards.length : 2;
 
   const title_ = title(mode);
 
@@ -126,10 +111,6 @@ function PositionsGroup({
     .returnType<Array<[number, ReactNode]>>()
     .with("positions", () => {
       let cards: Array<[number, ReactNode]> = [];
-
-      if (showNewPositionCard) {
-        cards.push([positions.length ?? -1, <NewPositionCard key="new" />]);
-      }
 
       cards = cards.concat(
         positions.map((position, index) => (
@@ -143,14 +124,6 @@ function PositionsGroup({
               index,
               <PositionCardEarn key={index} {...p} />,
             ])
-            .with({ type: "stake" }, (p) => [
-              index,
-              <PositionCardStake key={index} {...p} />,
-            ])
-            .with({ type: "sbold" }, (p) => [
-              index,
-              <PositionCardSbold key={index} {...p} />,
-            ])
             .exhaustive()
         )) ?? [],
       );
@@ -160,7 +133,6 @@ function PositionsGroup({
     .with("loading", () => [
       [0, <PositionCard key="0" loading />],
       [1, <PositionCard key="1" loading />],
-      [2, <PositionCard key="2" loading />],
     ])
     .with("actions", () => (
       (showNewPositionCard ? actionCards : []).map((type, index) => [

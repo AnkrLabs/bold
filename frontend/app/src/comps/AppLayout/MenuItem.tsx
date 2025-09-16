@@ -4,7 +4,6 @@ import { css } from "@/styled-system/css";
 import { token } from "@/styled-system/tokens";
 
 export function MenuItem({
-  icon,
   label,
   selected,
 }: {
@@ -18,7 +17,6 @@ export function MenuItem({
       className={css({
         display: "flex",
         alignItems: "center",
-        gap: 12,
         width: "100%",
         height: "100%",
         color: "content",
@@ -28,19 +26,9 @@ export function MenuItem({
         textOverflow: "ellipsis",
       })}
       style={{
-        color: token(`colors.${selected ? "selected" : "interactive"}`),
+        color: selected ? token(`colors.content`) : 'rgba(255, 255, 255, 0.70)',
       }}
     >
-      <div
-        className={css({
-          display: "grid",
-          placeItems: "center",
-          width: 24,
-          height: 24,
-        })}
-      >
-        {icon}
-      </div>
       <div
         className={css({
           flexShrink: 1,

@@ -46,6 +46,7 @@ export function HomeTable<Cols extends readonly ReactNode[]>({
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
+            color: 'primary:green',
             gap: 8,
             fontSize: {
               base: 16,

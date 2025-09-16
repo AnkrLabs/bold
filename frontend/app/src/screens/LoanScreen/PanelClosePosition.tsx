@@ -27,10 +27,7 @@ export function PanelClosePosition({
   const boldPriceUsd = usePrice("BOLD");
   const boldBalance = useBalance(account.address, "BOLD");
 
-  // const [repayDropdownIndex, setRepayDropdownIndex] = useState(0);
-  const repayDropdownIndex = 0;
-
-  const repayToken = TOKENS_BY_SYMBOL[repayDropdownIndex === 0 ? "BOLD" : collateral.symbol];
+  const repayToken = TOKENS_BY_SYMBOL["BOLD"];
 
   // either in BOLD or in collateral
   const amountToRepay = repayToken.symbol === "BOLD"
@@ -69,10 +66,10 @@ export function PanelClosePosition({
       && (!boldBalance.data || dn.lt(boldBalance.data, amountToRepay))
     ) {
       return {
-        name: "Insufficient BOLD balance",
+        name: "Insufficient MINT balance",
         message: `The balance held by the account (${
           fmtnum(boldBalance.data)
-        } BOLD) is insufficient to repay the loan.`,
+        } MINT) is insufficient to repay the loan.`,
       };
     }
     return null;
@@ -111,7 +108,7 @@ export function PanelClosePosition({
                 >
                   <Amount
                     value={amountToRepay}
-                    title={{ suffix: " BOLD" }}
+                    title={{ suffix: " MINT" }}
                   />
                 </div>
                 {
@@ -170,7 +167,7 @@ export function PanelClosePosition({
                     symbol="BOLD"
                     size={24}
                   />
-                  <div>BOLD</div>
+                  <div>MINT</div>
                 </div>
               </div>
             }
