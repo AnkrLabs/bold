@@ -9,7 +9,7 @@ on:
         description: Target
         required: true
         options:
-          - BS3 # https://bs3.33ae0f5b-2ff7-4848.net
+          - BS3 # https://bs3-alignmint.33ae0f5b-2ff7-4848.net
 
 jobs:
   deploy:
