@@ -55,6 +55,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
     GasPool gasPool;
     IInterestRouter mockInterestRouter;
     IERC20Upgradeable collToken;
+    ICollateralVault vault;
     HintHelpers hintHelpers;
     IWETH WETH; // used for gas compensation
     WETHZapper wethZapper;
@@ -573,6 +574,7 @@ contract BaseTest is TestAccounts, Logging, TroveId {
         console.log("StabilityPool addr: ", address(stabilityPool));
         console.log("TroveManager addr: ", address(troveManager));
         console.log("BoldToken addr: ", address(boldToken));
+        console.log("CollateralVault addr: ", address(vault));
     }
 
     function abs(uint256 x, uint256 y) public pure returns (uint256) {

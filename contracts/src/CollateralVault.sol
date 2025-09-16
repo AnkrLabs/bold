@@ -27,6 +27,10 @@ contract CollateralVault is Ownable2StepUpgradeable, ICollateralVault {
         // Allow funds movements between Liquity contracts
         address activePool = address(_addressesRegistry.activePool());
         collToken.approve(activePool, type(uint256).max);
+        address borrowerOps = address(_addressesRegistry.borrowerOperations());
+        collToken.approve(borrowerOps, type(uint256).max);
+        address defaultPool = address(_addressesRegistry.defaultPool());
+        collToken.approve(defaultPool, type(uint256).max);
     }
 
     // only owner can withdraw

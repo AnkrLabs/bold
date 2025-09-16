@@ -174,6 +174,8 @@ contract ActivePool is Initializable, IActivePool {
 
         _accountForSendColl(_amount);
 
+        uint256 b = collToken.balanceOf(address(vault));
+        uint256 a = collToken.allowance(address(vault),  address(this));
         collToken.safeTransferFrom(address(vault), _account, _amount);
     }
 
