@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import "openzeppelin-contracts-upgradeable/contracts/access/Ownable2StepUpgradeable.sol";
 
-import "./interfaces/IParameters.sol";
+import "./Interfaces/IParameters.sol";
 import "./Dependencies/Constants.sol";
 
 // For comments please refer to (https://github.com/liquity/bold/blob/main/contracts/src/Dependencies/Constants.sol)
