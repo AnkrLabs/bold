@@ -7,6 +7,7 @@ import "src/ActivePool.sol";
 import "src/BoldToken.sol";
 import "src/BorrowerOperations.sol";
 import "src/CollSurplusPool.sol";
+import "src/CollateralVault.sol";
 import "src/DefaultPool.sol";
 import "src/GasPool.sol";
 import "src/HintHelpers.sol";
@@ -95,6 +96,7 @@ contract TestDeployer is MetadataDeployment {
         IInterestRouter interestRouter;
         IERC20MetadataUpgradeable collToken;
         LiquityContractsDevPools pools;
+        ICollateralVault collateralVault;
     }
 
     struct LiquityContracts {
@@ -111,6 +113,7 @@ contract TestDeployer is MetadataDeployment {
         GasPool gasPool;
         IInterestRouter interestRouter;
         IERC20MetadataUpgradeable collToken;
+        ICollateralVault collateralVault;
     }
 
     struct Zappers {
@@ -134,6 +137,7 @@ contract TestDeployer is MetadataDeployment {
         address priceFeed;
         address gasPool;
         address interestRouter;
+        address collateralVault;
     }
 
     struct TroveManagerParams {
@@ -463,6 +467,9 @@ contract TestDeployer is MetadataDeployment {
         addresses.sortedTroves = getAddress(
             address(this), abi.encodePacked(type(SortedTroves).creationCode), bSALT
         );
+        addresses.collateralVault = getAddress(
+            address(this), abi.encodePacked(type(CollateralVault).creationCode), bSALT
+        );
 
         // Deploy contracts
         IAddressesRegistry.AddressVars memory addressVars = IAddressesRegistry.AddressVars({
@@ -484,7 +491,8 @@ contract TestDeployer is MetadataDeployment {
             collateralRegistry: _collateralRegistry,
             boldToken: _boldToken,
             WETH: _weth,
-            parameters: _collateralRegistry.parameters()
+            parameters: _collateralRegistry.parameters(),
+            collateralVault: ICollateralVault(addresses.collateralVault)
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
@@ -506,6 +514,8 @@ contract TestDeployer is MetadataDeployment {
         CollSurplusPool(address(contracts.pools.collSurplusPool)).initialize(contracts.addressesRegistry);
         contracts.sortedTroves = new SortedTroves{salt: bSALT}();
         SortedTroves(address(contracts.sortedTroves)).initialize(contracts.addressesRegistry);
+        contracts.collateralVault = new CollateralVault{salt: bSALT}();
+        CollateralVault(address(contracts.collateralVault)).initialize(address(this),  contracts.addressesRegistry);
 
         assert(address(contracts.borrowerOperations) == addresses.borrowerOperations);
         assert(address(contracts.troveManager) == addresses.troveManager);
@@ -706,6 +716,10 @@ contract TestDeployer is MetadataDeployment {
         addresses.sortedTroves = getAddress(
             address(this), abi.encodePacked(type(SortedTroves).creationCode), bSALT
         );
+        addresses.collateralVault = getAddress(
+            address(this), abi.encodePacked(type(CollateralVault).creationCode), SALT
+        );
+
 
         contracts.priceFeed =
             _deployPriceFeed(_params.branch, _externalAddresses, _oracleParams, addresses.borrowerOperations);
@@ -730,8 +744,8 @@ contract TestDeployer is MetadataDeployment {
             collateralRegistry: _params.collateralRegistry,
             boldToken: _params.boldToken,
             WETH: _params.weth,
-            parameters: _params.collateralRegistry.parameters()
-
+            parameters: _params.collateralRegistry.parameters(),
+            collateralVault: ICollateralVault(addresses.collateralVault)
         });
         contracts.addressesRegistry.setAddresses(addressVars);
 
@@ -753,6 +767,9 @@ contract TestDeployer is MetadataDeployment {
         CollSurplusPool(address(contracts.collSurplusPool)).initialize(contracts.addressesRegistry);
         contracts.sortedTroves = new SortedTroves{salt: bSALT}();
         SortedTroves(address(contracts.sortedTroves)).initialize(contracts.addressesRegistry);
+        contracts.collateralVault = new CollateralVault{salt: SALT}();
+        CollateralVault(address(contracts.collateralVault)).initialize(address(this),  contracts.addressesRegistry);
+
 
         assert(address(contracts.borrowerOperations) == addresses.borrowerOperations);
         assert(address(contracts.troveManager) == addresses.troveManager);

@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./IActivePool.sol";
 import "./IBoldToken.sol";
 import "./IBorrowerOperations.sol";
+import "./ICollateralVault.sol";
 import "./ICollSurplusPool.sol";
 import "./IDefaultPool.sol";
 import "./IHintHelpers.sol";
@@ -40,6 +41,7 @@ interface IAddressesRegistry {
         IBoldToken boldToken;
         IWETH WETH;
         IParameters parameters;
+        ICollateralVault collateralVault;
     }
 
     function collToken() external view returns (IERC20MetadataUpgradeable);
@@ -61,6 +63,7 @@ interface IAddressesRegistry {
     function boldToken() external view returns (IBoldToken);
     function WETH() external returns (IWETH);
     function parameters() external returns (IParameters);
+    function collateralVault() external view returns(ICollateralVault);
 
     function setAddresses(AddressVars memory _vars) external;
 }

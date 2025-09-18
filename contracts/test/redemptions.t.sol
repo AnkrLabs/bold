@@ -190,7 +190,7 @@ contract Redemptions is DevTestSetup {
         uint256 expectedCollDelta = correspondingColl - predictedCollFee;
         assertGt(expectedCollDelta, 0);
 
-        uint256 activePoolBalBefore = collToken.balanceOf(address(activePool));
+        uint256 activePoolBalBefore = collToken.balanceOf(address(vault));
         uint256 activePoolCollTrackerBefore = activePool.getCollBalance();
         assertGt(activePoolBalBefore, 0);
         assertGt(activePoolCollTrackerBefore, 0);
@@ -198,7 +198,7 @@ contract Redemptions is DevTestSetup {
         redeem(E, redeemAmount);
 
         // Check Active Pool Coll reduced correctly
-        assertEq(collToken.balanceOf(address(activePool)), activePoolBalBefore - expectedCollDelta);
+        assertEq(collToken.balanceOf(address(vault)), activePoolBalBefore - expectedCollDelta);
         assertEq(activePool.getCollBalance(), activePoolCollTrackerBefore - expectedCollDelta);
     }
 
@@ -267,7 +267,7 @@ contract Redemptions is DevTestSetup {
         uint256 expectedCollDelta = totalCorrespondingColl - totalCollFee;
         assertGt(expectedCollDelta, 0);
 
-        uint256 activePoolBalBefore = collToken.balanceOf(address(activePool));
+        uint256 activePoolBalBefore = collToken.balanceOf(address(vault));
         uint256 activePoolCollTrackerBefore = activePool.getCollBalance();
         assertGt(activePoolBalBefore, 0);
         assertGt(activePoolCollTrackerBefore, 0);
@@ -275,7 +275,7 @@ contract Redemptions is DevTestSetup {
         redeem(E, totalBoldRedeemAmount);
 
         // Check Active Pool Coll reduced correctly
-        assertApproxEqAbs(collToken.balanceOf(address(activePool)), activePoolBalBefore - expectedCollDelta, 30);
+        assertApproxEqAbs(collToken.balanceOf(address(vault)), activePoolBalBefore - expectedCollDelta, 30);
         assertApproxEqAbs(activePool.getCollBalance(), activePoolCollTrackerBefore - expectedCollDelta, 30);
     }
 
