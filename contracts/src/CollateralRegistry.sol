@@ -28,12 +28,7 @@ contract CollateralRegistry is Ownable2StepUpgradeable, ICollateralRegistry {
 
     // The timestamp of the latest fee operation (redemption or new Bold issuance)
     uint256 public lastFeeOperationTime = block.timestamp;
-
-    struct IndexContainer {
-        uint256 index;
-        bool set;
-    }
-
+    
     event BaseRateUpdated(uint256 _baseRate);
     event LastFeeOpTimeUpdated(uint256 _lastFeeOpTime);
     event CollateralShutdown(IERC20MetadataUpgradeable indexed _tokens);

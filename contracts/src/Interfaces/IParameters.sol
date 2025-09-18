@@ -46,6 +46,12 @@ interface IParameters {
 
     // --- Functions ---
     function setGlobalsToDefault() external;
+    function setCompensationParams(CompensationParams calldata _params) external;
+    function setLiquidationParams(LiquidationParams calldata _params) external;
+    function setMinParams(MinParams calldata _params) external;
+    function setInterestParams(InterestParams calldata _params) external;
+    function setRedemptionParams(RedemptionParams calldata _params) external;
+    function setYieldSplit(uint256 _SP_YIELD_SPLIT) external;
     function setBranchParams(BranchParams calldata _params) external;
 
     // --- Views ---

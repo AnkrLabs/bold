@@ -8,6 +8,12 @@ import "./IParameters.sol";
 import "./ITroveManager.sol";
 
 interface ICollateralRegistry {
+
+    struct IndexContainer {
+        uint256 index;
+        bool set;
+    }
+
     function baseRate() external view returns (uint256);
     function lastFeeOperationTime() external view returns (uint256);
 
@@ -25,4 +31,10 @@ interface ICollateralRegistry {
 
     function getRedemptionFeeWithDecay(uint256 _ETHDrawn) external view returns (uint256);
     function getEffectiveRedemptionFeeInBold(uint256 _redeemAmount) external view returns (uint256);
+
+    function addCollaterals(IERC20MetadataUpgradeable[] memory _tokens, ITroveManager[] memory _troveManagers) external;
+    function removeCollaterals(IERC20MetadataUpgradeable[] memory _tokens, bool _forced) external;
+    function shutdownCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external;
+    function resumeCollaterals(IERC20MetadataUpgradeable[] memory _tokens) external;
+    function arrayIndex(IERC20MetadataUpgradeable) external view returns (uint256, bool);
 }
