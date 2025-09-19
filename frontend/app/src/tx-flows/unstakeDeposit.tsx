@@ -2,7 +2,6 @@ import type { FlowDeclaration } from "@/src/services/TransactionFlow";
 
 import { Amount } from "@/src/comps/Amount/Amount";
 import { StakePositionSummary } from "@/src/comps/StakePositionSummary/StakePositionSummary";
-import { getUserAllocatedInitiatives } from "@/src/liquity-governance";
 import { TransactionDetailsRow } from "@/src/screens/TransactionsScreen/TransactionsScreen";
 import { TransactionStatus } from "@/src/screens/TransactionsScreen/TransactionStatus";
 import { usePrice } from "@/src/services/Prices";
@@ -67,20 +66,6 @@ export const unstakeDeposit: FlowDeclaration<UnstakeDepositRequest> = {
       async commit(ctx) {
         const { Governance } = ctx.contracts;
         const inputs: `0x${string}`[] = [];
-
-        const allocatedInitiatives = await getUserAllocatedInitiatives(
-          ctx.wagmiConfig,
-          ctx.account,
-        );
-
-        // reset allocations if the user has any
-        if (allocatedInitiatives.length > 0) {
-          inputs.push(encodeFunctionData({
-            abi: Governance.abi,
-            functionName: "resetAllocations",
-            args: [allocatedInitiatives, true],
-          }));
-        }
 
         // withdraw LQTY
         inputs.push(encodeFunctionData({

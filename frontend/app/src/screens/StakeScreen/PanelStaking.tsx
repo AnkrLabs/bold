@@ -6,7 +6,6 @@ import content from "@/src/content";
 import { dnum18, DNUM_0, dnumMax } from "@/src/dnum-utils";
 import { parseInputFloat } from "@/src/form-utils";
 import { fmtnum } from "@/src/formatting";
-import { useGovernanceStats, useGovernanceUser } from "@/src/liquity-governance";
 import { useStakePosition } from "@/src/liquity-utils";
 import { usePrice } from "@/src/services/Prices";
 import { infoTooltipProps } from "@/src/uikit-utils";
@@ -24,11 +23,8 @@ export function PanelStaking() {
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
 
-  const govStats = useGovernanceStats();
-  const govUser = useGovernanceUser(account.address ?? null);
-
-  const stakedLqty = dnum18(govUser.data?.stakedLQTY);
-  const totalStakedLqty = dnum18(govStats.data?.totalLQTYStaked);
+  const stakedLqty = dnum18(0n);
+  const totalStakedLqty = dnum18(0n);
 
   const stakePosition = useStakePosition(account.address ?? null);
 

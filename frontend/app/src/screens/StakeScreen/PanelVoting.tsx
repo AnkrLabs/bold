@@ -1,33 +1,24 @@
-import type { InitiativeStatus, VoteTotals } from "@/src/liquity-governance";
-import type { Address, Dnum, Entries, Initiative, Vote, VoteAllocation, VoteAllocations } from "@/src/types";
+import type { InitiativeStatus} from "@/src/liquity-governance";
+import type { Address, Dnum, Entries, VoteAllocations } from "@/src/types";
 
 import { Amount } from "@/src/comps/Amount/Amount";
 import { FlowButton } from "@/src/comps/FlowButton/FlowButton";
 import { LinkTextButton } from "@/src/comps/LinkTextButton/LinkTextButton";
 import { Spinner } from "@/src/comps/Spinner/Spinner";
 import { Tag } from "@/src/comps/Tag/Tag";
-import { VoteInput } from "@/src/comps/VoteInput/VoteInput";
 import content from "@/src/content";
-import { dnum18, DNUM_0 } from "@/src/dnum-utils";
-import { CHAIN_BLOCK_EXPLORER, CHAIN_ID } from "@/src/env";
-import { fmtnum, formatDate } from "@/src/formatting";
+import { formatDate } from "@/src/formatting";
 import {
-  useCurrentEpochBribes,
   useGovernanceState,
-  useGovernanceUser,
   useInitiativesStates,
   useInitiativesVoteTotals,
-  useNamedInitiatives,
   votingPower,
 } from "@/src/liquity-governance";
-import { usePrice } from "@/src/services/Prices";
-import { tokenIconUrl } from "@/src/utils";
 import { jsonStringifyWithBigInt } from "@/src/utils";
-import { useAccount } from "@/src/wagmi-utils";
 import { css } from "@/styled-system/css";
-import { Button, IconDownvote, IconEdit, IconExternal, IconUpvote, shortenAddress, TokenIcon } from "@liquity2/uikit";
+import { IconExternal} from "@liquity2/uikit";
 import * as dn from "dnum";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function isInitiativeStatusActive(
   status: InitiativeStatus,
@@ -37,23 +28,6 @@ function isInitiativeStatusActive(
     && status !== "unregisterable"
     && status !== "warm up";
 }
-
-function initiativeStatusLabel(status: InitiativeStatus) {
-  if (status === "skip" || status === "claimable" || status === "claimed") {
-    return "Active";
-  }
-  if (status === "warm up") {
-    return "Warm-up period";
-  }
-  if (status === "unregisterable") {
-    return "Unregistering";
-  }
-  if (status === "disabled") {
-    return "Disabled";
-  }
-  return "";
-}
-
 function filterVoteAllocationsForSubmission(
   voteAllocations: VoteAllocations,
   initiativesStates: Record<Address, { status: InitiativeStatus }>,
@@ -78,20 +52,16 @@ function filterVoteAllocationsForSubmission(
 }
 
 export function PanelVoting() {
-  const account = useAccount();
   const governanceState = useGovernanceState();
-  const governanceUser = useGovernanceUser(account.address ?? null);
-  const initiatives = useNamedInitiatives();
 
-  const initiativesAddresses = initiatives.data?.map((i) => i.address) ?? [];
+  const initiativesAddresses = new Array<Address>();
   const initiativesStates = useInitiativesStates(initiativesAddresses);
-  const currentBribes = useCurrentEpochBribes(initiativesAddresses);
   const voteTotals = useInitiativesVoteTotals(initiativesAddresses);
 
-  const stakedLQTY = governanceUser.data?.stakedLQTY;
-  const stakedOffset = governanceUser.data?.stakedOffset;
+  const stakedLQTY = 0n;
+  const stakedOffset = 0n;
   const epochEnd = governanceState.data?.epochEnd;
-  const absoluteAllocations = governanceUser.data?.allocations;
+  const absoluteAllocations = 0n;
 
   // current vote allocations
   const [voteAllocations, setVoteAllocations] = useState<VoteAllocations>({});
@@ -117,36 +87,12 @@ export function PanelVoting() {
 
     const allocations: VoteAllocations = {};
 
-    for (const allocation of absoluteAllocations) {
-      const vote = allocation.voteLQTY > 0n
-        ? "for" as const
-        : allocation.vetoLQTY > 0n
-        ? "against" as const
-        : null;
-
-      if (vote === null) continue;
-
-      // rounded to 4 decimals
-      const value = (
-        BigInt(1e4) * (
-            vote === "for"
-              ? votingPower(allocation.voteLQTY, allocation.voteOffset, epochEnd)
-              : votingPower(allocation.vetoLQTY, allocation.vetoOffset, epochEnd)
-          ) + stakedVotingPower / 2n
-      ) / stakedVotingPower;
-
-      allocations[allocation.initiative] = {
-        vote,
-        value: [value, 4],
-      };
-    }
-
     setVoteAllocations(allocations);
     setInputVoteAllocations(allocations);
   }, [stakedLQTY, stakedOffset, epochEnd, jsonStringifyWithBigInt(absoluteAllocations)]);
 
   const hasAnyAllocationChange = useMemo(() => {
-    if (!governanceUser.data || !initiativesStates.data) {
+    if (!initiativesStates.data) {
       return false;
     }
 
@@ -173,28 +119,12 @@ export function PanelVoting() {
 
   const isCutoff = governanceState.data?.period === "cutoff";
 
-  const hasAnyAllocations = (governanceUser.data?.allocations ?? []).length > 0;
+  const hasAnyAllocations = false;
 
   const remainingVotingPower = useMemo(() => {
     let remaining = dn.from(1, 18);
 
     const combinedAllocations: Record<Address, Dnum> = {};
-    const stakedLQTY = governanceUser.data?.stakedLQTY ?? 0n;
-    const allocations = governanceUser.data?.allocations ?? [];
-
-    // current allocations
-    if (stakedLQTY > 0n) {
-      for (const allocation of allocations) {
-        const currentVoteAmount = allocation.voteLQTY > 0n
-          ? allocation.voteLQTY
-          : allocation.vetoLQTY;
-
-        if (currentVoteAmount > 0n) {
-          const proportion = dn.div([currentVoteAmount, 18], [stakedLQTY, 18]);
-          combinedAllocations[allocation.initiative] = proportion;
-        }
-      }
-    }
 
     // input allocations (takes precedence)
     for (const [address, voteData] of Object.entries(inputVoteAllocations) as Entries<VoteAllocations>) {
@@ -216,7 +146,7 @@ export function PanelVoting() {
 
     return remaining;
   }, [
-    governanceUser.data,
+    [],
     inputVoteAllocations,
     initiativesStates.data,
   ]);
@@ -229,26 +159,6 @@ export function PanelVoting() {
     : daysLeft > (1 / 24)
     ? rtf.format(Math.ceil(daysLeft * 24), "hours")
     : rtf.format(Math.ceil(daysLeft * 24 * 60), "minute");
-
-  const handleVote = (initiativeAddress: Address, vote: Vote | null) => {
-    setInputVoteAllocations((prev) => ({
-      ...prev,
-      [initiativeAddress]: {
-        vote: prev[initiativeAddress]?.vote === vote ? null : vote,
-        value: dn.from(0),
-      },
-    }));
-  };
-
-  const handleVoteInputChange = (initiativeAddress: Address, value: Dnum) => {
-    setInputVoteAllocations((prev) => ({
-      ...prev,
-      [initiativeAddress]: {
-        vote: prev[initiativeAddress]?.vote ?? null,
-        value: dn.div(value, 100),
-      },
-    }));
-  };
 
   const allowSubmit = hasAnyAllocationChange && stakedLQTY && (
     (
@@ -267,10 +177,8 @@ export function PanelVoting() {
 
   if (
     governanceState.status !== "success"
-    || initiatives.status !== "success"
     || initiativesStates.status !== "success"
     || voteTotals.status !== "success"
-    || governanceUser.status !== "success"
   ) {
     return (
       <div
@@ -501,50 +409,6 @@ export function PanelVoting() {
           </tr>
         </thead>
         <tbody>
-          {initiatives.data
-            // remove inactive initiatives that are not voted on
-            ?.filter((initiative) => (
-              isInitiativeStatusActive(
-                initiativesStates.data?.[initiative.address]?.status ?? "nonexistent",
-              ) || Boolean(
-                voteAllocations[initiative.address],
-              )
-            ))
-            .sort((a, b) => {
-              // 1. sort by allocation
-              const allocationA = voteAllocations[a.address];
-              const allocationB = voteAllocations[b.address];
-              if (allocationA && !allocationB) return -1;
-              if (!allocationA && allocationB) return 1;
-
-              // 2. sort by status
-              const statusA = initiativesStates.data?.[a.address]?.status ?? "nonexistent";
-              const statusB = initiativesStates.data?.[b.address]?.status ?? "nonexistent";
-              const isActiveA = isInitiativeStatusActive(statusA);
-              const isActiveB = isInitiativeStatusActive(statusB);
-              if (isActiveA && !isActiveB) return -1;
-              if (!isActiveA && isActiveB) return 1;
-
-              return 0;
-            })
-            .map((initiative, index) => {
-              const status = initiativesStates.data?.[initiative.address]?.status;
-              return (
-                <InitiativeRow
-                  key={index}
-                  bribe={currentBribes.data?.[initiative.address]}
-                  disabled={!isInitiativeStatusActive(status ?? "nonexistent")}
-                  disableFor={isCutoff}
-                  initiative={initiative}
-                  initiativesStatus={status}
-                  inputVoteAllocation={inputVoteAllocations[initiative.address]}
-                  onVote={handleVote}
-                  onVoteInputChange={handleVoteInputChange}
-                  voteAllocation={voteAllocations[initiative.address]}
-                  voteTotals={voteTotals.data?.[initiative.address]}
-                />
-              );
-            })}
         </tbody>
         <tfoot>
           <tr>
@@ -708,386 +572,6 @@ export function PanelVoting() {
     </section>
   );
 }
-
-function calculateVotesPct(
-  governanceState?: { countedVoteLQTY: bigint; countedVoteOffset: bigint; epochEnd: bigint },
-  initiativeState?: VoteTotals,
-) {
-  if (!governanceState || !initiativeState) return null;
-
-  const totalVotingPower = votingPower(
-    governanceState.countedVoteLQTY,
-    governanceState.countedVoteOffset,
-    governanceState.epochEnd,
-  );
-
-  if (totalVotingPower === 0n) return DNUM_0;
-
-  const initiativeVotingPower = votingPower(
-    initiativeState.voteLQTY,
-    initiativeState.voteOffset,
-    governanceState.epochEnd,
-  );
-
-  return dn.div(dnum18(initiativeVotingPower), dnum18(totalVotingPower));
-}
-
-function InitiativeRow({
-  bribe,
-  disableFor,
-  disabled,
-  initiative,
-  initiativesStatus,
-  inputVoteAllocation,
-  onVote,
-  onVoteInputChange,
-  voteAllocation,
-  voteTotals,
-}: {
-  bribe?: {
-    boldAmount: Dnum;
-    tokenAmount: Dnum;
-    tokenAddress: Address;
-    tokenSymbol: string;
-  };
-  disableFor: boolean;
-  disabled: boolean;
-  initiative: Initiative;
-  initiativesStatus?: InitiativeStatus;
-  inputVoteAllocation?: VoteAllocations[Address];
-  onVote: (initiative: Address, vote: Vote) => void;
-  onVoteInputChange: (initiative: Address, value: Dnum) => void;
-  voteAllocation?: VoteAllocation;
-  voteTotals?: VoteTotals;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [editIntent, setEditIntent] = useState(false);
-  const editMode = (editIntent || !voteAllocation?.vote) && !disabled;
-  const boldPrice = usePrice(bribe ? "BOLD" : null);
-  const bribeTokenPrice = usePrice(bribe ? bribe.tokenSymbol : null);
-  const governanceState = useGovernanceState();
-  const votesPct = calculateVotesPct(governanceState.data, voteTotals);
-
-  return (
-    <tr>
-      <td>
-        <div
-          className={css({
-            display: "grid",
-          })}
-        >
-          <div
-            title={initiative.address}
-            className={css({
-              minWidth: 0,
-              display: "flex",
-              alignItems: "center",
-              paddingTop: 6,
-              gap: 4,
-            })}
-          >
-            <div
-              className={css({
-                minWidth: 0,
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-              })}
-            >
-              {initiative.url
-                ? (
-                  <LinkTextButton
-                    external
-                    href={initiative.url}
-                    label={
-                      <>
-                        {initiative.name ?? "Initiative"}
-                        <IconExternal size={16} />
-                      </>
-                    }
-                  />
-                )
-                : (
-                  initiative.name ?? "Initiative"
-                )}
-            </div>
-            {initiativesStatus && (
-              <div
-                title={`${initiativeStatusLabel(initiativesStatus)} (${initiativesStatus})`}
-                className={css({
-                  display: "flex",
-                  alignItems: "center",
-                  height: 16,
-                  padding: "0 4px 1px",
-                  fontSize: 12,
-                  color: "infoSurfaceContent",
-                  background: "infoSurface",
-                  border: "1px solid token(colors.infoSurfaceBorder)",
-                  borderRadius: 8,
-                  userSelect: "none",
-                  textTransform: "lowercase",
-                  transform: "translateY(0.5px)",
-                  whiteSpace: "nowrap",
-                  "--color-warning": "token(colors.warningAltContent)",
-                  "--background-warning": "token(colors.warningAlt)",
-                })}
-                style={{
-                  color: isInitiativeStatusActive(initiativesStatus) ? undefined : `var(--color-warning)`,
-                  background: isInitiativeStatusActive(initiativesStatus) ? undefined : `var(--background-warning)`,
-                  border: isInitiativeStatusActive(initiativesStatus) ? undefined : 0,
-                }}
-              >
-                {initiativeStatusLabel(initiativesStatus)}
-              </div>
-            )}
-          </div>
-          <div>
-            <LinkTextButton
-              external
-              href={`${CHAIN_BLOCK_EXPLORER?.url}address/${initiative.address}`}
-              title={initiative.address}
-              label={initiative.protocol ?? shortenAddress(initiative.address, 4)}
-              className={css({
-                fontSize: 12,
-                color: "contentAlt!",
-              })}
-            />
-          </div>
-
-          <div
-            className={css({
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 12,
-            })}
-            title="Percentage of incentives the initiative would receive according to the current votes"
-          >
-            <span>Votes:</span>
-            <Amount title={null} value={votesPct} percentage />
-          </div>
-
-          {bribe && (dn.gt(bribe.boldAmount, 0) || dn.gt(bribe.tokenAmount, 0)) && (
-            <div
-              className={css({
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 12,
-              })}
-              title="Available bribes for voting on this initiative"
-            >
-              <span>Bribing:</span>
-              <div
-                className={css({
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  flexWrap: "wrap",
-                })}
-              >
-                {dn.gt(bribe.boldAmount, 0) && (
-                  <div
-                    title={`${fmtnum(bribe.boldAmount)} BOLD`}
-                    className={css({
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    })}
-                  >
-                    <TokenIcon
-                      symbol="BOLD"
-                      size={12}
-                      title={null}
-                    />
-                    <Amount
-                      format="compact"
-                      title={null}
-                      value={bribe.boldAmount}
-                    />
-                    {boldPrice.data && (
-                      <Amount
-                        format="compact"
-                        title={null}
-                        prefix="($"
-                        value={dn.mul(bribe.boldAmount, boldPrice.data)}
-                        suffix=")"
-                      />
-                    )}
-                  </div>
-                )}
-                {dn.gt(bribe.tokenAmount, 0) && (
-                  <div
-                    title={`${fmtnum(bribe.tokenAmount)} ${bribe.tokenSymbol} (${bribe.tokenAddress})`}
-                    className={css({
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    })}
-                  >
-                    <TokenIcon
-                      size={12}
-                      title={null}
-                      token={{
-                        icon: tokenIconUrl(CHAIN_ID, bribe.tokenAddress),
-                        name: bribe.tokenSymbol,
-                        symbol: bribe.tokenSymbol,
-                      }}
-                    />
-                    <Amount
-                      format="compact"
-                      title={null}
-                      value={bribe.tokenAmount}
-                    />
-                    {bribeTokenPrice.data && (
-                      <Amount
-                        format="compact"
-                        title={null}
-                        prefix="($"
-                        value={dn.mul(bribe.tokenAmount, bribeTokenPrice.data)}
-                        suffix=")"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </td>
-      <td>
-        <div
-          className={css({
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            height: "100%",
-            paddingTop: 6,
-          })}
-        >
-          {editMode
-            ? (
-              <VoteInput
-                ref={inputRef}
-                forDisabled={disableFor}
-                againstDisabled={disabled}
-                onChange={(value) => {
-                  onVoteInputChange(initiative.address, value);
-                }}
-                onVote={(vote) => {
-                  onVote(initiative.address, vote);
-                }}
-                value={inputVoteAllocation?.value ?? null}
-                vote={inputVoteAllocation?.vote ?? null}
-              />
-            )
-            : voteAllocation?.vote
-            ? (
-              <Vote
-                onEdit={() => {
-                  setEditIntent(true);
-                  setTimeout(() => {
-                    inputRef.current?.focus();
-                  }, 0);
-                }}
-                disabled={disabled}
-                share={voteAllocation.value}
-                vote={voteAllocation.vote}
-              />
-            )
-            : (
-              <VoteInput
-                ref={inputRef}
-                forDisabled={true}
-                againstDisabled={true}
-                onChange={() => {}}
-                onVote={() => {}}
-                value={null}
-                vote={null}
-              />
-            )}
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function Vote({
-  onEdit,
-  disabled,
-  share,
-  vote,
-}: {
-  onEdit?: () => void;
-  disabled: boolean;
-  share: Dnum;
-  vote: Vote;
-}) {
-  return (
-    <div
-      className={css({
-        display: "flex",
-        alignItems: "center",
-        height: 34,
-      })}
-    >
-      <div
-        className={css({
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: 8,
-        })}
-      >
-        <div
-          className={css({
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            "--color-disabled": "token(colors.disabledContent)",
-          })}
-        >
-          {vote === "for" && <IconUpvote size={24} />}
-          {vote === "against" && (
-            <div
-              className={css({
-                transform: "translateY(2px)",
-                color: disabled ? "var(--color-disabled)" : undefined,
-              })}
-            >
-              <IconDownvote size={24} />
-            </div>
-          )}
-          <div
-            title={`${fmtnum(share, "pct2")}% of your voting power has been allocated to ${
-              vote === "for" ? "upvote" : "downvote"
-            } this initiative`}
-            className={css({
-              width: 46,
-            })}
-            style={{
-              textDecoration: disabled ? "line-through" : undefined,
-              color: disabled ? "var(--color-disabled)" : undefined,
-            }}
-          >
-            {fmtnum(share, { preset: "pct2", suffix: "%" })}
-          </div>
-        </div>
-        <Button
-          disabled={disabled}
-          size="mini"
-          title={disabled ? "Initiative disabled" : "Change allocation"}
-          label={<IconEdit size={20} />}
-          onClick={onEdit}
-          className={css({
-            height: "34px!",
-          })}
-        />
-      </div>
-    </div>
-  );
-}
-
 function BribeMarketsInfo() {
   return (
     <div
